@@ -6,17 +6,14 @@
         android:layout_width="wrap_content"
         android:layout_height="80dp"
         android:icon="@drawable/icon_headlines"
-        android:title="@string/headlines"
-
-        />
+        android:title="@string/headlines" />
 
     <item
         android:id="@+id/saved"
         android:layout_width="wrap_content"
         android:layout_height="80dp"
         android:icon="@drawable/icon_saved"
-        android:title="@string/saved"
-        />
+        android:title="@string/saved" />
 
     <item
         android:id="@+id/source"

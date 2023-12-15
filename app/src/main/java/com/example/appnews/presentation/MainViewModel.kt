@@ -16,6 +16,7 @@ class MainViewModel: ViewModel() {
 
     init {
 
+        //Это что такое?
         viewModelScope.launch {
 
             delay(1500)
