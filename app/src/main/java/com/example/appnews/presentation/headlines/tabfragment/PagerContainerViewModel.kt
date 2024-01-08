@@ -1,4 +1,4 @@
-package com.example.appnews.presentation.headlines
+package com.example.appnews.presentation.headlines.tabfragment
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -8,31 +8,50 @@ import com.example.appnews.App
 import com.example.appnews.core.DataWrapper
 import com.example.appnews.core.HttpResultToDataWrapperConverter
 import com.example.appnews.core.Status
+import com.example.appnews.data.dataclasses.Article
 import com.example.appnews.data.dataclasses.News
 import com.example.appnews.data.repository.NewsRepository
+import com.example.appnews.presentation.headlines.tabfragment.adapterRV.ArticleListener
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import retrofit2.Response
 
-class HeadlinesViewModel(private val newsRepository: NewsRepository) : ViewModel() {
+class PagerContainerViewModel(private val newsRepository: NewsRepository) : ViewModel(), ArticleListener {
 
     private val _headlinesNewsFlow = MutableStateFlow(News())
     val headlinesNewsFlow = _headlinesNewsFlow.asStateFlow()
 
-    private val _effects = Channel<String>()
-    val effects = _effects.receiveAsFlow()
+
+    private val _sideEffects = Channel<SideEffects>()
+    val sideEffects = _sideEffects.receiveAsFlow()
 
 
+    init {
+        viewModelScope.launch {
+            val result = getHeadlinesNews()
+            when (result.status) {
+                is Status.Success -> {
+                    result.data?.let {
+                        _headlinesNewsFlow.value = it
+                    }
+                }
+
+                is Status.Error -> {
+                    _sideEffects.send(SideEffects.ErrorEffect(result.status.message.orEmpty()) )
+                }
+
+                else -> Unit
+            }
+        }
+    }
 
 
     private suspend fun getHeadlinesNews(): DataWrapper<News> {
         return newsRepository.getHeadlinesNews(COUNTRY_INDEX)
     }
+
 
     companion object {
         private const val COUNTRY_INDEX = "us"
@@ -46,7 +65,7 @@ class HeadlinesViewModel(private val newsRepository: NewsRepository) : ViewModel
                 val application =
                     checkNotNull(extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY])
 
-                return HeadlinesViewModel(
+                return PagerContainerViewModel(
                     NewsRepository(
                         (application as App).articlesDatabase,
                         HttpResultToDataWrapperConverter()
@@ -56,4 +75,15 @@ class HeadlinesViewModel(private val newsRepository: NewsRepository) : ViewModel
         }
     }
 
+
+
+    override fun onClickArticle(article: Article) {
+
+        viewModelScope.launch {
+            _sideEffects.send(SideEffects.ClickEffect(article))
+        }
+
+
+
+    }
 }

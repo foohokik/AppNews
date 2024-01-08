@@ -7,12 +7,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.example.appnews.R
+import com.example.appnews.databinding.FragmentHeadlinesBinding
+import com.example.appnews.databinding.FragmentSaveBinding
 
 class SaveFragment : Fragment() {
 
-    companion object {
-        fun newInstance() = SaveFragment()
-    }
+    private var _binding:FragmentSaveBinding?= null
+    private val binding get() = _binding!!
 
     private lateinit var viewModel: SaveViewModel
 
@@ -20,7 +21,8 @@ class SaveFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_save, container, false)
+        _binding = FragmentSaveBinding.inflate(inflater, container, false )
+        return binding.root
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {

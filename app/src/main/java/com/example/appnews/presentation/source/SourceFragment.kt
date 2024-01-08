@@ -7,20 +7,23 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.example.appnews.R
+import com.example.appnews.databinding.FragmentHeadlinesBinding
+import com.example.appnews.databinding.FragmentSaveBinding
+import com.example.appnews.databinding.FragmentSourceBinding
 
 class SourceFragment : Fragment() {
 
-    companion object {
-        fun newInstance() = SourceFragment()
-    }
+    private var _binding: FragmentSourceBinding? = null
+    private val binding get() = _binding!!
 
     private lateinit var viewModel: SourceViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_source, container, false)
+    ): View {
+        _binding = FragmentSourceBinding.inflate(inflater, container, false )
+        return binding.root
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {

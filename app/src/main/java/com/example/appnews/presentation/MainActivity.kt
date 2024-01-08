@@ -4,8 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import com.example.appnews.App.navigatorHolder
-import com.example.appnews.App.router
+import com.example.appnews.App
 import com.example.appnews.R
 import com.example.appnews.Screens
 import com.example.appnews.databinding.ActivityMainBinding
@@ -22,24 +21,25 @@ class MainActivity : AppCompatActivity() {
 	val navigator = AppNavigator(this, R.id.main_container_view)
 
 	override fun onCreate(savedInstanceState: Bundle?) {
-		installSplashScreen()
+
+		installSplashScreen().setKeepOnScreenCondition() {
+			viewModel.isLoading.value
+		}
+
 		super.onCreate(savedInstanceState)
 		binding = ActivityMainBinding.inflate(layoutInflater)
 		val view = binding.root
 		setContentView(view)
-//        installSplashScreen().setKeepOnScreenCondition() {
-//            viewModel.isLoading.value
-//        }
-
+		(application as App).router.navigateTo(Screens.headlinesTab())
 		setupNavigationBar()
 	}
 
 	private fun setupNavigationBar() {
 		binding.navBar.setOnItemSelectedListener {
 			when (it.itemId) {
-				R.id.headline -> router.replaceScreen(Screens.headlinesTab())
-				R.id.saved -> router.replaceScreen(Screens.saveTab())
-				R.id.source -> router.replaceScreen(Screens.sourceTab())
+				R.id.headline -> (application as App).router.replaceScreen(Screens.headlinesTab())
+				R.id.saved -> (application as App).router.replaceScreen(Screens.saveTab())
+				R.id.source -> (application as App).router.replaceScreen(Screens.sourceTab())
 			}
 			true
 		}
@@ -47,11 +47,11 @@ class MainActivity : AppCompatActivity() {
 
 	override fun onResume() {
 		super.onResume()
-		navigatorHolder.setNavigator(navigator)
+		(application as App).navigatorHolder.setNavigator(navigator)
 	}
 
 	override fun onPause() {
 		super.onPause()
-		navigatorHolder.removeNavigator()
+		(application as App).navigatorHolder.removeNavigator()
 	}
 }
