@@ -29,57 +29,55 @@ import kotlinx.coroutines.launch
 class PagerContainerFragment : Fragment() {
 
 
-    private lateinit var adapter: HeadlinesAdapter
+	private lateinit var adapter: HeadlinesAdapter
 
-    private  val viewModel by activityViewModels<PagerContainerViewModel> { PagerContainerViewModel.Factory }
-
-
-    private var _binding:FragmentPagerContainerBinding? = null
-    private val binding get() = _binding!!
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        _binding = FragmentPagerContainerBinding.inflate(inflater, container, false )
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-
-        arguments?.takeIf { it.containsKey(ARG_OBJECT) }?.apply {
-          initViews()
-            viewLifecycleOwner.lifecycleScope.launch {
-                viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                    launch { viewModel.headlinesNewsFlow.collect{adapter.setItems(it.articles)} }
-                    launch { viewModel.sideEffects.collect{handleSideEffects(it)} }
-                }
-            }
-        }
-    }
+	private val viewModel by activityViewModels<PagerContainerViewModel> { PagerContainerViewModel.Factory }
 
 
-    private fun handleSideEffects(sideEffects: SideEffects) {
+	private var _binding: FragmentPagerContainerBinding? = null
+	private val binding get() = _binding!!
 
-        when (sideEffects) {
+	override fun onCreateView(
+		inflater: LayoutInflater, container: ViewGroup?,
+		savedInstanceState: Bundle?
+	): View? {
+		_binding = FragmentPagerContainerBinding.inflate(inflater, container, false)
+		return binding.root
+	}
 
-            is SideEffects.ErrorEffect -> {}
-            is SideEffects.ClickEffect -> {
-                (parentFragment as HeadlinesFragment).routerHeadlines.replaceScreen(Screens.fullArticleFragment(sideEffects.article))
-            }
-        }
+	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
-    }
-    private fun initViews() {
-        val manager = LinearLayoutManager(requireContext())
-        adapter = HeadlinesAdapter(viewModel)
-        binding.recycleviewHeadlines.layoutManager = manager
-        binding.recycleviewHeadlines.adapter = adapter
-    }
+		arguments?.takeIf { it.containsKey(ARG_OBJECT) }?.apply {
+			initViews()
+			viewLifecycleOwner.lifecycleScope.launch {
+				viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+					launch { viewModel.headlinesNewsFlow.collect { adapter.setItems(it.articles) } }
+					launch { viewModel.sideEffects.collect { handleSideEffects(it) } }
+				}
+			}
+		}
+	}
+
+
+	private fun handleSideEffects(sideEffects: SideEffects) {
+		when (sideEffects) {
+			is SideEffects.ErrorEffect -> {}
+			is SideEffects.ClickEffect -> {
+				(requireActivity().application as App).router.navigateTo(
+					Screens.fullArticleFragment(
+						sideEffects.article
+					)
+				)
+			}
+		}
+
+	}
+
+	private fun initViews() {
+		val manager = LinearLayoutManager(requireContext())
+		adapter = HeadlinesAdapter(viewModel)
+		binding.recycleviewHeadlines.layoutManager = manager
+		binding.recycleviewHeadlines.adapter = adapter
+	}
 
 }
