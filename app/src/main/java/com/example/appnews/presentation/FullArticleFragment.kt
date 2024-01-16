@@ -30,12 +30,12 @@ class FullArticleFragment : Fragment(), OnBackPressedListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-      //  binding.materialToolbar.title
+        binding.materialToolbar.title = article?.title
         binding.materialToolbar.setNavigationOnClickListener {
-            //navigation back to fragment which webfragment was called
+            (requireActivity().application as App).router.exit()
         }
 
-        //val article = arguments?.getSerializable(ARG)
+
 
         binding.webView.apply {
             webViewClient = WebViewClient()

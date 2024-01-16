@@ -1,10 +1,12 @@
 package com.example.appnews.presentation.headlines
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.example.appnews.App
+import com.example.appnews.core.Category
 import com.example.appnews.core.DataWrapper
 import com.example.appnews.core.HttpResultToDataWrapperConverter
 import com.example.appnews.core.Status
@@ -19,6 +21,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import retrofit2.Response
 
+
 class HeadlinesViewModel(private val newsRepository: NewsRepository) : ViewModel() {
 
     private val _headlinesNewsFlow = MutableStateFlow(News())
@@ -28,10 +31,14 @@ class HeadlinesViewModel(private val newsRepository: NewsRepository) : ViewModel
     val effects = _effects.receiveAsFlow()
 
 
+    fun setCurrentTab (position: Int)  {
+        newsRepository.setCategory(Category.values()[position])
+        Log.d("LOG", "set "+Category.values()[position])
+    }
 
 
     private suspend fun getHeadlinesNews(): DataWrapper<News> {
-        return newsRepository.getHeadlinesNews(COUNTRY_INDEX)
+        return newsRepository.getHeadlinesNews()
     }
 
     companion object {
@@ -47,10 +54,7 @@ class HeadlinesViewModel(private val newsRepository: NewsRepository) : ViewModel
                     checkNotNull(extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY])
 
                 return HeadlinesViewModel(
-                    NewsRepository(
-                        (application as App).articlesDatabase,
-                        HttpResultToDataWrapperConverter()
-                    )
+                    (application as App).newsRepository
                 ) as T
             }
         }

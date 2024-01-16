@@ -2,6 +2,7 @@ package com.example.appnews
 
 import android.app.Application
 import android.content.Context
+import com.example.appnews.core.HttpResultToDataWrapperConverter
 import com.example.appnews.data.database.ArticlesDatabase
 import com.example.appnews.data.repository.NewsRepository
 import com.github.terrakok.cicerone.Cicerone
@@ -13,11 +14,13 @@ class App: Application() {
     val navigatorHolder get() = cicerone.getNavigatorHolder()
 
     lateinit var articlesDatabase:ArticlesDatabase
+    lateinit var newsRepository: NewsRepository
 
 
     override fun onCreate() {
         super.onCreate()
          articlesDatabase = ArticlesDatabase.invoke(applicationContext)
+         newsRepository = NewsRepository(articlesDatabase, HttpResultToDataWrapperConverter())
     }
 
 

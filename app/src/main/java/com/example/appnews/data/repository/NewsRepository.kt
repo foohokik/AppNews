@@ -1,5 +1,7 @@
 package com.example.appnews.data.repository
 
+import android.util.Log
+import com.example.appnews.core.Category
 import com.example.appnews.core.DataWrapper
 import com.example.appnews.core.HttpResultToDataWrapperConverter
 import com.example.appnews.data.api.RetrofitInstance
@@ -11,8 +13,15 @@ class NewsRepository(
     private val converter: HttpResultToDataWrapperConverter
 ) {
 
-    suspend fun getHeadlinesNews(country: String): DataWrapper<News> {
-        return converter.convert(RetrofitInstance.api.getHeadlinesNews(country))
+    private var currentTabCategory: Category = Category.BUSINESS
+
+    fun setCategory(category: Category) {
+        currentTabCategory = category
+    }
+
+    suspend fun getHeadlinesNews(): DataWrapper<News> {
+        Log.d("LOG", "tyt "+currentTabCategory)
+        return converter.convert(RetrofitInstance.api.getHeadlinesNews(currentTabCategory.category))
     }
 
 }

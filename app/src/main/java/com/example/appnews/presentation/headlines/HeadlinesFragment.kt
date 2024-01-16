@@ -1,6 +1,7 @@
 package com.example.appnews.presentation.headlines
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -14,6 +15,7 @@ import com.example.appnews.databinding.FragmentHeadlinesBinding
 import com.example.appnews.presentation.headlines.tabfragment.ViewPagerAdapter
 import com.example.appnews.presentation.navigation.OnBackPressedListener
 import com.google.android.material.tabs.TabLayoutMediator
+import java.text.FieldPosition
 
 class HeadlinesFragment : Fragment(), OnBackPressedListener {
 
@@ -64,7 +66,19 @@ class HeadlinesFragment : Fragment(), OnBackPressedListener {
 
 		}.attach()
 
+		viewPager.registerOnPageChangeCallback(object: ViewPager2.OnPageChangeCallback(){
+
+			override fun onPageSelected(position: Int) {
+				super.onPageSelected(position)
+				Log.d("LOG", "t "+position)
+				viewModel.setCurrentTab(position)
+			}
+
+		})
+
 	}
+
+
 
 	override fun onDestroyView() {
 		super.onDestroyView()

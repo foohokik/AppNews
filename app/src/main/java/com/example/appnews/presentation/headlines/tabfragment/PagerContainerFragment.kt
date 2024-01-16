@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -31,7 +32,7 @@ class PagerContainerFragment : Fragment() {
 
 	private lateinit var adapter: HeadlinesAdapter
 
-	private val viewModel by activityViewModels<PagerContainerViewModel> { PagerContainerViewModel.Factory }
+	private val viewModel by viewModels<PagerContainerViewModel> { PagerContainerViewModel.Factory }
 
 
 	private var _binding: FragmentPagerContainerBinding? = null
@@ -47,15 +48,18 @@ class PagerContainerFragment : Fragment() {
 
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
-		arguments?.takeIf { it.containsKey(ARG_OBJECT) }?.apply {
+//		arguments?.takeIf { it.containsKey(ARG_OBJECT) }?.apply {
 			initViews()
-			viewLifecycleOwner.lifecycleScope.launch {
-				viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-					launch { viewModel.headlinesNewsFlow.collect { adapter.setItems(it.articles) } }
-					launch { viewModel.sideEffects.collect { handleSideEffects(it) } }
-				}
-			}
-		}
+//			        arguments?.getInt(ARG_OBJECT)
+					viewLifecycleOwner.lifecycleScope.launch {
+						viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+							launch { viewModel.headlinesNewsFlow.collect { adapter.setItems(it.articles) } }
+							launch { viewModel.sideEffects.collect { handleSideEffects(it) } }
+						}
+					}
+
+
+		//}
 	}
 
 

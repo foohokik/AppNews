@@ -12,15 +12,13 @@ class ViewPagerAdapter(fragment: Fragment) : FragmentStateAdapter(fragment) {
 
     override fun createFragment(position: Int): Fragment {
         val fragment = PagerContainerFragment()
-        fragment.arguments = Bundle().apply {
-            // The object is just an integer.
-            putInt(ARG_OBJECT, position + 1)
-        }
+//        fragment.arguments = Bundle().apply {
+//
+//            putInt(ARG_OBJECT, position+1)
+//        }
         return fragment
     }
 
-//    companion object {
-//        private const val ARG_OBJECT = "object"
-//    }
+
 
 }

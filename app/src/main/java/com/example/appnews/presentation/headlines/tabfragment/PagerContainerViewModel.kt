@@ -1,10 +1,12 @@
 package com.example.appnews.presentation.headlines.tabfragment
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.example.appnews.App
+import com.example.appnews.core.Category
 import com.example.appnews.core.DataWrapper
 import com.example.appnews.core.HttpResultToDataWrapperConverter
 import com.example.appnews.core.Status
@@ -28,7 +30,9 @@ class PagerContainerViewModel(private val newsRepository: NewsRepository) : View
     val sideEffects = _sideEffects.receiveAsFlow()
 
 
+
     init {
+        Log.d("LOG", "tyt1"+ this)
         viewModelScope.launch {
             val result = getHeadlinesNews()
             when (result.status) {
@@ -49,7 +53,7 @@ class PagerContainerViewModel(private val newsRepository: NewsRepository) : View
 
 
     private suspend fun getHeadlinesNews(): DataWrapper<News> {
-        return newsRepository.getHeadlinesNews(COUNTRY_INDEX)
+        return newsRepository.getHeadlinesNews()
     }
 
 
@@ -66,10 +70,7 @@ class PagerContainerViewModel(private val newsRepository: NewsRepository) : View
                     checkNotNull(extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY])
 
                 return PagerContainerViewModel(
-                    NewsRepository(
-                        (application as App).articlesDatabase,
-                        HttpResultToDataWrapperConverter()
-                    )
+                    (application as App).newsRepository
                 ) as T
             }
         }

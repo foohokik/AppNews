@@ -1,6 +1,7 @@
 package com.example.appnews.data.api
 
 import com.example.appnews.core.API_KEY
+import com.example.appnews.core.Category
 import com.example.appnews.data.dataclasses.News
 import retrofit2.Response
 import retrofit2.http.GET
@@ -10,6 +11,7 @@ interface NewsAPI {
 
     @GET("v2/top-headlines")
     suspend fun getHeadlinesNews(
+        @Query("category") category: String,
         @Query("country") country: String = "us",
         @Query("apiKey") apiKey: String = API_KEY
     ): Response<News>

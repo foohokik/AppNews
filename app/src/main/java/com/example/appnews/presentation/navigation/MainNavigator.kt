@@ -1,5 +1,6 @@
 package com.example.appnews.presentation.navigation
 
+import android.util.Log
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.Lifecycle
