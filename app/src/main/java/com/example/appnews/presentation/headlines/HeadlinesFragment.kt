@@ -70,7 +70,6 @@ class HeadlinesFragment : Fragment(), OnBackPressedListener {
 
 			override fun onPageSelected(position: Int) {
 				super.onPageSelected(position)
-				Log.d("LOG", "t "+position)
 				viewModel.setCurrentTab(position)
 			}
 

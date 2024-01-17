@@ -1,12 +1,14 @@
 package com.example.appnews.presentation.headlines.tabfragment
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -17,11 +19,13 @@ import com.example.appnews.App
 import com.example.appnews.R
 import com.example.appnews.Screens
 import com.example.appnews.core.ARG_OBJECT
+import com.example.appnews.core.Category
 import com.example.appnews.data.dataclasses.Article
 import com.example.appnews.databinding.FragmentHeadlinesBinding
 import com.example.appnews.databinding.FragmentPagerContainerBinding
 import com.example.appnews.presentation.headlines.HeadlinesFragment
 import com.example.appnews.presentation.headlines.HeadlinesViewModel
+import com.example.appnews.presentation.headlines.tabfragment.PagerContainerViewModel.Companion.CATEGORY
 import com.example.appnews.presentation.headlines.tabfragment.adapterRV.HeadlinesAdapter
 import com.github.terrakok.cicerone.androidx.AppNavigator
 import kotlinx.coroutines.launch
@@ -31,6 +35,8 @@ class PagerContainerFragment : Fragment() {
 
 
 	private lateinit var adapter: HeadlinesAdapter
+
+	//private val category: String by lazy { requireArguments().getString(CATEGORY).orEmpty() }
 
 	private val viewModel by viewModels<PagerContainerViewModel> { PagerContainerViewModel.Factory }
 
@@ -47,19 +53,14 @@ class PagerContainerFragment : Fragment() {
 	}
 
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+		initViews()
+		viewLifecycleOwner.lifecycleScope.launch {
+			viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+				launch { viewModel.headlinesNewsFlow.collect { adapter.setItems(it.articles) } }
+				launch { viewModel.sideEffects.collect { handleSideEffects(it) } }
+			}
+		}
 
-//		arguments?.takeIf { it.containsKey(ARG_OBJECT) }?.apply {
-			initViews()
-//			        arguments?.getInt(ARG_OBJECT)
-					viewLifecycleOwner.lifecycleScope.launch {
-						viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-							launch { viewModel.headlinesNewsFlow.collect { adapter.setItems(it.articles) } }
-							launch { viewModel.sideEffects.collect { handleSideEffects(it) } }
-						}
-					}
-
-
-		//}
 	}
 
 
@@ -82,6 +83,14 @@ class PagerContainerFragment : Fragment() {
 		adapter = HeadlinesAdapter(viewModel)
 		binding.recycleviewHeadlines.layoutManager = manager
 		binding.recycleviewHeadlines.adapter = adapter
+	}
+
+	companion object {
+		fun newInstance(position: Int): PagerContainerFragment {
+			return PagerContainerFragment().apply {
+				arguments = bundleOf(CATEGORY to Category.values()[position].category)
+			}
+		}
 	}
 
 }

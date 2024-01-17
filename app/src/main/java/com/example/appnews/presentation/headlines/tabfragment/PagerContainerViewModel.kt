@@ -1,14 +1,14 @@
 package com.example.appnews.presentation.headlines.tabfragment
 
 import android.util.Log
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.example.appnews.App
-import com.example.appnews.core.Category
 import com.example.appnews.core.DataWrapper
-import com.example.appnews.core.HttpResultToDataWrapperConverter
 import com.example.appnews.core.Status
 import com.example.appnews.data.dataclasses.Article
 import com.example.appnews.data.dataclasses.News
@@ -20,7 +20,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
-class PagerContainerViewModel(private val newsRepository: NewsRepository) : ViewModel(), ArticleListener {
+class PagerContainerViewModel(
+    private val newsRepository: NewsRepository,
+    private val savedStateHandle: SavedStateHandle
+) : ViewModel(), ArticleListener {
 
     private val _headlinesNewsFlow = MutableStateFlow(News())
     val headlinesNewsFlow = _headlinesNewsFlow.asStateFlow()
@@ -32,9 +35,10 @@ class PagerContainerViewModel(private val newsRepository: NewsRepository) : View
 
 
     init {
-        Log.d("LOG", "tyt1"+ this)
         viewModelScope.launch {
-            val result = getHeadlinesNews()
+            val category = savedStateHandle.get<String>(CATEGORY).orEmpty()
+
+            val result = getHeadlinesNews(category)
             when (result.status) {
                 is Status.Success -> {
                     result.data?.let {
@@ -52,13 +56,14 @@ class PagerContainerViewModel(private val newsRepository: NewsRepository) : View
     }
 
 
-    private suspend fun getHeadlinesNews(): DataWrapper<News> {
-        return newsRepository.getHeadlinesNews()
+    private suspend fun getHeadlinesNews(category: String): DataWrapper<News> {
+        return newsRepository.getHeadlinesNews(category)
     }
 
 
     companion object {
         private const val COUNTRY_INDEX = "us"
+        const val CATEGORY = "category"
 
         val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
@@ -69,8 +74,11 @@ class PagerContainerViewModel(private val newsRepository: NewsRepository) : View
                 val application =
                     checkNotNull(extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY])
 
+                val savedStateHandle = extras.createSavedStateHandle()
+
                 return PagerContainerViewModel(
-                    (application as App).newsRepository
+                    (application as App).newsRepository,
+                    savedStateHandle
                 ) as T
             }
         }
@@ -83,8 +91,5 @@ class PagerContainerViewModel(private val newsRepository: NewsRepository) : View
         viewModelScope.launch {
             _sideEffects.send(SideEffects.ClickEffect(article))
         }
-
-
-
     }
 }

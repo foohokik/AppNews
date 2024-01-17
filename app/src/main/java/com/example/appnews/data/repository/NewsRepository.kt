@@ -9,19 +9,18 @@ import com.example.appnews.data.database.ArticlesDatabase
 import com.example.appnews.data.dataclasses.News
 
 class NewsRepository(
-    private val db: ArticlesDatabase,
-    private val converter: HttpResultToDataWrapperConverter
+	private val db: ArticlesDatabase,
+	private val converter: HttpResultToDataWrapperConverter
 ) {
 
-    private var currentTabCategory: Category = Category.BUSINESS
+	private var currentTabCategory: Category = Category.BUSINESS
 
-    fun setCategory(category: Category) {
-        currentTabCategory = category
-    }
+	fun setCategory(category: Category) {
+		currentTabCategory = category
+	}
 
-    suspend fun getHeadlinesNews(): DataWrapper<News> {
-        Log.d("LOG", "tyt "+currentTabCategory)
-        return converter.convert(RetrofitInstance.api.getHeadlinesNews(currentTabCategory.category))
-    }
+	suspend fun getHeadlinesNews(category: String): DataWrapper<News> {
+		return converter.convert(RetrofitInstance.api.getHeadlinesNews(category))
+	}
 
 }
