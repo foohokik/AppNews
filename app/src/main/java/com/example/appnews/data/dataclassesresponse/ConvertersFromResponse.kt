@@ -4,7 +4,7 @@ import com.example.appnews.core.DataWrapper
 
 
 fun ArticleResponse.toArticle(): ArticlesUI.Article {
-        return ArticlesUI.Article (id, author,content,description,publishedAt,source,title,url,urlToImage)
+        return ArticlesUI.Article (id, author.orEmpty(),content.orEmpty(),description.orEmpty(),publishedAt,source,title,url,urlToImage.orEmpty())
     }
 
    fun List<ArticleResponse>.toArticles(): List<ArticlesUI.Article> {

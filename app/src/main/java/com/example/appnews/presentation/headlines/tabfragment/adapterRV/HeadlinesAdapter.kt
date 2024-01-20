@@ -25,8 +25,6 @@ class HeadlinesAdapter (private val listener: ArticleListener): RecyclerView.Ada
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-
-
         val layoutInflater = LayoutInflater.from(parent.context)
 //        if (viewType==R.layout.news_item) {
 //            newsItemBinding = NewsItemBinding.inflate(layoutInflater, parent, false)
