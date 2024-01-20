@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.example.appnews.App
 import com.example.appnews.core.Category
-import com.example.appnews.data.dataclasses.News
+import com.example.appnews.data.dataclassesresponse.News
 import com.example.appnews.data.repository.NewsRepository
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow

@@ -5,12 +5,11 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.example.appnews.data.dataclasses.Article
-import kotlinx.coroutines.internal.synchronized
+import com.example.appnews.data.dataclassesresponse.ArticlesUI
 
 
 @Database(
-    entities = [Article::class],
+    entities = [ArticlesUI.Article::class],
     version = 1
          )
 @TypeConverters(Converters::class)

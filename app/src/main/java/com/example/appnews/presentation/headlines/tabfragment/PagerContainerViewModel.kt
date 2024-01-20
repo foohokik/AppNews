@@ -1,6 +1,5 @@
 package com.example.appnews.presentation.headlines.tabfragment
 
-import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -8,10 +7,10 @@ import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.example.appnews.App
-import com.example.appnews.core.DataWrapper
 import com.example.appnews.core.Status
-import com.example.appnews.data.dataclasses.Article
-import com.example.appnews.data.dataclasses.News
+
+import com.example.appnews.data.dataclassesresponse.ArticlesUI
+import com.example.appnews.data.dataclassesresponse.News
 import com.example.appnews.data.repository.NewsRepository
 import com.example.appnews.presentation.headlines.tabfragment.adapterRV.ArticleListener
 import kotlinx.coroutines.channels.Channel
@@ -25,6 +24,8 @@ class PagerContainerViewModel(
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel(), ArticleListener {
 
+
+
     private val _headlinesNewsFlow = MutableStateFlow(News())
     val headlinesNewsFlow = _headlinesNewsFlow.asStateFlow()
 
@@ -32,32 +33,49 @@ class PagerContainerViewModel(
     private val _sideEffects = Channel<SideEffects>()
     val sideEffects = _sideEffects.receiveAsFlow()
 
+   private var headlinesPage = 1
+   private var category: String =""
 
 
     init {
-        viewModelScope.launch {
-            val category = savedStateHandle.get<String>(CATEGORY).orEmpty()
 
-            val result = getHeadlinesNews(category)
+            category = savedStateHandle.get<String>(CATEGORY).orEmpty()
+            getHeadlinesNews()
+
+    }
+
+
+    fun getHeadlinesNews() {
+        viewModelScope.launch {
+
+            if(headlinesPage>1) {
+            _headlinesNewsFlow.value =
+                headlinesNewsFlow.value
+                    .copy(articles = headlinesNewsFlow.value.articles + ArticlesUI.Loading)}
+
+            val result =  newsRepository.getHeadlinesNews(category, headlinesPage)
             when (result.status) {
                 is Status.Success -> {
                     result.data?.let {
                         _headlinesNewsFlow.value = it
                     }
+                    headlinesPage++
                 }
 
                 is Status.Error -> {
-                    _sideEffects.send(SideEffects.ErrorEffect(result.status.message.orEmpty()) )
+                    _sideEffects.send(SideEffects.ErrorEffect(result.status.message.orEmpty()))
                 }
 
                 else -> Unit
+
             }
+
+            _headlinesNewsFlow.value =
+                headlinesNewsFlow.value
+                    .copy(articles = headlinesNewsFlow.value.articles.filterIsInstance<ArticlesUI.Article>() )
+
+
         }
-    }
-
-
-    private suspend fun getHeadlinesNews(category: String): DataWrapper<News> {
-        return newsRepository.getHeadlinesNews(category)
     }
 
 
@@ -86,7 +104,7 @@ class PagerContainerViewModel(
 
 
 
-    override fun onClickArticle(article: Article) {
+    override fun onClickArticle(article: ArticlesUI.Article) {
 
         viewModelScope.launch {
             _sideEffects.send(SideEffects.ClickEffect(article))

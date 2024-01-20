@@ -44,6 +44,8 @@ class HeadlinesFragment : Fragment(), OnBackPressedListener {
 		val tabLayout = binding.tabLayout
 
 
+
+
 		TabLayoutMediator(tabLayout, viewPager) { tab, pos ->
 
 			when (pos) {

@@ -7,7 +7,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebViewClient
 import com.example.appnews.App
-import com.example.appnews.data.dataclasses.Article
+
+import com.example.appnews.data.dataclassesresponse.ArticlesUI
 import com.example.appnews.databinding.FragmentFullArticleBinding
 import com.example.appnews.presentation.navigation.OnBackPressedListener
 
@@ -16,7 +17,7 @@ class FullArticleFragment : Fragment(), OnBackPressedListener {
     private var _binding: FragmentFullArticleBinding? = null
     private val binding get() = _binding!!
 
-    private val article: Article? by lazy { requireArguments().get(ARG) as? Article }
+    private val article: ArticlesUI.Article? by lazy { requireArguments().get(ARG) as? ArticlesUI.Article }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -54,7 +55,7 @@ class FullArticleFragment : Fragment(), OnBackPressedListener {
 
         const val ARG = "ARG"
         @JvmStatic
-        fun newInstance(article: Article) =
+        fun newInstance(article: ArticlesUI.Article) =
             FullArticleFragment().apply {
                 arguments = Bundle().apply {
 

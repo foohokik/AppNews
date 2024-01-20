@@ -1,11 +1,11 @@
 package com.example.appnews.presentation.headlines.tabfragment.adapterRV
 
 import androidx.recyclerview.widget.DiffUtil
-import com.example.appnews.data.dataclasses.Article
+import com.example.appnews.data.dataclassesresponse.ArticlesUI
 
 class ArticleDiffUtil(
-    private val oldList: MutableList<Article>,
-    private val newList: List<Article>
+    private val oldList: MutableList<ArticlesUI>,
+    private val newList: List<ArticlesUI>
 ): DiffUtil.Callback()  {
 
 
@@ -15,7 +15,7 @@ class ArticleDiffUtil(
     override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
         val oldItem = oldList[oldItemPosition]
         val newItem = newList[newItemPosition]
-        return oldItem.url == newItem.url
+        return oldItem == newItem
     }
 
     override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {

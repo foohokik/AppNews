@@ -2,7 +2,8 @@ package com.example.appnews
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentFactory
-import com.example.appnews.data.dataclasses.Article
+import com.example.appnews.data.dataclassesresponse.ArticlesUI
+
 import com.example.appnews.presentation.FullArticleFragment
 import com.example.appnews.presentation.headlines.HeadlinesFragment
 import com.example.appnews.presentation.navigation.MainFragmentScreen
@@ -38,7 +39,8 @@ object Screens {
 		}
 	}
 
-	fun fullArticleFragment(args: Article) =
+	fun fullArticleFragment(args: ArticlesUI.Article) =
 		FragmentScreen { FullArticleFragment.newInstance(args) }
 
 }
+
