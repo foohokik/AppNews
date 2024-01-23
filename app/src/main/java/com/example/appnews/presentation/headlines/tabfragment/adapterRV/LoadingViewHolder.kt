@@ -9,6 +9,6 @@ class LoadingViewHolder(val binding: LoadingItemBinding): RecyclerView.ViewHolde
 
     fun bind (loading: ArticlesUI.Loading) = with(binding) {
 
-        binding.progressBar2.visibility = View.VISIBLE
+        //binding.progressBar.visibility = View.VISIBLE
     }
 }

@@ -39,7 +39,7 @@ class PagerContainerFragment : Fragment() {
 
 	private lateinit var adapter: HeadlinesAdapter
 
-	var totalPages = 0
+
 
 	//private val category: String by lazy { requireArguments().getString(CATEGORY).orEmpty() }
 
@@ -84,15 +84,7 @@ class PagerContainerFragment : Fragment() {
 
 	}
 
-	private fun hideProgressBar() {
-		binding.progressBar.visibility = View.INVISIBLE
-		isLoading = false
-	}
 
-	private fun showProgressBar() {
-		binding.progressBar.visibility = View.VISIBLE
-		isLoading = true
-	}
 
 	var isLoading = false
 	var isLastPage = false
@@ -109,26 +101,18 @@ class PagerContainerFragment : Fragment() {
 			val layoutManager = binding.recycleviewHeadlines.layoutManager as LinearLayoutManager
 			val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
 			val lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition()
-			Log.d("LOGI", "firstVisibleItemPosition="+firstVisibleItemPosition.toString() )
 			val visibleItemCount = layoutManager.childCount
-			Log.d("LOGI", "visibleItemCount="+visibleItemCount.toString() )
 			val totalItemCount = layoutManager.itemCount
-			Log.d("LOGI", "totalItemCount="+totalItemCount.toString() )
 
 			val isNotLoadingAndNotLastPage = !isLoading && !isLastPage
 			val isAtLastItem = firstVisibleItemPosition + visibleItemCount >= totalItemCount
-			Log.d("LOGI", "isAtLastItem = $isAtLastItem")
 			val isHasVisibleItems = firstVisibleItemPosition >= 0
-			Log.d("LOGI", "isHasVisibleItems = $isHasVisibleItems")
 			val isTotalMoreThanVisible = totalItemCount >= PAGE_SIZE
-//			Log.d("LOGI", "isTotalMoreThanVisible = $isTotalMoreThanVisible")
 
 			if ((lastVisibleItemPosition + 4 >=totalItemCount) && isTotalMoreThanVisible
 				&& isHasVisibleItems && isScrolling) {
-				showProgressBar()
 				viewModel.getHeadlinesNews()
 				isScrolling = false
-				hideProgressBar()
 			}
 
 		}

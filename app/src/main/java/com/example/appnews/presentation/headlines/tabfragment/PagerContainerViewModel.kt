@@ -1,5 +1,7 @@
 package com.example.appnews.presentation.headlines.tabfragment
 
+import android.provider.MediaStore.Video.VideoColumns.CATEGORY
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -7,6 +9,7 @@ import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.example.appnews.App
+import com.example.appnews.core.PAGE_SIZE
 import com.example.appnews.core.Status
 
 import com.example.appnews.data.dataclassesresponse.ArticlesUI
@@ -26,6 +29,7 @@ class PagerContainerViewModel(
 
 
 
+
     private val _headlinesNewsFlow = MutableStateFlow(News())
     val headlinesNewsFlow = _headlinesNewsFlow.asStateFlow()
 
@@ -35,7 +39,7 @@ class PagerContainerViewModel(
 
    private var headlinesPage = 1
    private var category: String =""
-
+   var totalPages = 0
 
     init {
 
@@ -57,9 +61,22 @@ class PagerContainerViewModel(
             when (result.status) {
                 is Status.Success -> {
                     result.data?.let {
-                        _headlinesNewsFlow.value = it
+
+                            _headlinesNewsFlow.value = it
+                            Log.d(
+                                "LOGI", "call fun result Loading to List, "
+                                        + headlinesNewsFlow.value.articles.contains(ArticlesUI.Loading) +
+                                        " ," + headlinesNewsFlow.value.articles
+                            )
+                            Log.d("LOGI", "total results  " + headlinesNewsFlow.value.totalResults)
                     }
-                    headlinesPage++
+
+
+                    totalPages = _headlinesNewsFlow.value.totalResults / PAGE_SIZE
+
+                    if (headlinesPage<=totalPages) {
+                        headlinesPage++
+                    }
                 }
 
                 is Status.Error -> {
@@ -73,14 +90,14 @@ class PagerContainerViewModel(
             _headlinesNewsFlow.value =
                 headlinesNewsFlow.value
                     .copy(articles = headlinesNewsFlow.value.articles.filterIsInstance<ArticlesUI.Article>() )
-
+            Log.d("LOGI", "call fun removing Loading to List" + headlinesNewsFlow.value.articles.size +
+                    ", " + headlinesNewsFlow.value.articles.contains(ArticlesUI.Loading))
 
         }
     }
 
 
     companion object {
-        private const val COUNTRY_INDEX = "us"
         const val CATEGORY = "category"
 
         val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
