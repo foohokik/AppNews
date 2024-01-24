@@ -23,108 +23,98 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
 class PagerContainerViewModel(
-    private val newsRepository: NewsRepository,
-    private val savedStateHandle: SavedStateHandle
+	private val newsRepository: NewsRepository,
+	private val savedStateHandle: SavedStateHandle
 ) : ViewModel(), ArticleListener {
 
 
+	private val _headlinesNewsFlow = MutableStateFlow(News())
+	val headlinesNewsFlow = _headlinesNewsFlow.asStateFlow()
 
 
-    private val _headlinesNewsFlow = MutableStateFlow(News())
-    val headlinesNewsFlow = _headlinesNewsFlow.asStateFlow()
+	private val _sideEffects = Channel<SideEffects>()
+	val sideEffects = _sideEffects.receiveAsFlow()
+
+	private var headlinesPage = 1
+	private var category: String = ""
+	var totalPages = 0
+
+	init {
+
+		category = savedStateHandle.get<String>(CATEGORY).orEmpty()
+		getHeadlinesNews()
+
+	}
 
 
-    private val _sideEffects = Channel<SideEffects>()
-    val sideEffects = _sideEffects.receiveAsFlow()
+	fun getHeadlinesNews() {
+		viewModelScope.launch {
 
-   private var headlinesPage = 1
-   private var category: String =""
-   var totalPages = 0
+			if (headlinesPage > 1) {
+				val articlesWithLoading = _headlinesNewsFlow.value.articles.toMutableList()
+				articlesWithLoading.add(ArticlesUI.Loading)
+				_headlinesNewsFlow.value = headlinesNewsFlow.value
+					.copy(articles = headlinesNewsFlow.value.articles + ArticlesUI.Loading)
+			}
 
-    init {
-
-            category = savedStateHandle.get<String>(CATEGORY).orEmpty()
-            getHeadlinesNews()
-
-    }
-
-
-    fun getHeadlinesNews() {
-        viewModelScope.launch {
-
-            if(headlinesPage>1) {
-            _headlinesNewsFlow.value =
-                headlinesNewsFlow.value
-                    .copy(articles = headlinesNewsFlow.value.articles + ArticlesUI.Loading)}
-
-            val result =  newsRepository.getHeadlinesNews(category, headlinesPage)
-            when (result.status) {
-                is Status.Success -> {
-                    result.data?.let {
-
-                            _headlinesNewsFlow.value = it
-                            Log.d(
-                                "LOGI", "call fun result Loading to List, "
-                                        + headlinesNewsFlow.value.articles.contains(ArticlesUI.Loading) +
-                                        " ," + headlinesNewsFlow.value.articles
-                            )
-                            Log.d("LOGI", "total results  " + headlinesNewsFlow.value.totalResults)
-                    }
+			val result = newsRepository.getHeadlinesNews(category, headlinesPage)
+			when (result.status) {
+				is Status.Success -> {
+					result.data?.let { news ->
+						_headlinesNewsFlow.value = news.copy(articles = headlinesNewsFlow.value.articles + news.articles)
+					}
 
 
-                    totalPages = _headlinesNewsFlow.value.totalResults / PAGE_SIZE
+					totalPages = _headlinesNewsFlow.value.totalResults / PAGE_SIZE
 
-                    if (headlinesPage<=totalPages) {
-                        headlinesPage++
-                    }
-                }
+					if (headlinesPage <= totalPages) {
+						headlinesPage++
+					}
+				}
 
-                is Status.Error -> {
-                    _sideEffects.send(SideEffects.ErrorEffect(result.status.message.orEmpty()))
-                }
+				is Status.Error -> {
+					_sideEffects.send(SideEffects.ErrorEffect(result.status.message.orEmpty()))
+				}
 
-                else -> Unit
+				else -> Unit
 
-            }
+			}
 
-            _headlinesNewsFlow.value =
-                headlinesNewsFlow.value
-                    .copy(articles = headlinesNewsFlow.value.articles.filterIsInstance<ArticlesUI.Article>() )
-            Log.d("LOGI", "call fun removing Loading to List" + headlinesNewsFlow.value.articles.size +
-                    ", " + headlinesNewsFlow.value.articles.contains(ArticlesUI.Loading))
+			_headlinesNewsFlow.value =
+				headlinesNewsFlow.value
+					.copy(articles = headlinesNewsFlow.value.articles.filterIsInstance<ArticlesUI.Article>())
 
-        }
-    }
+		}
+	}
 
 
-    companion object {
-        const val CATEGORY = "category"
+	companion object {
+		const val CATEGORY = "category"
 
-        val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(
-                modelClass: Class<T>,
-                extras: CreationExtras
-            ): T {
-                val application =
-                    checkNotNull(extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY])
+		val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
+			@Suppress("UNCHECKED_CAST")
+			override fun <T : ViewModel> create(
+				modelClass: Class<T>,
+				extras: CreationExtras
+			): T {
+				val application =
+					checkNotNull(extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY])
 
-                val savedStateHandle = extras.createSavedStateHandle()
+				val savedStateHandle = extras.createSavedStateHandle()
 
-                return PagerContainerViewModel(
-                    (application as App).newsRepository,
-                    savedStateHandle
-                ) as T
-            }
-        }
-    }
+				return PagerContainerViewModel(
+					(application as App).newsRepository,
+					savedStateHandle
+				) as T
+			}
+		}
+	}
 
 
+	override fun onClickArticle(article: ArticlesUI.Article) {
 
-    override fun onClickArticle(article: ArticlesUI.Article) {
-
-        viewModelScope.launch {
-            _sideEffects.send(SideEffects.ClickEffect(article))
-        }
-    }
+		viewModelScope.launch {
+			_sideEffects.send(SideEffects.ClickEffect(article))
+		}
+	}
 }

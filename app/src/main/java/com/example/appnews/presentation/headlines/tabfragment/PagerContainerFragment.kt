@@ -36,12 +36,7 @@ import kotlinx.coroutines.launch
 
 class PagerContainerFragment : Fragment() {
 
-
-	private lateinit var adapter: HeadlinesAdapter
-
-
-
-	//private val category: String by lazy { requireArguments().getString(CATEGORY).orEmpty() }
+	private lateinit var headlineAdapter: HeadlinesAdapter
 
 	private val viewModel by viewModels<PagerContainerViewModel> { PagerContainerViewModel.Factory }
 
@@ -62,8 +57,8 @@ class PagerContainerFragment : Fragment() {
 		viewLifecycleOwner.lifecycleScope.launch {
 			viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
 				launch {
-					viewModel.headlinesNewsFlow.collect { adapter.setItems(it.articles) }
-					}
+					viewModel.headlinesNewsFlow.collect { headlineAdapter.setItems(it.articles) }
+				}
 				launch { viewModel.sideEffects.collect { handleSideEffects(it) } }
 			}
 		}
@@ -85,11 +80,9 @@ class PagerContainerFragment : Fragment() {
 	}
 
 
-
 	var isLoading = false
 	var isLastPage = false
 	var isScrolling = false
-
 
 
 	val scrollListener = object : RecyclerView.OnScrollListener() {
@@ -109,8 +102,9 @@ class PagerContainerFragment : Fragment() {
 			val isHasVisibleItems = firstVisibleItemPosition >= 0
 			val isTotalMoreThanVisible = totalItemCount >= PAGE_SIZE
 
-			if ((lastVisibleItemPosition + 4 >=totalItemCount) && isTotalMoreThanVisible
-				&& isHasVisibleItems && isScrolling) {
+			if ((lastVisibleItemPosition + 4 >= totalItemCount) && isTotalMoreThanVisible
+				&& isHasVisibleItems && isScrolling
+			) {
 				viewModel.getHeadlinesNews()
 				isScrolling = false
 			}
@@ -119,19 +113,20 @@ class PagerContainerFragment : Fragment() {
 
 		override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
 			super.onScrollStateChanged(recyclerView, newState)
-			if(newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
+			if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
 				isScrolling = true
 			}
 		}
 	}
 
 
-	private fun initViews() {
+	private fun initViews() = with(binding.recycleviewHeadlines) {
 		val manager = LinearLayoutManager(requireContext())
-		adapter = HeadlinesAdapter(viewModel)
-		binding.recycleviewHeadlines.layoutManager = manager
-		binding.recycleviewHeadlines.adapter = adapter
-		binding.recycleviewHeadlines.addOnScrollListener(scrollListener)
+		headlineAdapter = HeadlinesAdapter(viewModel)
+		layoutManager = manager
+		adapter = headlineAdapter
+		itemAnimator = null
+		addOnScrollListener(scrollListener)
 	}
 
 	override fun onDestroyView() {
