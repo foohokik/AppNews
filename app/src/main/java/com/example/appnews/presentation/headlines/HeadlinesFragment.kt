@@ -4,13 +4,22 @@ import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.setFragmentResultListener
+import androidx.lifecycle.Lifecycle
 import androidx.viewpager2.widget.ViewPager2
 import com.example.appnews.App
 import com.example.appnews.R
+import com.example.appnews.Screens
 import com.example.appnews.databinding.FragmentHeadlinesBinding
 import com.example.appnews.presentation.headlines.tabfragment.ViewPagerAdapter
 import com.example.appnews.presentation.navigation.OnBackPressedListener
@@ -38,11 +47,61 @@ class HeadlinesFragment : Fragment(), OnBackPressedListener {
 	}
 
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-		viewPagerAdapter = ViewPagerAdapter(this)
-		viewPager = binding.pager
-		viewPager.adapter = viewPagerAdapter
+
+		setFragmentResultListener("request_key") { key, bundle ->
+			val countryString = bundle.getString("country")
+			countryString?.let { viewModel.onWriteData(it) }
+
+			}
+
+
+		initViewPager()
 		val tabLayout = binding.tabLayout
 
+		val menuHost: MenuHost = requireActivity()
+
+		menuHost.addMenuProvider(object : MenuProvider {
+			override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+				menuInflater.inflate(R.menu.headlines_toolbar, menu)
+			}
+
+			override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+				when (menuItem.itemId) {
+					R.id.searchView -> {
+						(requireActivity().application as App).router.navigateTo(Screens.searchHeadlinesFragment())
+					}
+
+					R.id.filterHeadlines -> {
+
+						// Navigation to filter fragment
+
+					}
+				}
+				return true
+			}
+		}, viewLifecycleOwner)
+
+
+		binding.materialToolbarHeadlines.addMenuProvider(object : MenuProvider {
+			override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+				menuInflater.inflate(R.menu.headlines_toolbar, menu)
+			}
+
+			override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+				when (menuItem.itemId) {
+					R.id.searchView -> {
+
+						(requireActivity().application as App).router.navigateTo(Screens.searchHeadlinesFragment())
+					}
+
+					R.id.filterHeadlines -> {
+
+						(requireActivity().application as App).router.navigateTo(Screens.filterFragment())
+					}
+				}
+				return true
+			}
+		}, viewLifecycleOwner)
 
 
 
@@ -72,7 +131,7 @@ class HeadlinesFragment : Fragment(), OnBackPressedListener {
 
 			override fun onPageSelected(position: Int) {
 				super.onPageSelected(position)
-				viewModel.setCurrentTab(position)
+				//viewModel.setCurrentTab(position)
 			}
 
 		})
@@ -88,6 +147,14 @@ class HeadlinesFragment : Fragment(), OnBackPressedListener {
 
 	override fun onBackPressed() {
 		(requireActivity().application as App).router.exit()
+	}
+
+	fun initViewPager() {
+
+		viewPagerAdapter = ViewPagerAdapter(this)
+		viewPager = binding.pager
+		viewPager.adapter = viewPagerAdapter
+
 	}
 
 }

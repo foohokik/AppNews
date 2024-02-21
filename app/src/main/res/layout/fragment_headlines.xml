@@ -10,13 +10,12 @@
 
 
     <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/materialToolbar"
+        android:id="@+id/materialToolbarHeadlines"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?attr/colorPrimary"
         android:minHeight="?attr/actionBarSize"
         android:theme="?attr/actionBarTheme"
-        app:menu="@menu/headlines_toolbar"
         app:title="News APP"
         app:titleTextColor="@color/white"
         android:backgroundTint="@color/backgroundColor"
@@ -42,4 +41,4 @@
 
 
 
-</LinearLayout>
+    </LinearLayout>

@@ -9,9 +9,8 @@ sealed class ArticlesUI {
 
     @Entity (tableName = "articles")
     data class Article(
-
         @PrimaryKey(autoGenerate = true)
-        var id:Int? = null,
+        var id: Long,
         val author: String,
         val content: String,
         val description: String,

@@ -1,6 +1,6 @@
 package com.example.appnews.core
 
-const val API_KEY = "2de4aa2dc4c24b4b8c8837248c757acc"
+const val API_KEY = "2b47115b676849a78e86ed98fc196cda"
 const val BASE_URL ="https://newsapi.org"
 const val PAGE_SIZE =20
 

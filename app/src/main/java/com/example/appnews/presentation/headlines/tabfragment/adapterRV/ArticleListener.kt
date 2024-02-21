@@ -6,4 +6,5 @@ interface ArticleListener {
 
     fun onClickArticle (article: ArticlesUI.Article)
 
+
 }

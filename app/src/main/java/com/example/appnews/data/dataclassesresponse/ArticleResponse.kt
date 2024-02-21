@@ -4,11 +4,9 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import java.io.Serializable
 
-   @Entity (tableName = "articles")
-    data class ArticleResponse(
 
-        @PrimaryKey(autoGenerate = true)
-        var id:Int?= null,
+    data class ArticleResponse(
+        var id:Long,
         val author: String?,
         val content: String?,
         val description: String?,

@@ -7,10 +7,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AbsListView
-import android.widget.TextView
-import android.widget.Toast
 import androidx.core.os.bundleOf
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -18,25 +16,24 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.appnews.App
-import com.example.appnews.R
 import com.example.appnews.Screens
-import com.example.appnews.core.ARG_OBJECT
 import com.example.appnews.core.Category
 import com.example.appnews.core.PAGE_SIZE
+import com.example.appnews.core.ShareDataClass
+import com.example.appnews.core.viewclasses.SharedDataType
 
-import com.example.appnews.databinding.FragmentHeadlinesBinding
 import com.example.appnews.databinding.FragmentPagerContainerBinding
-import com.example.appnews.presentation.headlines.HeadlinesFragment
-import com.example.appnews.presentation.headlines.HeadlinesViewModel
 import com.example.appnews.presentation.headlines.tabfragment.PagerContainerViewModel.Companion.CATEGORY
 import com.example.appnews.presentation.headlines.tabfragment.adapterRV.HeadlinesAdapter
-import com.github.terrakok.cicerone.androidx.AppNavigator
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 
 class PagerContainerFragment : Fragment() {
 
 	private lateinit var headlineAdapter: HeadlinesAdapter
+
+	var totalPages = 0
 
 	private val viewModel by viewModels<PagerContainerViewModel> { PagerContainerViewModel.Factory }
 
@@ -53,24 +50,34 @@ class PagerContainerFragment : Fragment() {
 	}
 
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+
 		initViews()
 		viewLifecycleOwner.lifecycleScope.launch {
 			viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
 				launch {
-					viewModel.headlinesNewsFlow.collect { headlineAdapter.setItems(it.articles) }
+					viewModel.headlinesNewsFlow.collect { headlineAdapter.setItems(it.articles)
+						totalPages = (it.totalResults/ PAGE_SIZE) + 1
+					}
 				}
 				launch { viewModel.sideEffects.collect { handleSideEffects(it) } }
+
+				launch { viewModel.sharedClass.reviewSearchSideEffect.collect{
+					sendCountryCode((it as SharedDataType.Filter).country)
+				    }
+				}
 			}
 		}
 
 	}
+
+
 
 	private fun handleSideEffects(sideEffects: SideEffects) {
 		when (sideEffects) {
 			is SideEffects.ErrorEffect -> {}
 			is SideEffects.ClickEffect -> {
 				(requireActivity().application as App).router.navigateTo(
-					Screens.fullArticleFragment(
+					Screens.fullArticleHeadlinesFragment(
 						sideEffects.article
 					)
 				)
@@ -78,6 +85,8 @@ class PagerContainerFragment : Fragment() {
 		}
 
 	}
+
+
 
 
 	var isLoading = false
@@ -97,16 +106,17 @@ class PagerContainerFragment : Fragment() {
 			val visibleItemCount = layoutManager.childCount
 			val totalItemCount = layoutManager.itemCount
 
-			val isNotLoadingAndNotLastPage = !isLoading && !isLastPage
+			val isNotLoadingAndNotLastPage = !isLastPage
 			val isAtLastItem = firstVisibleItemPosition + visibleItemCount >= totalItemCount
 			val isHasVisibleItems = firstVisibleItemPosition >= 0
 			val isTotalMoreThanVisible = totalItemCount >= PAGE_SIZE
 
 			if ((lastVisibleItemPosition + 4 >= totalItemCount) && isTotalMoreThanVisible
-				&& isHasVisibleItems && isScrolling
+				&& isHasVisibleItems && isScrolling && isNotLoadingAndNotLastPage
 			) {
 				viewModel.getHeadlinesNews()
 				isScrolling = false
+				isLastPage = viewModel.isLastPageViewModel
 			}
 
 		}
@@ -119,10 +129,16 @@ class PagerContainerFragment : Fragment() {
 		}
 	}
 
+	private fun sendCountryCode(country:String) {
+		viewModel.country = country
+		viewModel.getRenewedHeadlinesNews()
+	}
+
+
 
 	private fun initViews() = with(binding.recycleviewHeadlines) {
 		val manager = LinearLayoutManager(requireContext())
-		headlineAdapter = HeadlinesAdapter(viewModel)
+		headlineAdapter = HeadlinesAdapter(viewModel, changeBackgroundColor = false)
 		layoutManager = manager
 		adapter = headlineAdapter
 		itemAnimator = null

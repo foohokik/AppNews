@@ -4,8 +4,11 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentFactory
 import com.example.appnews.data.dataclassesresponse.ArticlesUI
 
-import com.example.appnews.presentation.FullArticleFragment
+import com.example.appnews.presentation.FullArticleFragmentWeb
+import com.example.appnews.presentation.headlines.FilterFragment
+import com.example.appnews.presentation.headlines.FullArticleHeadlinesFragment
 import com.example.appnews.presentation.headlines.HeadlinesFragment
+import com.example.appnews.presentation.headlines.SearchHeadlinesFragment
 import com.example.appnews.presentation.navigation.MainFragmentScreen
 import com.example.appnews.presentation.navigation.NavigationKeys
 import com.example.appnews.presentation.navigation.PagesType
@@ -39,8 +42,13 @@ object Screens {
 		}
 	}
 
-	fun fullArticleFragment(args: ArticlesUI.Article) =
-		FragmentScreen { FullArticleFragment.newInstance(args) }
+	fun fullArticleFragmentWeb(args: ArticlesUI.Article) =
+		FragmentScreen { FullArticleFragmentWeb.newInstance(args) }
+	fun searchHeadlinesFragment () = FragmentScreen{ SearchHeadlinesFragment()}
+
+	fun filterFragment () = FragmentScreen { FilterFragment() }
+	fun fullArticleHeadlinesFragment (args: ArticlesUI.Article) =
+		FragmentScreen { FullArticleHeadlinesFragment.newInstance(args) }
 
 }
 

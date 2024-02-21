@@ -11,9 +11,12 @@ import com.example.appnews.data.dataclassesresponse.ArticlesUI
 import com.example.appnews.databinding.LoadingItemBinding
 import com.example.appnews.databinding.NewsItemBinding
 
-class HeadlinesAdapter(private val listener: ArticleListener) :
+class HeadlinesAdapter(private val listener: ArticleListener, var changeBackgroundColor: Boolean) :
 	RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 	private val items = mutableListOf<ArticlesUI>()
+
+
+
 
 	override fun getItemViewType(position: Int) = when (items[position]) {
 		is ArticlesUI.Article -> TYPE_ITEM
@@ -54,10 +57,14 @@ class HeadlinesAdapter(private val listener: ArticleListener) :
 
 	override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
 		when (holder) {
-			is ArticleViewHolder -> holder.bind(items[position] as ArticlesUI.Article, listener)
+			is ArticleViewHolder -> holder.bind(items[position] as ArticlesUI.Article, listener, changeBackgroundColor)
+
+
 			is LoadingViewHolder -> holder.bind(items[position] as ArticlesUI.Loading)
 
 		}
+
+
 	}
 
 	fun setItems(newItems: List<ArticlesUI>) {

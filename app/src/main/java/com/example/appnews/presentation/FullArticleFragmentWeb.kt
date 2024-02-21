@@ -12,7 +12,7 @@ import com.example.appnews.data.dataclassesresponse.ArticlesUI
 import com.example.appnews.databinding.FragmentFullArticleBinding
 import com.example.appnews.presentation.navigation.OnBackPressedListener
 
-class FullArticleFragment : Fragment(), OnBackPressedListener {
+class FullArticleFragmentWeb : Fragment(), OnBackPressedListener {
 
     private var _binding: FragmentFullArticleBinding? = null
     private val binding get() = _binding!!
@@ -56,7 +56,7 @@ class FullArticleFragment : Fragment(), OnBackPressedListener {
         const val ARG = "ARG"
         @JvmStatic
         fun newInstance(article: ArticlesUI.Article) =
-            FullArticleFragment().apply {
+            FullArticleFragmentWeb().apply {
                 arguments = Bundle().apply {
 
                     putSerializable(ARG, article)

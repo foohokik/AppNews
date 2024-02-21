@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.example.appnews.App
 import com.example.appnews.core.PAGE_SIZE
+import com.example.appnews.core.ShareDataClass
 import com.example.appnews.core.Status
 
 import com.example.appnews.data.dataclassesresponse.ArticlesUI
@@ -24,7 +25,8 @@ import kotlinx.coroutines.launch
 
 class PagerContainerViewModel(
 	private val newsRepository: NewsRepository,
-	private val savedStateHandle: SavedStateHandle
+	private val savedStateHandle: SavedStateHandle,
+	val sharedClass: ShareDataClass
 ) : ViewModel(), ArticleListener {
 
 
@@ -37,7 +39,9 @@ class PagerContainerViewModel(
 
 	private var headlinesPage = 1
 	private var category: String = ""
+	var country:String = "us"
 	var totalPages = 0
+	var isLastPageViewModel = false
 
 	init {
 
@@ -51,38 +55,107 @@ class PagerContainerViewModel(
 		viewModelScope.launch {
 
 			if (headlinesPage > 1) {
-				val articlesWithLoading = _headlinesNewsFlow.value.articles.toMutableList()
-				articlesWithLoading.add(ArticlesUI.Loading)
 				_headlinesNewsFlow.value = headlinesNewsFlow.value
 					.copy(articles = headlinesNewsFlow.value.articles + ArticlesUI.Loading)
 			}
 
-			val result = newsRepository.getHeadlinesNews(category, headlinesPage)
+
+			val result = newsRepository.getHeadlinesNews(country, category, headlinesPage)
+			Log.d("SUKA", "pagercontainerviewmodel country  " + country +"  category" + category)
 			when (result.status) {
 				is Status.Success -> {
 					result.data?.let { news ->
-						_headlinesNewsFlow.value = news.copy(articles = headlinesNewsFlow.value.articles + news.articles)
-					}
+
+							_headlinesNewsFlow.value = news.copy(
+								articles = headlinesNewsFlow.value.articles
+										+ news.articles
+							)
+						}
+
+
 
 
 					totalPages = _headlinesNewsFlow.value.totalResults / PAGE_SIZE
 
-					if (headlinesPage <= totalPages) {
-						headlinesPage++
-					}
+
 				}
 
 				is Status.Error -> {
 					_sideEffects.send(SideEffects.ErrorEffect(result.status.message.orEmpty()))
+					Log.d("SUKA", "pagercontainerviewmodel error message  " + result.status)
 				}
 
 				else -> Unit
 
 			}
 
+			if (headlinesPage <= (totalPages+1)) {
+				headlinesPage++
+			}
+
+			isLastPageViewModel = (totalPages+1) == headlinesPage
+
 			_headlinesNewsFlow.value =
 				headlinesNewsFlow.value
 					.copy(articles = headlinesNewsFlow.value.articles.filterIsInstance<ArticlesUI.Article>())
+
+
+		}
+	}
+
+	fun getRenewedHeadlinesNews() {
+
+		_headlinesNewsFlow.value = _headlinesNewsFlow.value.copy(articles = emptyList())
+
+		viewModelScope.launch {
+
+			Log.d("RENEW", "_headlinesNewsFlow.value " + _headlinesNewsFlow.value)
+			if (headlinesPage > 1) {
+				_headlinesNewsFlow.value = headlinesNewsFlow.value
+					.copy(articles = headlinesNewsFlow.value.articles + ArticlesUI.Loading)
+			}
+
+
+			val result = newsRepository.getHeadlinesNews(country, category, headlinesPage)
+
+			when (result.status) {
+				is Status.Success -> {
+					result.data?.let { news ->
+
+						_headlinesNewsFlow.value = news.copy(
+							articles = headlinesNewsFlow.value.articles
+									+ news.articles
+						)
+
+					}
+
+
+
+
+					totalPages = _headlinesNewsFlow.value.totalResults / PAGE_SIZE
+
+
+				}
+
+				is Status.Error -> {
+					_sideEffects.send(SideEffects.ErrorEffect(result.status.message.orEmpty()))
+					Log.d("SUKA", "pagercontainerviewmodel error message  " + result.status)
+				}
+
+				else -> Unit
+
+			}
+
+			if (headlinesPage <= (totalPages+1)) {
+				headlinesPage++
+			}
+
+			isLastPageViewModel = (totalPages+1) == headlinesPage
+
+			_headlinesNewsFlow.value =
+				headlinesNewsFlow.value
+					.copy(articles = headlinesNewsFlow.value.articles.filterIsInstance<ArticlesUI.Article>())
+
 
 		}
 	}
@@ -104,7 +177,7 @@ class PagerContainerViewModel(
 
 				return PagerContainerViewModel(
 					(application as App).newsRepository,
-					savedStateHandle
+					savedStateHandle, (application as App).sharedClass
 				) as T
 			}
 		}

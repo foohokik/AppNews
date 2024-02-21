@@ -10,7 +10,7 @@ import com.example.appnews.data.dataclassesresponse.ArticlesUI
 
 @Database(
     entities = [ArticlesUI.Article::class],
-    version = 1
+    version = 2
          )
 @TypeConverters(Converters::class)
 abstract class ArticlesDatabase : RoomDatabase()  {
@@ -26,16 +26,18 @@ abstract class ArticlesDatabase : RoomDatabase()  {
 
         operator fun invoke(context: Context) = instance?: kotlin.synchronized(LOCK) {
 
-            instance?: crateDatabase(context).also{instance  = it}
+            instance?: createDatabase(context).also{instance  = it}
 
         }
 
-        private fun crateDatabase (context: Context) =
+        private fun createDatabase (context: Context) =
             Room.databaseBuilder(
                 context.applicationContext,
                 ArticlesDatabase::class.java,
                 "artcile_db"
-            ).build()
+            )
+                .fallbackToDestructiveMigration()
+                .build()
     }
 
 

@@ -7,4 +7,9 @@
     <color name="white">#FFFFFFFF</color>
     <color name="backgroundColor">#009EBD</color>
     <color name="backgroundTintColor">#00829C</color>
+    <color name="lightbackgroundColor">#CEE7F0</color>
+    <color name="greyForText">#70787C</color>
+    <color name="darkPrimaryColor">#00677C</color>
+
+
 </resources>

@@ -1,15 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/headlines_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/save_fragment_root"
-    tools:context=".presentation.saves.SaveFragment">
+    tools:context=".presentation.headlines.HeadlinesFragment"
+    android:orientation="vertical">
 
-    <TextView
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/materialToolbarHeadlines"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:text="Save" />
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme"
+        app:title="News APP"
+        app:titleTextColor="@color/white"
+        android:backgroundTint="@color/backgroundColor"
+        app:titleCentered="true"
+        />
 
-</FrameLayout>
+</LinearLayout>
