@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="CustomThemeOverlay_MaterialCalendar_Fullscreen" parent="@style/ThemeOverlay.MaterialComponents.MaterialCalendar">
+        <item name="materialCalendarStyle">@style/Custom_MaterialCalendar.Fullscreen</item>
+        <item name="materialCalendarHeaderTitle">@style/customHeaderTitle</item>
+        <item name="materialCalendarHeaderSelection">@style/CustomHeaderSelection</item>
+        <item name="materialCalendarHeaderToggleButton">@style/HeaderToggleButton1</item>
+        <item name="buttonBarPositiveButtonStyle">@style/Buttons</item>
+        <item name="buttonBarNegativeButtonStyle">@style/Buttons</item>
+        <item name="android:textColorPrimary">@color/black</item>
+
+    </style>
+
+
+    <style name="Custom_MaterialCalendar.Fullscreen" parent="@style/Widget.MaterialComponents.MaterialCalendar">
+        <item name="android:windowFullscreen">false</item>
+        <item name="rangeFillColor">@color/lightbackgroundColor</item>
+        <item name="dayStyle">@style/CustomWidget_Day</item>
+        <item name="daySelectedStyle">@style/CustomSelected</item>
+    </style>
+    <style name="HeaderToggleButton1" parent="@style/Widget.MaterialComponents.MaterialCalendar.HeaderToggleButton">
+    <item name="android:visibility">gone</item>
+    </style>
+    <style name="customHeaderTitle" parent="@style/Widget.MaterialComponents.MaterialCalendar.HeaderTitle">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
+    <style name="CustomHeaderSelection" parent="Widget.MaterialComponents.MaterialCalendar.HeaderSelection">
+        <item name="android:textSize">32sp</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
+    <style name="CustomWidget_Day" parent="Widget.MaterialComponents.MaterialCalendar.Day">
+        <item name="android:textSize">16sp</item>
+        <item name="itemTextColor">@color/black</item>
+    </style>
+    <style name= "CustomSelected" parent="Widget.MaterialComponents.MaterialCalendar.Day.Selected">
+        <item name="itemFillColor">@color/darkPrimaryColor</item>
+        <item name="itemStrokeColor">@color/darkPrimaryColor</item>
+    </style>
+    <style name="Buttons" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:textColor">@color/darkPrimaryColor</item>
+    </style>
+</resources>
