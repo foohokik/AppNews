@@ -21,11 +21,10 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class FilterViewModel(private val newsRepository: NewsRepository):ViewModel() {
+class FilterViewModel(private val newsRepository: NewsRepository) : ViewModel() {
 
 
-
-private val _buttonPopularIsPressed = MutableStateFlow(ModelFilterButtons(FilterTypes.POPULAR, false))
+    private val _buttonPopularIsPressed = MutableStateFlow(ModelFilterButtons(FilterTypes.POPULAR, false))
     val buttonPopularIsPressed = _buttonPopularIsPressed.asStateFlow()
 
     private val _buttonNewIsPressed = MutableStateFlow(ModelFilterButtons(FilterTypes.NEW, false))
@@ -43,13 +42,13 @@ private val _buttonPopularIsPressed = MutableStateFlow(ModelFilterButtons(Filter
     private val _buttonDeutschIsPressed = MutableStateFlow(ModelFilterButtons(FilterTypes.DEUTSCH, false))
     val buttonDeutschIsPressed = _buttonDeutschIsPressed.asStateFlow()
 
-    private val _dateRange: MutableStateFlow<Pair<String,String>> = MutableStateFlow(Pair("",""))
+    private val _dateRange: MutableStateFlow<Pair<String, String>> = MutableStateFlow(Pair("", ""))
     val dateRange = _dateRange.asStateFlow()
 
     private val _sideEffectChange = Channel<String>()
     val sideEffectsChange = _sideEffectChange.receiveAsFlow()
 
-    private fun determineCountryValue(): String{
+    private fun determineCountryValue(): String {
         val listOfCountryFlow = listOf<ModelFilterButtons>(_buttonEnglishIsPressed.value, _buttonDeutschIsPressed.value, _buttonRussianIsPressed.value)
 
         val element = listOfCountryFlow.find {
@@ -58,7 +57,6 @@ private val _buttonPopularIsPressed = MutableStateFlow(ModelFilterButtons(Filter
         return element?.type?.code.orEmpty()
 
     }
-
 
 
     fun sendResultCountry() {
@@ -71,7 +69,7 @@ private val _buttonPopularIsPressed = MutableStateFlow(ModelFilterButtons(Filter
     fun changeIsPressedFlagPopular() {
         val isCondition = !_buttonPopularIsPressed.value.isPressed
         _buttonPopularIsPressed.value = _buttonPopularIsPressed.value
-                                .copy(isPressed = isCondition)
+                .copy(isPressed = isCondition)
         if (isCondition) {
             _buttonRelevantIsPressed.value = _buttonRelevantIsPressed.value.copy(isPressed = false)
             _buttonNewIsPressed.value = _buttonNewIsPressed.value.copy(isPressed = false)
@@ -79,7 +77,7 @@ private val _buttonPopularIsPressed = MutableStateFlow(ModelFilterButtons(Filter
 
     }
 
-    fun onChangeDate(period:Pair<Long, Long>) {
+    fun onChangeDate(period: Pair<Long, Long>) {
         val startDate = period.first
         val endDate = period.second
         val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
@@ -91,10 +89,10 @@ private val _buttonPopularIsPressed = MutableStateFlow(ModelFilterButtons(Filter
     fun changeIsPressedFlagNew() {
         val isCondition = !_buttonNewIsPressed.value.isPressed
         _buttonNewIsPressed.value = _buttonNewIsPressed.value
-            .copy(isPressed = isCondition)
+                .copy(isPressed = isCondition)
         if (isCondition) {
             _buttonRelevantIsPressed.value = _buttonRelevantIsPressed.value.copy(isPressed = false)
-            _buttonPopularIsPressed.value =  _buttonPopularIsPressed.value.copy(isPressed = false)
+            _buttonPopularIsPressed.value = _buttonPopularIsPressed.value.copy(isPressed = false)
         }
     }
 
@@ -102,10 +100,10 @@ private val _buttonPopularIsPressed = MutableStateFlow(ModelFilterButtons(Filter
 
         val isCondition = !_buttonRelevantIsPressed.value.isPressed
         _buttonRelevantIsPressed.value = _buttonRelevantIsPressed.value
-            .copy(isPressed = isCondition)
+                .copy(isPressed = isCondition)
         if (isCondition) {
             _buttonNewIsPressed.value = _buttonNewIsPressed.value.copy(isPressed = false)
-            _buttonPopularIsPressed.value =  _buttonPopularIsPressed.value.copy(isPressed = false)
+            _buttonPopularIsPressed.value = _buttonPopularIsPressed.value.copy(isPressed = false)
         }
     }
 
@@ -115,7 +113,7 @@ private val _buttonPopularIsPressed = MutableStateFlow(ModelFilterButtons(Filter
         _buttonRussianIsPressed.value = _buttonRussianIsPressed.value.copy(isPressed = isCondition)
         if (isCondition) {
             _buttonEnglishIsPressed.value = _buttonEnglishIsPressed.value.copy(isPressed = false)
-            _buttonDeutschIsPressed.value =  _buttonDeutschIsPressed.value.copy(isPressed = false)
+            _buttonDeutschIsPressed.value = _buttonDeutschIsPressed.value.copy(isPressed = false)
         }
 
     }
@@ -126,7 +124,7 @@ private val _buttonPopularIsPressed = MutableStateFlow(ModelFilterButtons(Filter
         _buttonEnglishIsPressed.value = _buttonEnglishIsPressed.value.copy(isPressed = isCondition)
         if (isCondition) {
             _buttonRussianIsPressed.value = _buttonRussianIsPressed.value.copy(isPressed = false)
-            _buttonDeutschIsPressed.value =  _buttonDeutschIsPressed.value.copy(isPressed = false)
+            _buttonDeutschIsPressed.value = _buttonDeutschIsPressed.value.copy(isPressed = false)
         }
 
     }
@@ -137,27 +135,25 @@ private val _buttonPopularIsPressed = MutableStateFlow(ModelFilterButtons(Filter
         _buttonDeutschIsPressed.value = _buttonDeutschIsPressed.value.copy(isPressed = isCondition)
         if (isCondition) {
             _buttonRussianIsPressed.value = _buttonRussianIsPressed.value.copy(isPressed = false)
-            _buttonEnglishIsPressed.value =  _buttonEnglishIsPressed.value.copy(isPressed = false)
+            _buttonEnglishIsPressed.value = _buttonEnglishIsPressed.value.copy(isPressed = false)
         }
 
     }
-
-
 
 
     companion object {
         val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(
-                modelClass: Class<T>,
-                extras: CreationExtras
+                    modelClass: Class<T>,
+                    extras: CreationExtras
             ): T {
                 val application =
-                    checkNotNull(extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY])
+                        checkNotNull(extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY])
                 extras.createSavedStateHandle()
 
                 return FilterViewModel(
-                    (application as App).newsRepository
+                        (application as App).newsRepository
                 ) as T
             }
         }

@@ -14,20 +14,21 @@ import kotlinx.coroutines.flow.Flow
 interface ArticleDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun upsert(article: ArticlesUI.Article): Long
+    suspend fun upsert(article: ArticlesUI.Article)
 
     @Query("SELECT * FROM articles")
-    fun getAllArticles (): Flow<List<ArticlesUI.Article>> // возможно поменять на LiveData<List<Article>> и убрать suspend
-   // StateFlow<List<ArticlesUI.Article>>
+    fun getAllArticles(): Flow<MutableList<ArticlesUI.Article>>
 
-    @Query("SELECT EXISTS (SELECT 1 FROM articles WHERE url = :url)")
-    suspend fun getArticle(url: String): Boolean
+    @Query("SELECT EXISTS (SELECT 1 FROM articles WHERE title = :title)")
+    suspend fun getArticle(title: String): Boolean
 
-//    @Query("DELETE from articles WHERE id IN (:id)")
-//    suspend fun deleteArticle(id: Long)
-    @Delete
-    suspend fun deleteArticle(article: ArticlesUI.Article)
+    @Query("DELETE from articles WHERE title IN (:title)")
+    suspend fun deleteArticle(title: String)
 
     @Query("DELETE FROM articles")
     suspend fun deleteAll()
+
+    @Query("SELECT * FROM articles WHERE title LIKE '%' || :title || '%' ")
+    fun searchArticle(title: String): Flow<List<ArticlesUI.Article>>
+
 }

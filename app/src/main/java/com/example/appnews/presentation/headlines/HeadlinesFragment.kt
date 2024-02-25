@@ -28,133 +28,129 @@ import java.text.FieldPosition
 
 class HeadlinesFragment : Fragment(), OnBackPressedListener {
 
-	private var _binding: FragmentHeadlinesBinding? = null
-	private val binding get() = _binding!!
+    private var _binding: FragmentHeadlinesBinding? = null
+    private val binding get() = _binding!!
 
-	private lateinit var viewPagerAdapter: ViewPagerAdapter
-	private lateinit var viewPager: ViewPager2
-
-
-	private val viewModel by activityViewModels<HeadlinesViewModel> { HeadlinesViewModel.Factory }
+    private lateinit var viewPagerAdapter: ViewPagerAdapter
+    private lateinit var viewPager: ViewPager2
 
 
-	override fun onCreateView(
-		inflater: LayoutInflater, container: ViewGroup?,
-		savedInstanceState: Bundle?
-	): View {
-		_binding = FragmentHeadlinesBinding.inflate(inflater, container, false)
-		return binding.root
-	}
-
-	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-
-		setFragmentResultListener("request_key") { key, bundle ->
-			val countryString = bundle.getString("country")
-			countryString?.let { viewModel.onWriteData(it) }
-
-			}
+    private val viewModel by activityViewModels<HeadlinesViewModel> { HeadlinesViewModel.Factory }
 
 
-		initViewPager()
-		val tabLayout = binding.tabLayout
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        _binding = FragmentHeadlinesBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-		val menuHost: MenuHost = requireActivity()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
-		menuHost.addMenuProvider(object : MenuProvider {
-			override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-				menuInflater.inflate(R.menu.headlines_toolbar, menu)
-			}
+        setFragmentResultListener("request_key") { key, bundle ->
+            val countryString = bundle.getString("country")
+            countryString?.let { viewModel.onWriteData(it) }
 
-			override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-				when (menuItem.itemId) {
-					R.id.searchView -> {
-						(requireActivity().application as App).router.navigateTo(Screens.searchHeadlinesFragment())
-					}
-
-					R.id.filterHeadlines -> {
-
-						// Navigation to filter fragment
-
-					}
-				}
-				return true
-			}
-		}, viewLifecycleOwner)
+        }
 
 
-		binding.materialToolbarHeadlines.addMenuProvider(object : MenuProvider {
-			override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-				menuInflater.inflate(R.menu.headlines_toolbar, menu)
-			}
+        initViewPager()
+        val tabLayout = binding.tabLayout
 
-			override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-				when (menuItem.itemId) {
-					R.id.searchView -> {
+        val menuHost: MenuHost = requireActivity()
 
-						(requireActivity().application as App).router.navigateTo(Screens.searchHeadlinesFragment())
-					}
+        menuHost.addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.headlines_toolbar, menu)
+            }
 
-					R.id.filterHeadlines -> {
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                when (menuItem.itemId) {
+                    R.id.searchView -> {
+                        (requireActivity().application as App).router.navigateTo(Screens.searchHeadlinesFragment())
+                    }
 
-						(requireActivity().application as App).router.navigateTo(Screens.filterFragment())
-					}
-				}
-				return true
-			}
-		}, viewLifecycleOwner)
+                    R.id.filterHeadlines -> {
+
+                        // Navigation to filter fragment
+
+                    }
+                }
+                return true
+            }
+        }, viewLifecycleOwner)
+
+
+        binding.materialToolbarHeadlines.addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.headlines_toolbar, menu)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                when (menuItem.itemId) {
+                    R.id.searchView -> {
+
+                        (requireActivity().application as App).router.navigateTo(Screens.searchHeadlinesFragment())
+                    }
+
+                    R.id.filterHeadlines -> {
+
+                        (requireActivity().application as App).router.navigateTo(Screens.filterFragment())
+                    }
+                }
+                return true
+            }
+        }, viewLifecycleOwner)
 
 
 
-		TabLayoutMediator(tabLayout, viewPager) { tab, pos ->
+        TabLayoutMediator(tabLayout, viewPager) { tab, pos ->
 
-			when (pos) {
-				0 -> with(tab) {
-					icon = ContextCompat.getDrawable(requireContext(), R.drawable.business_icon)
-					text = "Business"
-				}
+            when (pos) {
+                0 -> with(tab) {
+                    icon = ContextCompat.getDrawable(requireContext(), R.drawable.business_icon)
+                    text = "Business"
+                }
 
-				1 -> with(tab) {
-					icon = ContextCompat.getDrawable(requireContext(), R.drawable.general_icon)
-					text = "General"
-				}
+                1 -> with(tab) {
+                    icon = ContextCompat.getDrawable(requireContext(), R.drawable.general_icon)
+                    text = "General"
+                }
 
-				2 -> with(tab) {
-					icon = ContextCompat.getDrawable(requireContext(), R.drawable.science_icon)
-					text = "Science"
-				}
+                2 -> with(tab) {
+                    icon = ContextCompat.getDrawable(requireContext(), R.drawable.science_icon)
+                    text = "Science"
+                }
 
-			}
+            }
 
-		}.attach()
+        }.attach()
 
-		viewPager.registerOnPageChangeCallback(object: ViewPager2.OnPageChangeCallback(){
+        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
 
-			override fun onPageSelected(position: Int) {
-				super.onPageSelected(position)
-				//viewModel.setCurrentTab(position)
-			}
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                //viewModel.setCurrentTab(position)
+            }
 
-		})
+        })
 
-	}
+    }
 
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 
-	override fun onDestroyView() {
-		super.onDestroyView()
-		_binding = null
-	}
+    override fun onBackPressed() {
+        (requireActivity().application as App).router.exit()
+    }
 
-	override fun onBackPressed() {
-		(requireActivity().application as App).router.exit()
-	}
+    fun initViewPager() {
 
-	fun initViewPager() {
+        viewPagerAdapter = ViewPagerAdapter(this)
+        viewPager = binding.pager
+        viewPager.adapter = viewPagerAdapter
 
-		viewPagerAdapter = ViewPagerAdapter(this)
-		viewPager = binding.pager
-		viewPager.adapter = viewPagerAdapter
-
-	}
+    }
 
 }

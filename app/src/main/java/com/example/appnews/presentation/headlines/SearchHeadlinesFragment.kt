@@ -45,14 +45,8 @@ class SearchHeadlinesFragment : Fragment(), OnBackPressedListener {
     private val viewModel by viewModels<SearchHeadlinesViewModel> { SearchHeadlinesViewModel.Factory }
 
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-    }
-
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = FragmentSearchHeadlinesBinding.inflate(inflater, container, false)
         return binding.root
@@ -68,13 +62,13 @@ class SearchHeadlinesFragment : Fragment(), OnBackPressedListener {
 
         binding.editTextSearchHeadlines.doOnTextChanged { text, start, before, count ->
 
-                text?.let {
-                    if (text.toString().isNotEmpty()) {
-                        viewModel.getSearchNews(searchQuery =  text.toString())
+            text?.let {
+                if (text.toString().isNotEmpty()) {
+                    viewModel.getSearchNews(searchQuery = text.toString())
 
-                    }
                 }
             }
+        }
 
 
 
@@ -82,10 +76,11 @@ class SearchHeadlinesFragment : Fragment(), OnBackPressedListener {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
-                    viewModel.searchHeadlinesViewModel.collect { headlineAdapter.setItems(it.articles)
+                    viewModel.searchHeadlinesViewModel.collect {
+                        headlineAdapter.setItems(it.articles)
                     }
                 }
-               // launch { viewModel.sideEffects.collect { handleSideEffects(it) } }
+                // launch { viewModel.sideEffects.collect { handleSideEffects(it) } }
 
                 launch { viewModel.showKeyboard.collect(::renderKeyboard) }
 
@@ -108,10 +103,12 @@ class SearchHeadlinesFragment : Fragment(), OnBackPressedListener {
         (requireActivity().application as App).router.exit()
     }
 
-    fun renderQuery (text:String) {
-        if (text == binding.editTextSearchHeadlines.text.toString()){
+    fun renderQuery(text: String) {
+        if (text == binding.editTextSearchHeadlines.text.toString()) {
 
-        } else { binding.editTextSearchHeadlines.setText(text) }
+        } else {
+            binding.editTextSearchHeadlines.setText(text)
+        }
     }
 
 
@@ -139,9 +136,9 @@ class SearchHeadlinesFragment : Fragment(), OnBackPressedListener {
 
     fun renderKeyboard(isShow: Boolean) {
         if (isShow) {
-           binding.editTextSearchHeadlines.context.showKeyBoard( binding.editTextSearchHeadlines)
+            binding.editTextSearchHeadlines.context.showKeyBoard(binding.editTextSearchHeadlines)
         } else {
-            binding.editTextSearchHeadlines.context.hideKeyboard( binding.editTextSearchHeadlines)
+            binding.editTextSearchHeadlines.context.hideKeyboard(binding.editTextSearchHeadlines)
         }
     }
 
@@ -152,7 +149,7 @@ class SearchHeadlinesFragment : Fragment(), OnBackPressedListener {
     }
 
     fun Context.showKeyBoard(view: View?) {
-        view?.let  {
+        view?.let {
             val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0)
         }

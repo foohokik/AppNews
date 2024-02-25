@@ -24,8 +24,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
-class SearchHeadlinesViewModel (private val newsRepository: NewsRepository,
-                                private val savedStateHandle: SavedStateHandle
+class SearchHeadlinesViewModel(
+    private val newsRepository: NewsRepository
 ) : ViewModel(), ArticleListener {
 
 
@@ -44,16 +44,14 @@ class SearchHeadlinesViewModel (private val newsRepository: NewsRepository,
     var job: Job? = null
     private var headlinesPage = 1
     private var category: String = ""
-     var searchQuery: String =""
+    var searchQuery: String = ""
     var totalPages = 0
     var isLastPageViewModel = false
 
 
-
-    fun changeFlagonChangeKeyBoardFlag (isShow:Boolean) {
-      _showKeyboard.value = isShow
+    fun changeFlagonChangeKeyBoardFlag(isShow: Boolean) {
+        _showKeyboard.value = isShow
     }
-
 
 
     fun getSearchNews(searchQuery: String) {
@@ -68,7 +66,7 @@ class SearchHeadlinesViewModel (private val newsRepository: NewsRepository,
             }
 
             _queryFlow.value = searchQuery
-            val result = newsRepository.getSearchNews(category,searchQuery, headlinesPage)
+            val result = newsRepository.getSearchNews(category, searchQuery, headlinesPage)
 
             when (result.status) {
                 is Status.Success -> {
@@ -90,11 +88,11 @@ class SearchHeadlinesViewModel (private val newsRepository: NewsRepository,
 
             }
 
-            if (headlinesPage <= (totalPages+1)) {
+            if (headlinesPage <= (totalPages + 1)) {
                 headlinesPage++
             }
 
-            isLastPageViewModel = (totalPages+1) == headlinesPage
+            isLastPageViewModel = (totalPages + 1) == headlinesPage
 
             _searchHeadlinesViewModel.value =
                 searchHeadlinesViewModel.value
@@ -117,24 +115,19 @@ class SearchHeadlinesViewModel (private val newsRepository: NewsRepository,
                 val application =
                     checkNotNull(extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY])
 
-                val savedStateHandle = extras.createSavedStateHandle()
-
                 return SearchHeadlinesViewModel(
-                    (application as App).newsRepository,
-                    savedStateHandle
+                    (application as App).newsRepository
                 ) as T
             }
         }
     }
 
 
-
-
-        override fun onClickArticle(article: ArticlesUI.Article) {
-            viewModelScope.launch {
-                _sideEffects.send(SideEffects.ClickEffect(article))
-            }
+    override fun onClickArticle(article: ArticlesUI.Article) {
+        viewModelScope.launch {
+            _sideEffects.send(SideEffects.ClickEffect(article))
         }
-
-
     }
+
+
+}

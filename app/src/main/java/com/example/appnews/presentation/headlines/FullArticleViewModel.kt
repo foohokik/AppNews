@@ -1,6 +1,5 @@
-package com.example.appnews.presentation.headlines.tabfragment
+package com.example.appnews.presentation.headlines
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -14,43 +13,34 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
- class FullArticleViewModel(private val newsRepository: NewsRepository):ViewModel() {
+class FullArticleViewModel(private val newsRepository: NewsRepository) : ViewModel() {
 
     private val _stateIconSaved = MutableStateFlow(false)
     val stateIconSaved = _stateIconSaved.asStateFlow()
-    var id:Long = 0
 
 
-    fun saveArticle (article: ArticlesUI.Article) = viewModelScope.launch {
-        id = newsRepository.upsert(article)
-       // Log.d("TAG", "ID " + newsRepository.upsert(article))
+    fun saveArticle(article: ArticlesUI.Article) = viewModelScope.launch {
+        newsRepository.upsert(article)
     }
 
 
-    fun deleteArticle (article:ArticlesUI.Article) = viewModelScope.launch {
-        newsRepository.delete(article)
+    fun deleteArticle(title: String) = viewModelScope.launch {
+        newsRepository.delete(title)
     }
 
-     fun deleteAll () = viewModelScope.launch {
-         newsRepository.deleteAll()
-     }
+    fun deleteAll() = viewModelScope.launch {
+        newsRepository.deleteAll()
+    }
 
-    fun getArticle(url: String) {
-           viewModelScope.launch {
-                withContext(Dispatchers.IO) {
-                    _stateIconSaved.value = newsRepository.getArticle(url)
+    fun getArticle(title: String) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                _stateIconSaved.value = newsRepository.getArticle(title)
+
             }
         }
 
     }
-
-    fun getAllSavedArticles() = viewModelScope.launch {
-        newsRepository.getAllSavedArticles()
-    }
-
-
-
-
 
 
     companion object {
