@@ -1,6 +1,7 @@
 package com.example.appnews.data.api
 
 import com.example.appnews.core.API_KEY
+import com.example.appnews.data.dataclassesresponse.AllSources
 import com.example.appnews.data.dataclassesresponse.News
 import com.example.appnews.data.dataclassesresponse.NewsResponse
 import retrofit2.Response
@@ -22,6 +23,24 @@ interface NewsAPI {
         @Query("category") category: String,
         @Query("q") searchQuery: String,
         @Query("page") pageNumber: Int,
+        @Query("apiKey") apiKey: String = API_KEY
+    ): Response<NewsResponse>
+
+    @GET("/v2/top-headlines/sources")
+    suspend fun getSources(
+        @Query("apiKey") apiKey: String = API_KEY
+    ): Response<AllSources>
+
+    @GET("v2/top-headlines")
+    suspend fun getArticlesFromSource(
+        @Query("sources") sourceId: String,
+        @Query("apiKey") apiKey: String = API_KEY
+    ): Response<NewsResponse>
+
+    @GET("v2/top-headlines")
+    suspend fun getSearchNewsFromSource(
+        @Query("sources") sourceId: String,
+        @Query("q") searchQuery: String,
         @Query("apiKey") apiKey: String = API_KEY
     ): Response<NewsResponse>
 

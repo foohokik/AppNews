@@ -35,6 +35,8 @@ class PagerContainerFragment : Fragment() {
 
     var totalPages = 0
 
+    var isLastPage = false
+
     private val viewModel by viewModels<PagerContainerViewModel> { PagerContainerViewModel.Factory }
 
 
@@ -52,6 +54,7 @@ class PagerContainerFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
+
         initViews()
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -63,10 +66,17 @@ class PagerContainerFragment : Fragment() {
                 }
                 launch { viewModel.sideEffects.collect { handleSideEffects(it) } }
 
+//                launch {
+//                    viewModel.sharedClass.reviewSearchSideEffect.collect {
+//                        sendCountryCode((it as SharedDataType.Filter).country)
+//                    }
+//                }
+
                 launch {
-                    viewModel.sharedClass.reviewSearchSideEffect.collect {
-                        sendCountryCode((it as SharedDataType.Filter).country)
+                    viewModel.isLastPageFlow.collect {
+                        isLastPage = it
                     }
+
                 }
             }
         }
@@ -77,20 +87,20 @@ class PagerContainerFragment : Fragment() {
     private fun handleSideEffects(sideEffects: SideEffects) {
         when (sideEffects) {
             is SideEffects.ErrorEffect -> {}
-            is SideEffects.ClickEffect -> {
+            is SideEffects.ClickEffectArticle -> {
                 (requireActivity().application as App).router.navigateTo(
                     Screens.fullArticleHeadlinesFragment(
                         sideEffects.article
                     )
                 )
             }
+
+            else -> {}
         }
 
     }
 
 
-    var isLoading = false
-    var isLastPage = false
     var isScrolling = false
 
 
@@ -111,12 +121,13 @@ class PagerContainerFragment : Fragment() {
             val isHasVisibleItems = firstVisibleItemPosition >= 0
             val isTotalMoreThanVisible = totalItemCount >= PAGE_SIZE
 
+
+
             if ((lastVisibleItemPosition + 4 >= totalItemCount) && isTotalMoreThanVisible
                 && isHasVisibleItems && isScrolling && isNotLoadingAndNotLastPage
             ) {
                 viewModel.getHeadlinesNews()
                 isScrolling = false
-                isLastPage = viewModel.isLastPageViewModel
             }
 
         }
@@ -129,10 +140,11 @@ class PagerContainerFragment : Fragment() {
         }
     }
 
-    private fun sendCountryCode(country: String) {
-        viewModel.country = country
-        viewModel.getRenewedHeadlinesNews()
-    }
+//    private fun sendCountryCode(country: String) {
+//        viewModel.country = country
+//        viewModel.getRenewedHeadlinesNews()
+//    }
+
 
 
     private fun initViews() = with(binding.recycleviewHeadlines) {

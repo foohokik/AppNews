@@ -98,13 +98,14 @@ class SaveFragment : Fragment(), OnBackPressedListener {
 	private fun handleSideEffects(sideEffects: SideEffects) {
 		when (sideEffects) {
 			is SideEffects.ErrorEffect -> {}
-			is SideEffects.ClickEffect -> {
+			is SideEffects.ClickEffectArticle -> {
 				(requireActivity().application as App).router.navigateTo(
 					Screens.fullArticleHeadlinesFragment(
 						sideEffects.article
 					)
 				)
 			}
+			else ->{}
 		}
 
 	}

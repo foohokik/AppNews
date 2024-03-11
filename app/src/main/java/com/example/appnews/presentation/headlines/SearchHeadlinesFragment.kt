@@ -162,7 +162,6 @@ class SearchHeadlinesFragment : Fragment(), OnBackPressedListener {
         layoutManager = manager
         adapter = headlineAdapter
         itemAnimator = null
-        //addOnScrollListener(scrollListener)
     }
 
 

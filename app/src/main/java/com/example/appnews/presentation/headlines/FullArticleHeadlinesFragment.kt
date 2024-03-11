@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -17,21 +18,21 @@ import com.example.appnews.R
 import com.example.appnews.data.dataclassesresponse.ArticlesUI
 import com.example.appnews.databinding.FragmentFullArticleHeadlinesBinding
 import com.example.appnews.presentation.FullArticleFragmentWeb
+import com.example.appnews.presentation.dataclasses.FullArticleState
 import com.example.appnews.presentation.navigation.OnBackPressedListener
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 class FullArticleHeadlinesFragment : Fragment(), OnBackPressedListener {
 
-    private var isSelected = false
 
     private var _binding: FragmentFullArticleHeadlinesBinding? = null
     private val binding get() = _binding!!
 
-    private val article: ArticlesUI.Article? by lazy { requireArguments().get(FullArticleFragmentWeb.ARG) as? ArticlesUI.Article }
-    private val viewModel by activityViewModels<FullArticleViewModel> { FullArticleViewModel.Factory }
+    private val viewModel by viewModels<FullArticleViewModel> { FullArticleViewModel.Factory }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,48 +56,14 @@ class FullArticleHeadlinesFragment : Fragment(), OnBackPressedListener {
         super.onViewCreated(view, savedInstanceState)
 
 
-        var parsedDate = LocalDateTime.parse(
-            article?.publishedAt,
-            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssX")
-        )
-        var formatter = DateTimeFormatter.ofPattern("d MMM uuuu | hh-mm a")
-        var convertDate = parsedDate.format(formatter)
-
-
-        with(binding) {
-            Glide.with(collapsingIv.context).load(article?.urlToImage).into(collapsingIv)
-            tvSourceFullArticle.text = article?.source?.name
-            tvDateFullArticle.text = convertDate
-            tvTitleFullArticle.text = article?.title
-            tvFullArticle.text = article?.description
-
-        }
-
         backArrowToolBar()
-
-
-        viewModel.getArticle(article?.title ?: "title")
 
 
         binding.ivSaveSign.setOnClickListener {
 
-            viewModel.getArticle(article?.title ?: "title")
-
-
-            if (!viewModel.stateIconSaved.value) {
-                binding.ivSaveSign.setImageResource(R.drawable.icon_saved_filled)
-                article?.let { viewModel.saveArticle(it) }
-
-            } else {
-                binding.ivSaveSign.setImageResource(R.drawable.icon_saved)
-                article?.title?.let { it1 -> viewModel.deleteArticle(it1) }
-
-            }
-
+            viewModel.onSaveOrRemoveArticle()
 
         }
-
-
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -104,7 +71,9 @@ class FullArticleHeadlinesFragment : Fragment(), OnBackPressedListener {
                 launch {
                     viewModel.stateIconSaved.collect(::stateIcon)
                 }
-
+                launch {
+                    viewModel.contentState.collect(::setContent)
+                }
 
             }
 
@@ -118,16 +87,24 @@ class FullArticleHeadlinesFragment : Fragment(), OnBackPressedListener {
         _binding = null
     }
 
+    private fun setContent(state: FullArticleState) = with(binding) {
+        Glide.with(collapsingIv.context).load(state.urlImage).into(collapsingIv)
+        tvSourceFullArticle.text = state.nameSource
+        tvDateFullArticle.text = state.date
+        tvTitleFullArticle.text = state.title
+        tvFullArticle.text = state.description
+    }
 
     private fun stateIcon(state: Boolean) {
 
-        if (state) {
-            binding.ivSaveSign.setImageResource(R.drawable.icon_saved_filled)
+      val drawable =  if (state) {
+            R.drawable.icon_saved_filled
 
         } else {
-            binding.ivSaveSign.setImageResource(R.drawable.icon_saved)
-
+            R.drawable.icon_saved
         }
+
+        binding.ivSaveSign.setImageResource(drawable)
 
     }
 

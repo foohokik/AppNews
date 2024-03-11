@@ -1,6 +1,8 @@
 package com.example.appnews.presentation.headlines
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -18,9 +20,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
 
+
+@RequiresApi(Build.VERSION_CODES.O)
 class FilterViewModel(private val newsRepository: NewsRepository) : ViewModel() {
 
 
@@ -42,7 +48,7 @@ class FilterViewModel(private val newsRepository: NewsRepository) : ViewModel() 
     private val _buttonDeutschIsPressed = MutableStateFlow(ModelFilterButtons(FilterTypes.DEUTSCH, false))
     val buttonDeutschIsPressed = _buttonDeutschIsPressed.asStateFlow()
 
-    private val _dateRange: MutableStateFlow<Pair<String, String>> = MutableStateFlow(Pair("", ""))
+    private val _dateRange: MutableStateFlow<String> = MutableStateFlow("")
     val dateRange = _dateRange.asStateFlow()
 
     private val _sideEffectChange = Channel<String>()
@@ -77,13 +83,30 @@ class FilterViewModel(private val newsRepository: NewsRepository) : ViewModel() 
 
     }
 
+
     fun onChangeDate(period: Pair<Long, Long>) {
         val startDate = period.first
         val endDate = period.second
         val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val startDateString = sdf.format(Date(startDate))
         val endDateString = sdf.format(Date(endDate))
-        _dateRange.value = startDateString to endDateString
+
+        if (startDateString == endDateString) {
+            val equalForBothDate = LocalDate.parse(startDateString, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+            val formatter = DateTimeFormatter.ofPattern("MMM d yyyy")
+            val convertDate = equalForBothDate.format(formatter)
+            _dateRange.value = convertDate
+        } else {
+            val parsedStartDate = LocalDate.parse(startDateString, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+            val parsedEndDate = LocalDate.parse(endDateString, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+            val formatter = DateTimeFormatter.ofPattern("MMM d")
+            val convertStartDate = parsedStartDate.format(formatter)
+            val convertEndDate = parsedEndDate.format(formatter)
+            val year = startDateString.substring(0, 4)
+            val finishDateRangeToTextView = "$convertStartDate - $convertEndDate, $year"
+            _dateRange.value = finishDateRangeToTextView
+        }
+
     }
 
     fun changeIsPressedFlagNew() {

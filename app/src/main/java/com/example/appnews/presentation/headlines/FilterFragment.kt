@@ -2,7 +2,6 @@ package com.example.appnews.presentation.headlines
 
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -26,6 +25,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 class FilterFragment : Fragment(), OnBackPressedListener {
 
     private var _binding: FragmentFilterBinding? = null
@@ -130,8 +130,8 @@ class FilterFragment : Fragment(), OnBackPressedListener {
                 launch {
                     viewModel.dateRange.collect {
 
-                        if (it.first.isNotEmpty() && it.second.isNotEmpty()) {
-                            convertDateAndSetTextView(it)
+                        if (it.isNotEmpty()) {
+                            setTextViewDate(it)
                         }
                     }
                 }
@@ -149,26 +149,9 @@ class FilterFragment : Fragment(), OnBackPressedListener {
 
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun convertDateAndSetTextView(period: kotlin.Pair<String, String>) {
+    fun setTextViewDate(date:String) {
 
-        val startDate = period.first
-        val endDate = period.second
-
-        if (startDate == endDate) {
-            val equalForBothDate = LocalDate.parse(startDate, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-            val formatter = DateTimeFormatter.ofPattern("MMM d yyyy")
-            val convertDate = equalForBothDate.format(formatter)
-            binding.tvDateRange.text = convertDate
-        } else {
-            val parsedStartDate = LocalDate.parse(startDate, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-            val parsedEndDate = LocalDate.parse(endDate, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-            val formatter = DateTimeFormatter.ofPattern("MMM d")
-            val convertStartDate = parsedStartDate.format(formatter)
-            val convertEndDate = parsedEndDate.format(formatter)
-            val year = startDate.substring(0, 4)
-            val finishDateRangeToTextView = "$convertStartDate - $convertEndDate, $year"
-            binding.tvDateRange.text = finishDateRangeToTextView
-        }
+            binding.tvDateRange.text = date
 
     }
 
@@ -192,11 +175,13 @@ class FilterFragment : Fragment(), OnBackPressedListener {
         (requireActivity().application as App).router.exit()
     }
 
+
     fun saveResultFilterIcon() {
         binding.imageButtonOk.setOnClickListener {
             viewModel.sendResultCountry()
         }
     }
+
 
     fun initDatePicker() {
         val dateRange: MaterialDatePicker<Pair<Long, Long>> = MaterialDatePicker

@@ -8,22 +8,16 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
-class ShareDataClass {
+    class ShareDataClass {
 
-//    private var _reviewSearchSideEffect = Channel<SharedDataType>()
-//    val reviewSearchSideEffect = _reviewSearchSideEffect.receiveAsFlow()
-//
-//    suspend fun setData(data: SharedDataType) {
-//      _reviewSearchSideEffect.send(data)
-//    }
 
-    private var _reviewSearchSideEffect = MutableStateFlow<SharedDataType>(SharedDataType.Filter("us"))
-    val reviewSearchSideEffect = _reviewSearchSideEffect.asStateFlow()
+        private var _reviewSearchSideEffect = MutableStateFlow<SharedDataType>(SharedDataType.Filter("us"))
+        val reviewSearchSideEffect = _reviewSearchSideEffect.asStateFlow()
 
-    suspend fun setData(data: SharedDataType) {
-      _reviewSearchSideEffect.emit(data)
-   }
+        suspend fun setData(data: SharedDataType) {
+          _reviewSearchSideEffect.emit(data)
+       }
 
-}
+    }
 
 

@@ -125,7 +125,7 @@ class SearchHeadlinesViewModel(
 
     override fun onClickArticle(article: ArticlesUI.Article) {
         viewModelScope.launch {
-            _sideEffects.send(SideEffects.ClickEffect(article))
+            _sideEffects.send(SideEffects.ClickEffectArticle(article))
         }
     }
 

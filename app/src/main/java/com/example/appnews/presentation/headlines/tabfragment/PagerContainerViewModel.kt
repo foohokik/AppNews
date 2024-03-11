@@ -12,6 +12,7 @@ import com.example.appnews.App
 import com.example.appnews.core.PAGE_SIZE
 import com.example.appnews.core.ShareDataClass
 import com.example.appnews.core.Status
+import com.example.appnews.core.viewclasses.SharedDataType
 
 import com.example.appnews.data.dataclassesresponse.ArticlesUI
 import com.example.appnews.data.dataclassesresponse.News
@@ -37,21 +38,37 @@ class PagerContainerViewModel(
     private val _sideEffects = Channel<SideEffects>()
     val sideEffects = _sideEffects.receiveAsFlow()
 
+
+    private val _isLastPageFlow = MutableStateFlow<Boolean>(false)
+    val isLastPageFlow = _isLastPageFlow.asStateFlow()
+
+
     private var headlinesPage = 1
     private var category: String = ""
-    var country: String = "us"
+    var country: String = ""
     var totalPages = 0
     var isLastPageViewModel = false
 
     init {
 
         category = savedStateHandle.get<String>(CATEGORY).orEmpty()
-        getHeadlinesNews()
+
+        viewModelScope.launch {
+            sharedClass.reviewSearchSideEffect.collect {
+                country = (it as SharedDataType.Filter).country
+                _isLastPageFlow.value = false
+                headlinesPage = 1
+                _headlinesNewsFlow.value = _headlinesNewsFlow.value.copy(articles = emptyList())
+                getHeadlinesNews()
+            }
+        }
+
 
     }
 
 
     fun getHeadlinesNews() {
+
         viewModelScope.launch {
 
             if (headlinesPage > 1) {
@@ -72,11 +89,7 @@ class PagerContainerViewModel(
                         )
                     }
 
-
-
-
-                    totalPages = _headlinesNewsFlow.value.totalResults / PAGE_SIZE
-
+                    totalPages = (_headlinesNewsFlow.value.totalResults / PAGE_SIZE) + 1
 
                 }
 
@@ -88,11 +101,15 @@ class PagerContainerViewModel(
 
             }
 
-            if (headlinesPage <= (totalPages + 1)) {
+
+
+
+            _isLastPageFlow.value = (totalPages == headlinesPage)
+            if (headlinesPage <= totalPages) {
                 headlinesPage++
             }
 
-            isLastPageViewModel = (totalPages + 1) == headlinesPage
+
 
             _headlinesNewsFlow.value =
                 headlinesNewsFlow.value
@@ -104,15 +121,11 @@ class PagerContainerViewModel(
 
     fun getRenewedHeadlinesNews() {
 
+        headlinesPage = 1
+
         _headlinesNewsFlow.value = _headlinesNewsFlow.value.copy(articles = emptyList())
 
         viewModelScope.launch {
-
-            if (headlinesPage > 1) {
-                _headlinesNewsFlow.value = headlinesNewsFlow.value
-                    .copy(articles = headlinesNewsFlow.value.articles + ArticlesUI.Loading)
-            }
-
 
             val result = newsRepository.getHeadlinesNews(country, category, headlinesPage)
 
@@ -120,17 +133,9 @@ class PagerContainerViewModel(
                 is Status.Success -> {
                     result.data?.let { news ->
 
-                        _headlinesNewsFlow.value = news.copy(
-                            articles = headlinesNewsFlow.value.articles
-                                    + news.articles
-
-                        )
-
-
+                        _headlinesNewsFlow.value = news
+                        headlinesPage++
                     }
-
-                    totalPages = _headlinesNewsFlow.value.totalResults / PAGE_SIZE
-
 
                 }
 
@@ -142,16 +147,6 @@ class PagerContainerViewModel(
                 else -> Unit
 
             }
-
-            if (headlinesPage <= (totalPages + 1)) {
-                headlinesPage++
-            }
-
-            isLastPageViewModel = (totalPages + 1) == headlinesPage
-
-            _headlinesNewsFlow.value =
-                headlinesNewsFlow.value
-                    .copy(articles = headlinesNewsFlow.value.articles.filterIsInstance<ArticlesUI.Article>())
 
 
         }
@@ -184,7 +179,7 @@ class PagerContainerViewModel(
     override fun onClickArticle(article: ArticlesUI.Article) {
 
         viewModelScope.launch {
-            _sideEffects.send(SideEffects.ClickEffect(article))
+            _sideEffects.send(SideEffects.ClickEffectArticle(article))
         }
     }
 }

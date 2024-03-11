@@ -14,6 +14,8 @@ import com.example.appnews.presentation.navigation.NavigationKeys
 import com.example.appnews.presentation.navigation.PagesType
 import com.example.appnews.presentation.saves.SaveFragment
 import com.example.appnews.presentation.saves.SearchSaveFragment
+import com.example.appnews.presentation.source.SearchSourceArticlesFragment
+import com.example.appnews.presentation.source.SourceArticlesListFragment
 import com.example.appnews.presentation.source.SourceFragment
 import com.github.terrakok.cicerone.androidx.FragmentScreen
 
@@ -53,5 +55,9 @@ object Screens {
 	fun fullArticleHeadlinesFragment (args: ArticlesUI.Article) =
 		FragmentScreen { FullArticleHeadlinesFragment.newInstance(args) }
 
+
+	fun searchSourceFragment (args: String) = FragmentScreen {SearchSourceArticlesFragment.newInstance(args)}
+
+	fun sourceArticlesListFragment (args: String) = FragmentScreen{ SourceArticlesListFragment.newInstance(args) }
 }
 
