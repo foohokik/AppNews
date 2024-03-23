@@ -30,6 +30,11 @@ class MainActivity : AppCompatActivity() {
 		val view = binding.root
 		setContentView(view)
 		setupNavigationBar()
+		savedInstanceState ?:initHomeNavBarFragment()
+	}
+
+	private fun initHomeNavBarFragment() {
+
 		binding.navBar.selectedItemId = R.id.headline
 	}
 

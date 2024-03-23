@@ -10,12 +10,12 @@ import kotlinx.coroutines.launch
 
     class ShareDataClass {
 
-
-        private var _reviewSearchSideEffect = MutableStateFlow<SharedDataType>(SharedDataType.Filter("us"))
+        private val _reviewSearchSideEffect = MutableStateFlow<SharedDataType>(
+            SharedDataType.Filter("us","","",0))
         val reviewSearchSideEffect = _reviewSearchSideEffect.asStateFlow()
 
-        suspend fun setData(data: SharedDataType) {
-          _reviewSearchSideEffect.emit(data)
+         fun setData(data: SharedDataType) {
+          _reviewSearchSideEffect.value = data
        }
 
     }

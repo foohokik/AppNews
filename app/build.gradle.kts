@@ -44,6 +44,10 @@ android {
 
 dependencies {
 
+    //dagger
+    implementation ("com.google.dagger:dagger:2.50")
+    implementation ("com.google.dagger:dagger-compiler:2.50")
+
     //Glide
     implementation ("com.github.bumptech.glide:glide:4.14.2")
 

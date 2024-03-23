@@ -1,5 +1,7 @@
 package com.example.appnews.presentation.headlines
 
+import android.annotation.SuppressLint
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -10,22 +12,32 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.widget.ViewPager2
 import com.example.appnews.App
 import com.example.appnews.R
 import com.example.appnews.Screens
+import com.example.appnews.core.viewclasses.SharedDataType
 import com.example.appnews.databinding.FragmentHeadlinesBinding
+import com.example.appnews.presentation.customGetSerializable
 import com.example.appnews.presentation.headlines.tabfragment.ViewPagerAdapter
 import com.example.appnews.presentation.navigation.OnBackPressedListener
+import com.google.android.material.badge.BadgeDrawable
+import com.google.android.material.badge.BadgeUtils
+import com.google.android.material.badge.ExperimentalBadgeUtils
 import com.google.android.material.tabs.TabLayoutMediator
+import kotlinx.coroutines.launch
 import java.text.FieldPosition
 
+@ExperimentalBadgeUtils @SuppressLint("UnsafeExperimentalUsageError")
 class HeadlinesFragment : Fragment(), OnBackPressedListener {
 
     private var _binding: FragmentHeadlinesBinding? = null
@@ -33,8 +45,7 @@ class HeadlinesFragment : Fragment(), OnBackPressedListener {
 
     private lateinit var viewPagerAdapter: ViewPagerAdapter
     private lateinit var viewPager: ViewPager2
-
-
+    val badgeDrawable by lazy { BadgeDrawable.create(requireContext()) }
     private val viewModel by activityViewModels<HeadlinesViewModel> { HeadlinesViewModel.Factory }
 
 
@@ -43,40 +54,17 @@ class HeadlinesFragment : Fragment(), OnBackPressedListener {
         return binding.root
     }
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
         setFragmentResultListener("request_key") { key, bundle ->
-            val countryString = bundle.getString("country")
-            countryString?.let { viewModel.onWriteData(it) }
+            val data = bundle.customGetSerializable<SharedDataType.Filter>("data")
+            data?.let { viewModel.onWriteData(it) }
 
         }
 
-
         initViewPager()
         val tabLayout = binding.tabLayout
-
-        val menuHost: MenuHost = requireActivity()
-
-        menuHost.addMenuProvider(object : MenuProvider {
-            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                menuInflater.inflate(R.menu.headlines_toolbar, menu)
-            }
-
-            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-                when (menuItem.itemId) {
-                    R.id.searchView -> {
-                        (requireActivity().application as App).router.navigateTo(Screens.searchHeadlinesFragment())
-                    }
-
-                    R.id.filterHeadlines -> {
-
-                        // Navigation to filter fragment
-
-                    }
-                }
-                return true
-            }
-        }, viewLifecycleOwner)
 
 
         binding.materialToolbarHeadlines.addMenuProvider(object : MenuProvider {
@@ -84,6 +72,7 @@ class HeadlinesFragment : Fragment(), OnBackPressedListener {
                 menuInflater.inflate(R.menu.headlines_toolbar, menu)
             }
 
+            @RequiresApi(Build.VERSION_CODES.O)
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 when (menuItem.itemId) {
                     R.id.searchView -> {
@@ -133,6 +122,16 @@ class HeadlinesFragment : Fragment(), OnBackPressedListener {
 
         })
 
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+
+                launch {
+                    viewModel.filterDataFlow.collect(::setBadge)
+                }
+            }
+        }
+
+
     }
 
 
@@ -151,6 +150,18 @@ class HeadlinesFragment : Fragment(), OnBackPressedListener {
         viewPager = binding.pager
         viewPager.adapter = viewPagerAdapter
 
+    }
+
+    fun setBadge (data: SharedDataType.Filter) {
+
+        BadgeUtils.attachBadgeDrawable (badgeDrawable, binding.materialToolbarHeadlines, R.id.filterHeadlines)
+        if (data.count == 0) {
+            badgeDrawable.isVisible = false
+        } else {
+            badgeDrawable.isVisible = true
+            badgeDrawable.number = data.count
+
+        }
     }
 
 }

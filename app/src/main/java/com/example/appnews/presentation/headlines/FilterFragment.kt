@@ -2,6 +2,7 @@ package com.example.appnews.presentation.headlines
 
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -17,12 +18,12 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.appnews.App
 import com.example.appnews.R
+import com.example.appnews.core.viewclasses.SharedDataType
+import com.example.appnews.data.dataclassesresponse.ArticlesUI
 import com.example.appnews.databinding.FragmentFilterBinding
 import com.example.appnews.presentation.navigation.OnBackPressedListener
 import com.google.android.material.datepicker.MaterialDatePicker
 import kotlinx.coroutines.launch
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -164,26 +165,26 @@ class FilterFragment : Fragment(), OnBackPressedListener {
         (requireActivity().application as App).router.exit()
     }
 
-    fun backArrow() {
+    private fun backArrow() {
         binding.imageButtonBackFilter.setOnClickListener {
             (requireActivity().application as App).router.exit()
         }
     }
 
-    private fun handleSideEffect(country: String) {
-        setFragmentResult("request_key", bundleOf("country" to country))
+    private fun handleSideEffect(data: SharedDataType.Filter) {
+        setFragmentResult("request_key", bundleOf("data" to data))
         (requireActivity().application as App).router.exit()
     }
 
 
-    fun saveResultFilterIcon() {
+    private fun saveResultFilterIcon() {
         binding.imageButtonOk.setOnClickListener {
-            viewModel.sendResultCountry()
+            viewModel.sendResult()
         }
     }
 
 
-    fun initDatePicker() {
+    private fun initDatePicker() {
         val dateRange: MaterialDatePicker<Pair<Long, Long>> = MaterialDatePicker
                 .Builder
                 .dateRangePicker()
@@ -196,5 +197,19 @@ class FilterFragment : Fragment(), OnBackPressedListener {
         }
 
     }
+
+//    companion object {
+//
+//        const val ARG = "ARG"
+//
+//        @JvmStatic
+//        fun newInstance(data: SharedDataType.Filter: ArticlesUI.Article) = FilterFragment().apply {
+//            arguments = Bundle().apply {
+//
+//                putSerializable(ARG, data)
+//
+//            }
+//        }
+//    }
 
 }
