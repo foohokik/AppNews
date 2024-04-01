@@ -18,9 +18,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 
-class HeadlinesViewModel(private val sharedClass: ShareDataClass, private val router: Router) : ViewModel() {
+class HeadlinesViewModel @Inject constructor(private val sharedClass: ShareDataClass) : ViewModel() {
 
 	private val _filterDataFlow = MutableStateFlow(
 		SharedDataType.Filter("","","",0)
@@ -39,22 +40,22 @@ class HeadlinesViewModel(private val sharedClass: ShareDataClass, private val ro
 	}
 
 
-	companion object {
-
-		val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
-			@Suppress("UNCHECKED_CAST")
-			override fun <T : ViewModel> create(
-				modelClass: Class<T>,
-				extras: CreationExtras
-			): T {
-				val application =
-					checkNotNull(extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY])
-
-				return HeadlinesViewModel(
-					(application as App).sharedClass, (application as App).router
-				) as T
-			}
-		}
-	}
+//	companion object {
+//
+//		val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
+//			@Suppress("UNCHECKED_CAST")
+//			override fun <T : ViewModel> create(
+//				modelClass: Class<T>,
+//				extras: CreationExtras
+//			): T {
+//				val application =
+//					checkNotNull(extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY])
+//
+//				return HeadlinesViewModel(
+//					(application as App).sharedClass
+//				) as T
+//			}
+//		}
+//	}
 
 }

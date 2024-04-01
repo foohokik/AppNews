@@ -43,6 +43,7 @@ android {
 }
 
 dependencies {
+    implementation ("com.android.databinding:viewbinding:8.3.1")
 
     //dagger
     implementation ("com.google.dagger:dagger:2.50")
@@ -70,9 +71,9 @@ dependencies {
 
     // ViewModel, LiveData, Lifecycle
 
-    implementation ("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
-    implementation  ("androidx.lifecycle:lifecycle-livedata-ktx:2.6.2")
-    implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
+    implementation ("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
+    implementation  ("androidx.lifecycle:lifecycle-livedata-ktx:2.7.0")
+    implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
 
     //SplashScreen
 
@@ -84,13 +85,13 @@ dependencies {
 
     // android
     implementation ("androidx.fragment:fragment-ktx:1.6.2")
-    implementation ("androidx.activity:activity-ktx:1.8.1")
+    implementation ("androidx.activity:activity-ktx:1.8.2")
 
     //cicerone
     implementation("com.github.terrakok:cicerone:7.1")
 
 
-    implementation("androidx.core:core-ktx:1.9.0")
+    implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.11.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")

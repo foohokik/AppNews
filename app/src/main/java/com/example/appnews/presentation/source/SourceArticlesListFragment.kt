@@ -1,5 +1,6 @@
 package com.example.appnews.presentation.source
 
+import android.content.Context
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -28,18 +29,36 @@ import com.example.appnews.presentation.headlines.tabfragment.SideEffects
 import com.example.appnews.presentation.headlines.tabfragment.adapterRV.HeadlinesAdapter
 import com.example.appnews.presentation.hideKeyboard
 import com.example.appnews.presentation.navigation.OnBackPressedListener
+import com.example.appnews.presentation.viewModelFactory
+import com.github.terrakok.cicerone.Router
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 class SourceArticlesListFragment : Fragment(), OnBackPressedListener {
+
+    @Inject
+    lateinit var router: Router
+
+    @Inject
+    lateinit var viewModelFactory: SourceArticlesListViewModel.Factory
 
     private var _binding: FragmentSourceArticlesListBinding? = null
     private val binding get() = _binding!!
 
     private lateinit var sourceArticlesAdapter: HeadlinesAdapter
 
+    private val sourceId: String by lazy {
+        requireArguments().getString(SearchSourceArticlesFragment.ARG) as String
+    }
 
-    private val viewModel by viewModels<SourceArticlesListViewModel> { SourceArticlesListViewModel.Factory }
+    private val viewModel: SourceArticlesListViewModel by viewModelFactory {
+        viewModelFactory.create(sourceId = sourceId)
+    }
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        (requireContext().applicationContext as App).appComponent.inject(this)
+    }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -49,10 +68,6 @@ class SourceArticlesListFragment : Fragment(), OnBackPressedListener {
         return binding.root
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-
-    }
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -92,7 +107,7 @@ class SourceArticlesListFragment : Fragment(), OnBackPressedListener {
         when (sideEffects) {
             is SideEffects.ErrorEffect -> {}
             is SideEffects.ClickEffectArticle -> {
-                (requireActivity().application as App).router.navigateTo(
+                router.navigateTo(
                     Screens.fullArticleHeadlinesFragment(
                         sideEffects.article
                     )
@@ -105,7 +120,7 @@ class SourceArticlesListFragment : Fragment(), OnBackPressedListener {
 
     fun backArrow() {
         binding.imageButtonBackSourceList.setOnClickListener {
-            (requireActivity().application as App).router.exit()
+            router.exit()
         }
     }
 
@@ -116,22 +131,17 @@ class SourceArticlesListFragment : Fragment(), OnBackPressedListener {
     }
 
     companion object {
-
         const val ARG = "ARG"
-
         @JvmStatic
         fun newInstance(source: String) = SourceArticlesListFragment().apply {
             arguments = Bundle().apply {
-
                 putString(ARG, source)
-
             }
         }
-
 }
 
     override fun onBackPressed() {
-        (requireActivity().application as App).router.exit()
+        router.exit()
     }
 
 }

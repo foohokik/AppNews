@@ -7,23 +7,19 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 
-class MainViewModel: ViewModel() {
+class MainViewModel @Inject constructor(): ViewModel() {
 
     private val _isLoading = MutableStateFlow(true)
     val isLoading = _isLoading.asStateFlow()
 
     init {
-
-        //Это что такое?
         viewModelScope.launch {
-
             delay(1500)
             _isLoading.value = false
-
         }
-
     }
 
 

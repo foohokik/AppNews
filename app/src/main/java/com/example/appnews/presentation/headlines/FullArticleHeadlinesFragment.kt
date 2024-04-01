@@ -1,5 +1,6 @@
 package com.example.appnews.presentation.headlines
 
+import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -18,28 +19,39 @@ import com.example.appnews.R
 import com.example.appnews.data.dataclassesresponse.ArticlesUI
 import com.example.appnews.databinding.FragmentFullArticleHeadlinesBinding
 import com.example.appnews.presentation.FullArticleFragmentWeb
+import com.example.appnews.presentation.customGetSerializable
 import com.example.appnews.presentation.dataclasses.FullArticleState
 import com.example.appnews.presentation.navigation.OnBackPressedListener
+import com.example.appnews.presentation.viewModelFactory
+import com.github.terrakok.cicerone.Router
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import javax.inject.Inject
 
 
 @RequiresApi(Build.VERSION_CODES.O)
 class FullArticleHeadlinesFragment : Fragment(), OnBackPressedListener {
 
+    @Inject
+    lateinit var viewModelFactory: FullArticleViewModel.Factory
+    @Inject
+    lateinit var router: Router
 
     private var _binding: FragmentFullArticleHeadlinesBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel by viewModels<FullArticleViewModel> { FullArticleViewModel.Factory }
+    private val article:ArticlesUI.Article? by lazy {
+        requireArguments().customGetSerializable(ARG) as ArticlesUI.Article?}
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
+    private val viewModel: FullArticleViewModel by viewModelFactory {
+        viewModelFactory.create(article = article)
     }
 
-
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        (requireContext().applicationContext as App).appComponent.inject(this)
+    }
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -55,30 +67,22 @@ class FullArticleHeadlinesFragment : Fragment(), OnBackPressedListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
         backArrowToolBar()
 
-
         binding.ivSaveSign.setOnClickListener {
-
             viewModel.onSaveOrRemoveArticle()
-
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-
                 launch {
                     viewModel.stateIconSaved.collect(::stateIcon)
                 }
                 launch {
                     viewModel.contentState.collect(::setContent)
                 }
-
             }
-
         }
-
 
     }
 
@@ -96,33 +100,27 @@ class FullArticleHeadlinesFragment : Fragment(), OnBackPressedListener {
     }
 
     private fun stateIcon(state: Boolean) {
-
       val drawable =  if (state) {
             R.drawable.icon_saved_filled
-
         } else {
             R.drawable.icon_saved
         }
-
         binding.ivSaveSign.setImageResource(drawable)
-
     }
 
     override fun onBackPressed() {
-        (requireActivity().application as App).router.exit()
+        router.exit()
     }
 
     fun backArrowToolBar() {
         binding.imageButtonBackFullArticle.setOnClickListener {
-            (requireActivity().application as App).router.exit()
+           router.exit()
         }
     }
 
 
     companion object {
-
         const val ARG = "ARG"
-
         @JvmStatic
         fun newInstance(article: ArticlesUI.Article) = FullArticleHeadlinesFragment().apply {
             arguments = Bundle().apply {

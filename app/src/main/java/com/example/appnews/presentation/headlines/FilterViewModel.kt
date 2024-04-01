@@ -26,10 +26,11 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
+import javax.inject.Inject
 
 
 @RequiresApi(Build.VERSION_CODES.O)
-class FilterViewModel(
+class FilterViewModel @Inject constructor (
     private val sharedClass: ShareDataClass
 ) : ViewModel() {
 
@@ -244,22 +245,22 @@ class FilterViewModel(
         countOfChosenFilter++
     }
 
-    companion object {
-        val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(
-                    modelClass: Class<T>,
-                    extras: CreationExtras
-            ): T {
-                val application =
-                        checkNotNull(extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY])
-                extras.createSavedStateHandle()
-
-                return FilterViewModel(
-                        (application as App).sharedClass
-                ) as T
-            }
-        }
-    }
+//    companion object {
+//        val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
+//            @Suppress("UNCHECKED_CAST")
+//            override fun <T : ViewModel> create(
+//                    modelClass: Class<T>,
+//                    extras: CreationExtras
+//            ): T {
+//                val application =
+//                        checkNotNull(extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY])
+//                extras.createSavedStateHandle()
+//
+//                return FilterViewModel(
+//                        (application as App).sharedClass
+//                ) as T
+//            }
+//        }
+//    }
 
 }

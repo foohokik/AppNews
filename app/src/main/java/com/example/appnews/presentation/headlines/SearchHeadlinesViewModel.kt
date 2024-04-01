@@ -10,6 +10,8 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import com.example.appnews.App
 import com.example.appnews.core.PAGE_SIZE
 import com.example.appnews.core.Status
+import com.example.appnews.core.networkstatus.NetworkConnectivityService
+import com.example.appnews.core.networkstatus.NetworkStatus
 import com.example.appnews.data.dataclassesresponse.ArticlesUI
 import com.example.appnews.data.dataclassesresponse.News
 import com.example.appnews.data.repository.NewsRepository
@@ -20,14 +22,27 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class SearchHeadlinesViewModel(
-    private val newsRepository: NewsRepository
+class SearchHeadlinesViewModel @Inject constructor(
+    private val newsRepository: NewsRepository,
+    private val networkConnectivityService: NetworkConnectivityService
 ) : ViewModel(), ArticleListener {
 
+    private val _networkStatus: StateFlow<NetworkStatus> = networkConnectivityService
+        .networkStatus
+        .stateIn(
+            initialValue = NetworkStatus.Unknown,
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed()
+        )
+    val networkStatus = _networkStatus
 
     private val _queryFlow = MutableStateFlow("")
     val queryFlow = _queryFlow.asStateFlow()
@@ -103,24 +118,22 @@ class SearchHeadlinesViewModel(
     }
 
 
-    companion object {
-
-
-        val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(
-                modelClass: Class<T>,
-                extras: CreationExtras
-            ): T {
-                val application =
-                    checkNotNull(extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY])
-
-                return SearchHeadlinesViewModel(
-                    (application as App).newsRepository
-                ) as T
-            }
-        }
-    }
+//    companion object {
+//        val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
+//            @Suppress("UNCHECKED_CAST")
+//            override fun <T : ViewModel> create(
+//                modelClass: Class<T>,
+//                extras: CreationExtras
+//            ): T {
+//                val application =
+//                    checkNotNull(extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY])
+//
+//                return SearchHeadlinesViewModel(
+//                    (application as App).newsRepository
+//                ) as T
+//            }
+//        }
+//    }
 
 
     override fun onClickArticle(article: ArticlesUI.Article) {

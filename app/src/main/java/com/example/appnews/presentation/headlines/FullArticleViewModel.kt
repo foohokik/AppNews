@@ -12,6 +12,9 @@ import com.example.appnews.App
 import com.example.appnews.data.dataclassesresponse.ArticlesUI
 import com.example.appnews.data.repository.NewsRepository
 import com.example.appnews.presentation.dataclasses.FullArticleState
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,10 +22,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import javax.inject.Inject
 
 @RequiresApi(Build.VERSION_CODES.O)
-class FullArticleViewModel(private val newsRepository: NewsRepository,
-                           private val savedStateHandle: SavedStateHandle
+class FullArticleViewModel @AssistedInject constructor(
+    private val newsRepository: NewsRepository,
+    @Assisted("article") private var article: ArticlesUI.Article?
 ) : ViewModel() {
 
     private val _stateIconSaved = MutableStateFlow(false)
@@ -31,10 +36,10 @@ class FullArticleViewModel(private val newsRepository: NewsRepository,
     private val _contentState = MutableStateFlow(FullArticleState())
     val contentState = _contentState.asStateFlow()
 
-    private var article: ArticlesUI.Article? = null
+    //private var article: ArticlesUI.Article? = null
 
     init {
-        article = savedStateHandle[ARG]
+       // article = savedStateHandle[ARG]
         article?.title?.let { checkIcon(it) }
         convertArticleToScreenState()
         initDateAndTime()
@@ -92,26 +97,30 @@ class FullArticleViewModel(private val newsRepository: NewsRepository,
     }
 
 
-    companion object {
+    @AssistedFactory
+    interface Factory {
+        fun create(@Assisted("article") article: ArticlesUI.Article?): FullArticleViewModel}
 
-        private const val ARG = "ARG"
-
-        val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(
-                modelClass: Class<T>,
-                extras: CreationExtras
-            ): T {
-                val application =
-                    checkNotNull(extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY])
-
-                val savedStateHandle = extras.createSavedStateHandle()
-
-                return FullArticleViewModel(
-                    (application as App).newsRepository,
-                    savedStateHandle
-                ) as T
-            }
-        }
-    }
+//    companion object {
+//
+//        private const val ARG = "ARG"
+//
+//        val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
+//            @Suppress("UNCHECKED_CAST")
+//            override fun <T : ViewModel> create(
+//                modelClass: Class<T>,
+//                extras: CreationExtras
+//            ): T {
+//                val application =
+//                    checkNotNull(extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY])
+//
+//                val savedStateHandle = extras.createSavedStateHandle()
+//
+//                return FullArticleViewModel(
+//                    (application as App).newsRepository,
+//                    savedStateHandle
+//                ) as T
+//            }
+//        }
+//    }
 }

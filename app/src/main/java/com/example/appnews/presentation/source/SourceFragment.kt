@@ -1,5 +1,6 @@
 package com.example.appnews.presentation.source
 
+import android.content.Context
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -16,20 +17,33 @@ import com.example.appnews.Screens
 import com.example.appnews.core.PAGE_SIZE
 import com.example.appnews.core.viewclasses.SharedDataType
 import com.example.appnews.databinding.FragmentSourceBinding
+import com.example.appnews.presentation.headlines.HeadlinesViewModel
 import com.example.appnews.presentation.headlines.tabfragment.SideEffects
 import com.example.appnews.presentation.headlines.tabfragment.adapterRV.HeadlinesAdapter
 import com.example.appnews.presentation.navigation.OnBackPressedListener
 import com.example.appnews.presentation.source.AdapterSources.SourceAdapter
+import com.example.appnews.presentation.viewModelFactory
+import com.github.terrakok.cicerone.Router
 import kotlinx.coroutines.launch
+import javax.inject.Inject
+import javax.inject.Provider
 
 class SourceFragment : Fragment(), OnBackPressedListener {
+
+	@Inject
+	lateinit var router: Router
+	@Inject
+	internal lateinit var viewModelProvider: Provider<SourceViewModel>
 
 	private var _binding: FragmentSourceBinding? = null
 	private val binding get() = _binding!!
 
-	private val viewModel by viewModels<SourceViewModel>{SourceViewModel.Factory}
-
 	private lateinit var adapterSource: SourceAdapter
+	private val viewModel by  viewModelFactory { viewModelProvider.get() }
+	override fun onAttach(context: Context) {
+		super.onAttach(context)
+		(requireContext().applicationContext as App).appComponent.inject(this)
+	}
 
 	override fun onCreateView(
 		inflater: LayoutInflater, container: ViewGroup?,
@@ -47,11 +61,9 @@ class SourceFragment : Fragment(), OnBackPressedListener {
 				launch {
 					viewModel.sourceFlow.collect {
 						adapterSource.setItems(it.sources)
-
 					}
 				}
 				launch { viewModel.sideEffects.collect { handleSideEffects(it) } }
-
 			}
 		}
 	}
@@ -69,7 +81,7 @@ class SourceFragment : Fragment(), OnBackPressedListener {
 		when (sideEffects) {
 			is SideEffects.ErrorEffect -> {}
 			is SideEffects.ClickSource -> {
-				(requireActivity().application as App).router.navigateTo(
+				router.navigateTo(
 					Screens.sourceArticlesListFragment(
 						sideEffects.source.id
 					)
@@ -86,7 +98,7 @@ class SourceFragment : Fragment(), OnBackPressedListener {
 	}
 
 	override fun onBackPressed() {
-		(requireActivity().application as App).router.exit()
+		router.exit()
 	}
 
 }

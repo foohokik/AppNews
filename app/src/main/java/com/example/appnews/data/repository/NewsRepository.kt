@@ -9,15 +9,18 @@ import com.example.appnews.data.dataclassesresponse.AllSources
 import com.example.appnews.data.dataclassesresponse.ArticlesUI
 import com.example.appnews.data.dataclassesresponse.News
 import com.example.appnews.data.dataclassesresponse.toDataWrapperNews
-import kotlinx.coroutines.flow.flowOf
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class NewsRepository(private val db: ArticlesDatabase, private val converter: HttpResultToDataWrapperConverter) {
 
+@Singleton
+class NewsRepository @Inject constructor(
+    private val db: ArticlesDatabase,
+    private val converter: HttpResultToDataWrapperConverter) {
 
     suspend fun getHeadlinesNews(country: String, category: String, pageNumber: Int): DataWrapper<News> {
         val result = RetrofitInstance.api.getHeadlinesNews(country, category, pageNumber)
         return converter.convert(result).toDataWrapperNews()
-
     }
 
     suspend fun getSearchNews(category: String, searchQuery: String, pageNumber: Int): DataWrapper<News> {
@@ -34,7 +37,6 @@ class NewsRepository(private val db: ArticlesDatabase, private val converter: Ht
         val result = RetrofitInstance.api.getArticlesFromSource(sourceId)
         return converter.convert(result).toDataWrapperNews()
     }
-
     suspend fun getSearchNewsFromSource(sourceId: String,searchQuery: String ): DataWrapper<News> {
         val result = RetrofitInstance.api.getSearchNewsFromSource(sourceId, searchQuery)
         return converter.convert(result).toDataWrapperNews()
@@ -45,13 +47,7 @@ class NewsRepository(private val db: ArticlesDatabase, private val converter: Ht
     suspend fun delete(title: String) = db.getArticleDao().deleteArticle(title)
 
     fun getAllSavedArticles() = db.getArticleDao().getAllArticles()
-
-
-
     suspend fun deleteAll() = db.getArticleDao().deleteAll()
-
     suspend fun getArticle(title: String) = db.getArticleDao().getArticle(title)
-
-
-
+    fun getSearchArticle (title: String) = db.getArticleDao().searchArticle(title)
 }

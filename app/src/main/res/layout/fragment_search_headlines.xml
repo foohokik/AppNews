@@ -56,7 +56,15 @@
     <androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/recycleview_headlines_search"/>
+        android:id="@+id/recycleview_headlines_search"
+        android:visibility="visible"/>
+
+    <com.example.appnews.core.viewclasses.ErrorView
+        android:id="@+id/view_error_search_headlines"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:visibility="invisible" />
 
 
 </LinearLayout>

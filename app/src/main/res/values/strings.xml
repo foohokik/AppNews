@@ -9,6 +9,9 @@
     <string name="russian">Русский</string>
     <string name="english">English</string>
     <string name="deutsch">Deutsch</string>
+    <string name="disconnected">Disconnected</string>
+    <string name="connected">Connected</string>
+    <string name="lost">Lost</string>
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

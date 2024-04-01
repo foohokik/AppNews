@@ -7,7 +7,14 @@ import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.view.inputmethod.InputMethodManager.HIDE_IMPLICIT_ONLY
+import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.CreationExtras
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -41,5 +48,26 @@ inline fun <reified T : Serializable> Bundle.customGetSerializable(key: String):
     } else {
         getSerializable(key) as? T
     }
+}
+
+ inline fun <reified VM : ViewModel> Fragment.viewModelFactory(
+    noinline factory: () -> VM,
+): Lazy<VM> = viewModels {
+    ViewModelFactory(factory)
+}
+
+ inline fun <reified VM : ViewModel> AppCompatActivity.viewModelFactory(
+    noinline factory: () -> VM,
+): Lazy<VM> = viewModels {
+    ViewModelFactory(factory)
+}
+
+ class ViewModelFactory<VM : ViewModel>(
+    private val factory: () -> VM,
+) : ViewModelProvider.Factory {
+
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T
+    = factory() as T
 }
 

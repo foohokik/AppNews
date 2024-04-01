@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.appnews.App
 import com.example.appnews.R
 import com.example.appnews.Screens
@@ -12,15 +13,30 @@ import com.example.appnews.presentation.navigation.MainNavigator
 import com.example.appnews.presentation.navigation.OnBackPressedListener
 import com.example.appnews.presentation.navigation.PagesType
 import com.example.appnews.presentation.navigation.fromTypeToId
+import com.github.terrakok.cicerone.NavigatorHolder
+import com.github.terrakok.cicerone.Router
+import javax.inject.Inject
+import javax.inject.Provider
 
 
 class MainActivity : AppCompatActivity() {
 
+	@Inject
+	internal lateinit var viewModelProvider: Provider<MainViewModel>
+
+	@Inject
+	lateinit var navigatorHolder: NavigatorHolder
+
+	@Inject
+	lateinit var router: Router
+
 	private lateinit var binding: ActivityMainBinding
-	private val viewModel: MainViewModel by viewModels()
+	private val viewModel by viewModelFactory { viewModelProvider.get() }
 	val navigator = MainNavigator(this, R.id.main_container_view)
 
 	override fun onCreate(savedInstanceState: Bundle?) {
+
+		(applicationContext as App).appComponent.inject(this)
 		installSplashScreen().setKeepOnScreenCondition() {
 			viewModel.isLoading.value
 		}
@@ -42,14 +58,14 @@ class MainActivity : AppCompatActivity() {
 		binding.navBar.setOnItemSelectedListener {
 			when (it.itemId) {
 				R.id.headline -> {
-					(application as App).router.replaceScreen(Screens.headlinesTab())
+					router.replaceScreen(Screens.headlinesTab())
 				}
 
 				R.id.saved -> {
-					(application as App).router.replaceScreen(Screens.saveTab())
+					router.replaceScreen(Screens.saveTab())
 				}
 
-				R.id.source -> (application as App).router.replaceScreen(Screens.sourceTab())
+				R.id.source -> router.replaceScreen(Screens.sourceTab())
 			}
 			true
 		}
@@ -57,12 +73,12 @@ class MainActivity : AppCompatActivity() {
 
 	override fun onResume() {
 		super.onResume()
-		(application as App).navigatorHolder.setNavigator(navigator)
+		navigatorHolder.setNavigator(navigator)
 	}
 
 	override fun onPause() {
 		super.onPause()
-		(application as App).navigatorHolder.removeNavigator()
+		navigatorHolder.removeNavigator()
 	}
 
 	override fun onBackPressed() {

@@ -43,7 +43,6 @@ class FilterLayoutButton @JvmOverloads constructor(
             FilterTypes.ENGLISH -> {
                 setLanguageBtnData(item, R.drawable.shape_btn_language_pressed, R.drawable.shape_btn_language_not_pressed)
             }
-
         }
     }
 
@@ -71,9 +70,6 @@ class FilterLayoutButton @JvmOverloads constructor(
             notPressed
         }
         this@FilterLayoutButton.background = AppCompatResources.getDrawable(context, drawable)
-
     }
-
-
 
 }

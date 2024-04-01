@@ -22,28 +22,46 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.appnews.App
 import com.example.appnews.R
+import com.example.appnews.Screens
 import com.example.appnews.core.Category
 import com.example.appnews.core.PAGE_SIZE
+import com.example.appnews.core.networkstatus.NetworkStatus
 import com.example.appnews.databinding.FragmentHeadlinesBinding
 import com.example.appnews.databinding.FragmentSearchHeadlinesBinding
 import com.example.appnews.presentation.headlines.tabfragment.PagerContainerFragment
 import com.example.appnews.presentation.headlines.tabfragment.PagerContainerViewModel
+import com.example.appnews.presentation.headlines.tabfragment.SideEffects
 import com.example.appnews.presentation.headlines.tabfragment.adapterRV.HeadlinesAdapter
+import com.example.appnews.presentation.hideKeyboard
 import com.example.appnews.presentation.navigation.OnBackPressedListener
+import com.example.appnews.presentation.showKeyBoard
+import com.example.appnews.presentation.viewModelFactory
+import com.github.terrakok.cicerone.Router
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import javax.inject.Inject
+import javax.inject.Provider
 
 
 class SearchHeadlinesFragment : Fragment(), OnBackPressedListener {
 
-    private lateinit var headlineAdapter: HeadlinesAdapter
+    @Inject
+    lateinit var router: Router
+    @Inject
+    internal lateinit var viewModelProvider: Provider<SearchHeadlinesViewModel>
 
+    private lateinit var headlineAdapter: HeadlinesAdapter
     private var _binding: FragmentSearchHeadlinesBinding? = null
     private val binding get() = _binding!!
-    private val viewModel by viewModels<SearchHeadlinesViewModel> { SearchHeadlinesViewModel.Factory }
 
+    private val viewModel by  viewModelFactory { viewModelProvider.get() }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        (requireContext().applicationContext as App).appComponent.inject(this)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -55,22 +73,15 @@ class SearchHeadlinesFragment : Fragment(), OnBackPressedListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
-
         backArrow()
         closeEnteringSearch()
-
         binding.editTextSearchHeadlines.doOnTextChanged { text, start, before, count ->
-
             text?.let {
                 if (text.toString().isNotEmpty()) {
                     viewModel.getSearchNews(searchQuery = text.toString())
-
                 }
             }
         }
-
-
 
         initViews()
         viewLifecycleOwner.lifecycleScope.launch {
@@ -80,14 +91,12 @@ class SearchHeadlinesFragment : Fragment(), OnBackPressedListener {
                         headlineAdapter.setItems(it.articles)
                     }
                 }
-                // launch { viewModel.sideEffects.collect { handleSideEffects(it) } }
-
+                launch { viewModel.sideEffects.collect { handleSideEffects(it) } }
                 launch { viewModel.showKeyboard.collect(::renderKeyboard) }
-
-
                 launch {
                     viewModel.queryFlow.collect { renderQuery(it) }
                 }
+                launch { viewModel.networkStatus.collect(::networkState) }
             }
         }
 
@@ -100,10 +109,30 @@ class SearchHeadlinesFragment : Fragment(), OnBackPressedListener {
     }
 
     override fun onBackPressed() {
-        (requireActivity().application as App).router.exit()
+        router.exit()
     }
 
-    fun renderQuery(text: String) {
+    private fun networkState (networkStatus: NetworkStatus) {
+
+        when(networkStatus) {
+            NetworkStatus.Connected -> {
+                with(binding) {
+                    recycleviewHeadlinesSearch.visibility = View.VISIBLE
+                    viewErrorSearchHeadlines.visibility = View.INVISIBLE
+                }
+            }
+            NetworkStatus.Disconnected -> {
+                with(binding) {
+                    recycleviewHeadlinesSearch.visibility = View.GONE
+                    viewErrorSearchHeadlines.visibility = View.VISIBLE
+                    viewErrorSearchHeadlines.setText("No internet connection")
+                }
+            }
+            NetworkStatus.Unknown -> {}
+        }
+    }
+
+  private fun renderQuery(text: String) {
         if (text == binding.editTextSearchHeadlines.text.toString()) {
 
         } else {
@@ -111,27 +140,21 @@ class SearchHeadlinesFragment : Fragment(), OnBackPressedListener {
         }
     }
 
-
-    fun backArrow() {
+   private fun backArrow() {
         binding.imageButtonBackSearch.setOnClickListener {
-            (requireActivity().application as App).router.exit()
+            router.exit()
         }
     }
 
-    fun closeEnteringSearch() {
-
+   private fun closeEnteringSearch() {
         binding.imageButtonClose.setOnClickListener {
             with(binding.editTextSearchHeadlines) {
                 text.clear()
                 clearFocus()
                 isCursorVisible = false
-
             }
-
             viewModel.changeFlagonChangeKeyBoardFlag(isShow = false)
-
         }
-
     }
 
     fun renderKeyboard(isShow: Boolean) {
@@ -142,20 +165,6 @@ class SearchHeadlinesFragment : Fragment(), OnBackPressedListener {
         }
     }
 
-    fun Context.hideKeyboard(view: View) {
-        val inputMethodManager =
-            getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
-        inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
-    }
-
-    fun Context.showKeyBoard(view: View?) {
-        view?.let {
-            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-            imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0)
-        }
-    }
-
-
     private fun initViews() = with(binding.recycleviewHeadlinesSearch) {
         val manager = LinearLayoutManager(requireContext())
         headlineAdapter = HeadlinesAdapter(viewModel, changeBackgroundColor = true)
@@ -164,5 +173,17 @@ class SearchHeadlinesFragment : Fragment(), OnBackPressedListener {
         itemAnimator = null
     }
 
-
+    private fun handleSideEffects(sideEffects: SideEffects) {
+        when (sideEffects) {
+            is SideEffects.ErrorEffect -> {}
+            is SideEffects.ClickEffectArticle -> {
+                router.navigateTo(
+                    Screens.fullArticleHeadlinesFragment(
+                        sideEffects.article
+                    )
+                )
+            }
+            else -> {}
+        }
+    }
 }

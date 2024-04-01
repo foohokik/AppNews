@@ -1,7 +1,9 @@
 package com.example.appnews.di
 
 import com.example.appnews.core.BASE_URL
+import com.example.appnews.core.networkstatus.NetworkConnectivityService
 import com.example.appnews.data.api.NewsAPI
+import com.example.appnews.data.database.NetworkInterceptor
 import dagger.Module
 import dagger.Provides
 
@@ -17,13 +19,14 @@ class NetworkModule {
 
     @Provides
     @Singleton
-    fun provideOkhttpClient(): OkHttpClient {
+    fun provideOkhttpClient(networkConnectivityService: NetworkConnectivityService): OkHttpClient {
 
         val logging = HttpLoggingInterceptor()
+        val networkInterceptor = NetworkInterceptor(networkConnectivityService)
         logging.setLevel(HttpLoggingInterceptor.Level.BODY)
         val client = OkHttpClient.Builder()
             .addInterceptor(logging)
-
+            .addInterceptor(networkInterceptor)
         return client.build()
 
     }

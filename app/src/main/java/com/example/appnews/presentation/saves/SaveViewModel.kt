@@ -23,11 +23,11 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class SaveViewModel(private val newsRepository: NewsRepository) : ViewModel(), ArticleListener {
-
-    private val _savedArticleFlow = MutableStateFlow(emptyList<ArticlesUI.Article>())
-    val savedArticleFlow = _savedArticleFlow.asStateFlow()
+class SaveViewModel @Inject constructor(
+    private val newsRepository: NewsRepository
+) : ViewModel(), ArticleListener {
 
     private val _sideEffects = Channel<SideEffects>()
     val sideEffects = _sideEffects.receiveAsFlow()
@@ -45,22 +45,22 @@ class SaveViewModel(private val newsRepository: NewsRepository) : ViewModel(), A
     }
 
 
-    companion object {
-
-        val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(
-                    modelClass: Class<T>,
-                    extras: CreationExtras
-            ): T {
-                val application =
-                        checkNotNull(extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY])
-
-                return SaveViewModel(
-                        (application as App).newsRepository
-                ) as T
-            }
-        }
-    }
+//    companion object {
+//
+//        val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
+//            @Suppress("UNCHECKED_CAST")
+//            override fun <T : ViewModel> create(
+//                    modelClass: Class<T>,
+//                    extras: CreationExtras
+//            ): T {
+//                val application =
+//                        checkNotNull(extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY])
+//
+//                return SaveViewModel(
+//                        (application as App).newsRepository
+//                ) as T
+//            }
+//        }
+//    }
 
 }

@@ -33,7 +33,7 @@ class FullArticleFragmentWeb : Fragment(), OnBackPressedListener {
 
         binding.materialToolbar.title = article?.title
         binding.materialToolbar.setNavigationOnClickListener {
-            (requireActivity().application as App).router.exit()
+          //  router.exit()
         }
 
 
@@ -66,6 +66,6 @@ class FullArticleFragmentWeb : Fragment(), OnBackPressedListener {
     }
 
     override fun onBackPressed() {
-        (requireActivity().application as App).router.exit()
+       // (requireActivity().application as App).router.exit()
     }
 }

@@ -8,8 +8,6 @@
     tools:context=".presentation.headlines.FilterFragment">
 
 
-
-
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/materialToolbarSearchHeadlines"
         android:layout_width="match_parent"

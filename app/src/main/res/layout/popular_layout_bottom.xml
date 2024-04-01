@@ -10,8 +10,7 @@
         android:id="@+id/tv_buttons_filter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="14sp"
-        android:textColor="@color/black"
         android:layout_gravity="center"
-        />
+        android:textColor="@color/black"
+        android:textSize="14sp" />
 </merge>

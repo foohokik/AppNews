@@ -19,8 +19,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class SourceViewModel(private val newsRepository: NewsRepository) : ViewModel(), SourceListener {
+class SourceViewModel @Inject constructor(private val newsRepository: NewsRepository) : ViewModel(), SourceListener {
 
     private val _sourceFlow = MutableStateFlow(AllSources())
     val sourceFlow = _sourceFlow.asStateFlow()
@@ -65,24 +66,23 @@ class SourceViewModel(private val newsRepository: NewsRepository) : ViewModel(),
             }
         }
 
-
-        companion object {
-            val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
-                @Suppress("UNCHECKED_CAST")
-                override fun <T : ViewModel> create(
-                    modelClass: Class<T>,
-                    extras: CreationExtras
-                ): T {
-                    val application =
-                        checkNotNull(extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY])
-                    extras.createSavedStateHandle()
-
-                    return SourceViewModel(
-                        (application as App).newsRepository
-                    ) as T
-                }
-            }
-        }
+//        companion object {
+//            val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
+//                @Suppress("UNCHECKED_CAST")
+//                override fun <T : ViewModel> create(
+//                    modelClass: Class<T>,
+//                    extras: CreationExtras
+//                ): T {
+//                    val application =
+//                        checkNotNull(extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY])
+//                    extras.createSavedStateHandle()
+//
+//                    return SourceViewModel(
+//                        (application as App).newsRepository
+//                    ) as T
+//                }
+//            }
+//        }
     }
 
 
