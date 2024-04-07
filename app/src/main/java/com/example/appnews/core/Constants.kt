@@ -1,7 +1,19 @@
 package com.example.appnews.core
 
-const val API_KEY = "3678d7c5651740f7beded5d8d10299a9"
-const val BASE_URL ="https://newsapi.org"
-const val PAGE_SIZE =20
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
-const val ARG_OBJECT = "object"
+const val PAGE_SIZE = 20
+
+fun<T> Call<T>.onEnqueue(actOnSuccess: (Response<T>) -> Unit, actOnFailure: (t: Throwable?) -> Unit)   {
+    this.enqueue(object: Callback<T> {
+        override fun onResponse(call: Call<T>, response: Response<T>) {
+            actOnSuccess(response)
+        }
+
+        override fun onFailure(call: Call<T>, t: Throwable) {
+            actOnFailure(t)
+        }
+    })
+}
