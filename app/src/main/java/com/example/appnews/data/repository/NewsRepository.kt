@@ -9,6 +9,7 @@ import com.example.appnews.data.dataclassesresponse.AllSources
 import com.example.appnews.data.dataclassesresponse.ArticlesUI
 import com.example.appnews.data.dataclassesresponse.News
 import com.example.appnews.data.dataclassesresponse.toDataWrapperNews
+import com.example.appnews.data.dataclassesresponse.toNetworkResultNews
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -33,9 +34,9 @@ class NewsRepository @Inject constructor(
         category: String,
         searchQuery: String,
         pageNumber: Int
-    ): DataWrapper<News> {
+    ): NetworkResult<News> {
         val result = api.searchNews(category, searchQuery, pageNumber)
-        return converter.convert(result).toDataWrapperNews()
+        return result.toNetworkResultNews()
     }
 
     suspend fun getSources(): NetworkResult<AllSources> {

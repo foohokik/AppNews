@@ -22,7 +22,7 @@ interface NewsAPI {
         @Query("category") category: String,
         @Query("q") searchQuery: String,
         @Query("page") pageNumber: Int
-    ): Response<NewsResponse>
+    ): NetworkResult<NewsResponse>
 
     @GET("/v2/top-headlines/sources")
     suspend fun getSources(): NetworkResult<AllSources>
