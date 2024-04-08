@@ -1,14 +1,15 @@
 package com.example.appnews.data.repository
 
-import android.util.Log
 import com.example.appnews.core.DataWrapper
 import com.example.appnews.core.HttpResultToDataWrapperConverter
-import com.example.appnews.data.api.RetrofitInstance
+import com.example.appnews.core.network.NetworkResult
+import com.example.appnews.data.api.NewsAPI
 import com.example.appnews.data.database.ArticlesDatabase
 import com.example.appnews.data.dataclassesresponse.AllSources
 import com.example.appnews.data.dataclassesresponse.ArticlesUI
 import com.example.appnews.data.dataclassesresponse.News
 import com.example.appnews.data.dataclassesresponse.toDataWrapperNews
+import com.example.appnews.data.dataclassesresponse.toNetworkResultNews
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -16,29 +17,39 @@ import javax.inject.Singleton
 @Singleton
 class NewsRepository @Inject constructor(
     private val db: ArticlesDatabase,
-    private val converter: HttpResultToDataWrapperConverter) {
+    private val converter: HttpResultToDataWrapperConverter,
+    private val api: NewsAPI
+) {
 
-    suspend fun getHeadlinesNews(country: String, category: String, pageNumber: Int): DataWrapper<News> {
-        val result = RetrofitInstance.api.getHeadlinesNews(country, category, pageNumber)
+    suspend fun getHeadlinesNews(
+        country: String,
+        category: String,
+        pageNumber: Int
+    ): DataWrapper<News> {
+        val result = api.getHeadlinesNews(country, category, pageNumber)
         return converter.convert(result).toDataWrapperNews()
     }
 
-    suspend fun getSearchNews(category: String, searchQuery: String, pageNumber: Int): DataWrapper<News> {
-        val result = RetrofitInstance.api.searchNews(category, searchQuery, pageNumber)
-        return converter.convert(result).toDataWrapperNews()
+    suspend fun getSearchNews(
+        category: String,
+        searchQuery: String,
+        pageNumber: Int
+    ): NetworkResult<News> {
+        val result = api.searchNews(category, searchQuery, pageNumber)
+        return result.toNetworkResultNews()
     }
 
-    suspend fun getSources(): DataWrapper<AllSources> {
-        val result = RetrofitInstance.api.getSources()
-        return converter.convert(result)
+    suspend fun getSources(): NetworkResult<AllSources> {
+        return api.getSources()
     }
 
     suspend fun getSourcesNews(sourceId: String): DataWrapper<News> {
-        val result = RetrofitInstance.api.getArticlesFromSource(sourceId)
+        val result = api.getArticlesFromSource(sourceId)
         return converter.convert(result).toDataWrapperNews()
     }
-    suspend fun getSearchNewsFromSource(sourceId: String,searchQuery: String ): DataWrapper<News> {
-        val result = RetrofitInstance.api.getSearchNewsFromSource(sourceId, searchQuery)
+
+    suspend fun getSearchNewsFromSource(sourceId: String, searchQuery: String): DataWrapper<News> {
+        val result = api.getSearchNewsFromSource(sourceId, searchQuery)
         return converter.convert(result).toDataWrapperNews()
     }
 
@@ -49,5 +60,5 @@ class NewsRepository @Inject constructor(
     fun getAllSavedArticles() = db.getArticleDao().getAllArticles()
     suspend fun deleteAll() = db.getArticleDao().deleteAll()
     suspend fun getArticle(title: String) = db.getArticleDao().getArticle(title)
-    fun getSearchArticle (title: String) = db.getArticleDao().searchArticle(title)
+    fun getSearchArticle(title: String) = db.getArticleDao().searchArticle(title)
 }

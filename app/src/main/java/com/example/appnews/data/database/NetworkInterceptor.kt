@@ -19,21 +19,18 @@ class NetworkInterceptor @Inject constructor(
     private val networkConnectivityService: NetworkConnectivityService
 ) : Interceptor {
 
-
-   // val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-
     @Throws(IOException::class)
     override fun intercept(chain: Interceptor.Chain): Response {
         Log.d("CRASH", "interceptor before")
         val request: Request = chain.request()
         Log.d("CRASH", "interceptor after")
-        if(networkConnectivityService.isConnected()){
+        if (networkConnectivityService.isConnected()) {
             return chain.proceed(request)
-        }else{
+        } else {
             Log.d("CRASH", "here before IOExc interceptor")
             throw NoNetworkException()
         }
     }
 
-    class NoNetworkException internal constructor() : RuntimeException("Please check Network Connection")
+    class NoNetworkException: IOException("Please check Network Connection")
 }

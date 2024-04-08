@@ -10,8 +10,13 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import com.example.appnews.App
 import com.example.appnews.core.PAGE_SIZE
 import com.example.appnews.core.Status
+import com.example.appnews.core.network.NetworkResult
+import com.example.appnews.core.network.onError
+import com.example.appnews.core.network.onException
+import com.example.appnews.core.network.onSuccess
 import com.example.appnews.core.networkstatus.NetworkConnectivityService
 import com.example.appnews.core.networkstatus.NetworkStatus
+import com.example.appnews.data.database.NetworkInterceptor
 import com.example.appnews.data.dataclassesresponse.ArticlesUI
 import com.example.appnews.data.dataclassesresponse.News
 import com.example.appnews.data.repository.NewsRepository
@@ -83,24 +88,13 @@ class SearchHeadlinesViewModel @Inject constructor(
             _queryFlow.value = searchQuery
             val result = newsRepository.getSearchNews(category, searchQuery, headlinesPage)
 
-            when (result.status) {
-                is Status.Success -> {
-                    result.data?.let { news ->
-                        _searchHeadlinesViewModel.value = news
-                    }
-
-
-                    totalPages = _searchHeadlinesViewModel.value.totalResults / PAGE_SIZE
-
-
-                }
-
-                is Status.Error -> {
-                    _sideEffects.send(SideEffects.ErrorEffect(result.status.message.orEmpty()))
-                }
-
-                else -> Unit
-
+            result.onSuccess { news ->
+                _searchHeadlinesViewModel.value = news
+                totalPages = _searchHeadlinesViewModel.value.totalResults / PAGE_SIZE
+            }.onError { _, message ->
+                _sideEffects.send(SideEffects.ErrorEffect(message.orEmpty()))
+            }.onException { throwable ->
+                _sideEffects.send(SideEffects.ExceptionEffect(throwable))
             }
 
             if (headlinesPage <= (totalPages + 1)) {
