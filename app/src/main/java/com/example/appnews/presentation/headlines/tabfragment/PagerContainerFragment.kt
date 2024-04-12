@@ -1,7 +1,6 @@
 package com.example.appnews.presentation.headlines.tabfragment
 
 import android.content.Context
-import android.health.connect.datatypes.units.Length
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -22,33 +21,33 @@ import com.example.appnews.core.Category
 import com.example.appnews.core.PAGE_SIZE
 import com.example.appnews.core.networkstatus.NetworkStatus
 import com.example.appnews.databinding.FragmentPagerContainerBinding
-import com.example.appnews.presentation.headlines.tabfragment.adapterRV.HeadlinesAdapter
+import com.example.appnews.presentation.SideEffects
+import com.example.appnews.presentation.headlines.headlines_adapterRV.HeadlinesAdapter
 import com.example.appnews.presentation.viewModelFactory
 import com.github.terrakok.cicerone.Router
 import kotlinx.coroutines.launch
-import java.time.Duration
 import javax.inject.Inject
-
 
 class PagerContainerFragment : Fragment() {
 
     @Inject
     lateinit var router: Router
+
     @Inject
     lateinit var viewModelFactory: PagerContainerViewModel.Factory
 
     private lateinit var headlineAdapter: HeadlinesAdapter
-    var totalPages = 0
+    private var totalPages = 0
     var isLastPage = false
-    private val category: String by lazy {requireArguments().getString(CATEGORY) as String}
+    private val category: String by lazy { requireArguments().getString(CATEGORY) as String }
 
     private var _binding: FragmentPagerContainerBinding? = null
     private val binding get() = _binding!!
 
-
     private val viewModel: PagerContainerViewModel by viewModelFactory {
         viewModelFactory.create(category = category)
     }
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         (requireContext().applicationContext as App).appComponent.inject(this)
@@ -61,7 +60,6 @@ class PagerContainerFragment : Fragment() {
         _binding = FragmentPagerContainerBinding.inflate(inflater, container, false)
         return binding.root
     }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
         initViews()
@@ -74,34 +72,32 @@ class PagerContainerFragment : Fragment() {
                     }
                 }
                 launch { viewModel.sideEffects.collect { handleSideEffects(it) } }
-                launch {viewModel.networkStatus.collect{ networkState(it)}  }
-                launch {
-                    viewModel.isLastPageFlow.collect {
-                        isLastPage = it
-                    }
-
-                }
+                launch { viewModel.networkStatus.collect { networkState(it) } }
+                launch {viewModel.isLastPageFlow.collect {isLastPage = it } }
             }
         }
-
     }
 
-    private fun networkState (networkStatus:NetworkStatus) {
-
-        when(networkStatus) {
+    private var itWasDisconnected = false
+    private fun networkState(networkStatus: NetworkStatus) {
+        when (networkStatus) {
             NetworkStatus.Connected -> {
                 with(binding) {
-                recycleviewHeadlines.visibility = View.VISIBLE
-                viewError.visibility = View.INVISIBLE
+                    if (itWasDisconnected) {viewModel.getHeadlinesNews()}
+                    recycleviewHeadlines.visibility = View.VISIBLE
+                    viewError.visibility = View.INVISIBLE
                 }
             }
+
             NetworkStatus.Disconnected -> {
+                itWasDisconnected = true
                 with(binding) {
                     recycleviewHeadlines.visibility = GONE
                     viewError.visibility = View.VISIBLE
                     viewError.setText("No internet connection")
                 }
             }
+
             NetworkStatus.Unknown -> {}
         }
     }
@@ -109,8 +105,10 @@ class PagerContainerFragment : Fragment() {
     private fun handleSideEffects(sideEffects: SideEffects) {
         when (sideEffects) {
             is SideEffects.ErrorEffect -> {
-                Toast.makeText(requireContext(), "Ошибка: "+sideEffects.err, Toast.LENGTH_LONG).show()
+                Toast.makeText(requireContext(), "Ошибка: " + sideEffects.err, Toast.LENGTH_LONG)
+                    .show()
             }
+
             is SideEffects.ClickEffectArticle -> {
                 router.navigateTo(
                     Screens.fullArticleHeadlinesFragment(
@@ -118,6 +116,15 @@ class PagerContainerFragment : Fragment() {
                     )
                 )
             }
+
+            is SideEffects.ExceptionEffect -> {
+                Toast.makeText(
+                    requireContext(),
+                    "Ошибка: " + sideEffects.throwable.message,
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+
             else -> {}
         }
     }
@@ -135,7 +142,6 @@ class PagerContainerFragment : Fragment() {
             val totalItemCount = layoutManager.itemCount
 
             val isNotLoadingAndNotLastPage = !isLastPage
-            val isAtLastItem = firstVisibleItemPosition + visibleItemCount >= totalItemCount
             val isHasVisibleItems = firstVisibleItemPosition >= 0
             val isTotalMoreThanVisible = totalItemCount >= PAGE_SIZE
 
@@ -164,10 +170,12 @@ class PagerContainerFragment : Fragment() {
         itemAnimator = null
         addOnScrollListener(scrollListener)
     }
+
     override fun onDestroyView() {
         super.onDestroyView()
         binding.recycleviewHeadlines.removeOnScrollListener(scrollListener)
     }
+
     companion object {
         const val CATEGORY = "category"
         fun newInstance(position: Int): PagerContainerFragment {

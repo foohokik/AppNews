@@ -1,27 +1,15 @@
 package com.example.appnews.presentation.saves
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.CreationExtras
-import com.example.appnews.App
 import com.example.appnews.data.dataclassesresponse.ArticlesUI
-import com.example.appnews.data.repository.NewsRepository
-import com.example.appnews.presentation.headlines.HeadlinesViewModel
-import com.example.appnews.presentation.headlines.tabfragment.SideEffects
-import com.example.appnews.presentation.headlines.tabfragment.adapterRV.ArticleListener
-import kotlinx.coroutines.Dispatchers
+import com.example.appnews.domain.NewsRepository
+import com.example.appnews.presentation.SideEffects
+import com.example.appnews.presentation.headlines.headlines_adapterRV.ArticleListener
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flatMap
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

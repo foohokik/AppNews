@@ -1,24 +1,16 @@
 package com.example.appnews.presentation.headlines
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.CreationExtras
-import com.example.appnews.App
-import com.example.appnews.core.FilterTypes
-import com.example.appnews.core.ModelFilterButtons
-import com.example.appnews.core.ShareDataClass
-import com.example.appnews.core.viewclasses.SharedDataType
-import com.github.terrakok.cicerone.Router
+import com.example.appnews.core.viewclasses.FilterTypes
+import com.example.appnews.core.viewclasses.ModelFilterButtons
+import com.example.appnews.core.shared.ShareDataClass
+import com.example.appnews.core.shared.SharedDataType
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -70,14 +62,11 @@ class FilterViewModel @Inject constructor (
     init {
         viewModelScope.launch {
             sharedClass.reviewSearchSideEffect.collect(::determineButtonState)
-
         }
-        Log.d("IOI", "init " + sharedClass.reviewSearchSideEffect.value)
     }
 
-    private fun determineButtonState (dataStateType:SharedDataType) {
+    private fun determineButtonState (dataStateType: SharedDataType) {
 
-        Log.d("IOI", "determineButtonState  " + dataStateType)
         val listOfCountryFlow = listOf<ModelFilterButtons>(_buttonEnglishIsPressed.value,
           _buttonDeutschIsPressed.value, _buttonRussianIsPressed.value)
         val country = listOfCountryFlow.find {
@@ -146,7 +135,8 @@ class FilterViewModel @Inject constructor (
 
     fun sendResult() {
         viewModelScope.launch {
-            _sideEffectChange.send(SharedDataType.Filter(
+            _sideEffectChange.send(
+                SharedDataType.Filter(
                 country = determineCountryValue(),
                 sotrBy = determineSortValue(),
                 date = _dateRange.value,

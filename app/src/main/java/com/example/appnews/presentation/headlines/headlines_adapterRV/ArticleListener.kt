@@ -1,4 +1,4 @@
-package com.example.appnews.presentation.headlines.tabfragment.adapterRV
+package com.example.appnews.presentation.headlines.headlines_adapterRV
 
 import com.example.appnews.data.dataclassesresponse.ArticlesUI
 

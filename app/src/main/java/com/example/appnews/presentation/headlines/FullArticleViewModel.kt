@@ -2,16 +2,11 @@ package com.example.appnews.presentation.headlines
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.CreationExtras
-import com.example.appnews.App
 import com.example.appnews.data.dataclassesresponse.ArticlesUI
-import com.example.appnews.data.repository.NewsRepository
-import com.example.appnews.presentation.dataclasses.FullArticleState
+import com.example.appnews.domain.NewsRepository
+import com.example.appnews.domain.dataclasses.FullArticleState
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -22,7 +17,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import javax.inject.Inject
 
 @RequiresApi(Build.VERSION_CODES.O)
 class FullArticleViewModel @AssistedInject constructor(
@@ -36,11 +30,9 @@ class FullArticleViewModel @AssistedInject constructor(
     private val _contentState = MutableStateFlow(FullArticleState())
     val contentState = _contentState.asStateFlow()
 
-    //private var article: ArticlesUI.Article? = null
-
     init {
-       // article = savedStateHandle[ARG]
-        article?.title?.let { checkIcon(it) }
+       // article?.title?.let { checkIcon(it) }
+        checkArtcicleInDatabase ()
         convertArticleToScreenState()
         initDateAndTime()
     }
@@ -56,7 +48,6 @@ class FullArticleViewModel @AssistedInject constructor(
         }
     }
 
-
     private fun initDateAndTime() {
         val parsedDate = LocalDateTime.parse(
             article?.publishedAt,
@@ -67,7 +58,7 @@ class FullArticleViewModel @AssistedInject constructor(
         _contentState.value = contentState.value.copy(date = convertDate)
     }
 
-    private fun checkIcon(article: String) {
+   private fun checkIcon(article: String) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 _stateIconSaved.value = newsRepository.getArticle(article)
@@ -75,10 +66,13 @@ class FullArticleViewModel @AssistedInject constructor(
         }
     }
 
+    fun checkArtcicleInDatabase () {
+        article?.title?.let { checkIcon(it) }
+    }
+
     fun saveArticle(article: ArticlesUI.Article) = viewModelScope.launch {
         newsRepository.upsert(article)
     }
-
 
     fun deleteArticle(title: String) = viewModelScope.launch {
         newsRepository.delete(title)
@@ -96,31 +90,8 @@ class FullArticleViewModel @AssistedInject constructor(
         _stateIconSaved.value = !isSavedArticle
     }
 
-
     @AssistedFactory
     interface Factory {
         fun create(@Assisted("article") article: ArticlesUI.Article?): FullArticleViewModel}
 
-//    companion object {
-//
-//        private const val ARG = "ARG"
-//
-//        val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
-//            @Suppress("UNCHECKED_CAST")
-//            override fun <T : ViewModel> create(
-//                modelClass: Class<T>,
-//                extras: CreationExtras
-//            ): T {
-//                val application =
-//                    checkNotNull(extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY])
-//
-//                val savedStateHandle = extras.createSavedStateHandle()
-//
-//                return FullArticleViewModel(
-//                    (application as App).newsRepository,
-//                    savedStateHandle
-//                ) as T
-//            }
-//        }
-//    }
 }

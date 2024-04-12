@@ -3,7 +3,6 @@ package com.example.appnews.presentation.headlines
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -13,14 +12,12 @@ import androidx.core.os.bundleOf
 import androidx.core.util.Pair
 import androidx.core.util.toKotlinPair
 import androidx.fragment.app.setFragmentResult
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.appnews.App
 import com.example.appnews.R
-import com.example.appnews.core.viewclasses.SharedDataType
-import com.example.appnews.data.dataclassesresponse.ArticlesUI
+import com.example.appnews.core.shared.SharedDataType
 import com.example.appnews.databinding.FragmentFilterBinding
 import com.example.appnews.presentation.navigation.OnBackPressedListener
 import com.example.appnews.presentation.viewModelFactory
@@ -61,13 +58,10 @@ class FilterFragment : Fragment(), OnBackPressedListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
         with(binding) {
-
             ivCalendar.setOnClickListener {
                 initDatePicker()
             }
-
             btnPopular.setOnClickListener {
                 viewModel.changeIsPressedFlagPopular()
             }
@@ -92,58 +86,48 @@ class FilterFragment : Fragment(), OnBackPressedListener {
                 viewModel.changeIsPressedFlagDeutsch()
             }
 
-
         }
         saveResultFilterIcon()
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-
                 launch {
                     viewModel.buttonEnglishIsPressed.collect {
                         binding.btnEng.setData(it)
                     }
                 }
-
                 launch {
                     viewModel.buttonRussianIsPressed.collect {
                         binding.btnRus.setData(it)
                     }
                 }
-
                 launch {
                     viewModel.buttonDeutschIsPressed.collect {
                         binding.btnDeutsch.setData(it)
                     }
                 }
-
                 launch {
                     viewModel.buttonPopularIsPressed.collect {
                         binding.btnPopular.setData(it)
                     }
                 }
-
                 launch {
                     viewModel.buttonNewIsPressed.collect {
                         binding.btnNew.setData(it)
                     }
                 }
-
                 launch {
                     viewModel.buttonRelevantIsPressed.collect {
                         binding.btnRelevant.setData(it)
                     }
                 }
-
                 launch {
                     viewModel.dateRange.collect {
-
                         if (it.isNotEmpty()) {
                             setTextViewDate(it)
                         }
                     }
                 }
-
                 launch {
                     viewModel.sideEffectsChange.collect(::handleSideEffect)
                 }

@@ -1,10 +1,8 @@
-package com.example.appnews.presentation.headlines.tabfragment.adapterRV
+package com.example.appnews.presentation.headlines.headlines_adapterRV
 
-import android.annotation.SuppressLint
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.example.appnews.App
 import com.example.appnews.R
 import com.example.appnews.databinding.NewsItemBinding
 import com.example.appnews.data.dataclassesresponse.ArticlesUI

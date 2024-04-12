@@ -1,33 +1,21 @@
 package com.example.appnews.presentation.source
 
 import android.content.Context
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.MenuProvider
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.appnews.App
-import com.example.appnews.R
 import com.example.appnews.Screens
-import com.example.appnews.core.PAGE_SIZE
-import com.example.appnews.core.viewclasses.SharedDataType
-import com.example.appnews.data.dataclassesresponse.ArticlesUI
-import com.example.appnews.databinding.FragmentFullArticleHeadlinesBinding
+import com.example.appnews.core.networkstatus.NetworkStatus
 import com.example.appnews.databinding.FragmentSourceArticlesListBinding
-import com.example.appnews.presentation.headlines.FullArticleHeadlinesFragment
-import com.example.appnews.presentation.headlines.tabfragment.SideEffects
-import com.example.appnews.presentation.headlines.tabfragment.adapterRV.HeadlinesAdapter
-import com.example.appnews.presentation.hideKeyboard
+import com.example.appnews.presentation.SideEffects
+import com.example.appnews.presentation.headlines.headlines_adapterRV.HeadlinesAdapter
 import com.example.appnews.presentation.navigation.OnBackPressedListener
 import com.example.appnews.presentation.viewModelFactory
 import com.github.terrakok.cicerone.Router
@@ -84,10 +72,29 @@ class SourceArticlesListFragment : Fragment(), OnBackPressedListener {
                     }
                 }
                 launch { viewModel.sideEffects.collect { handleSideEffects(it) } }
-
+                launch {viewModel.networkStatus.collect{ networkState(it) } }
             }
         }
+    }
 
+    private fun networkState (networkStatus: NetworkStatus) {
+        when(networkStatus) {
+            NetworkStatus.Connected -> {
+                with(binding) {
+                    viewModel.getSourceArticles()
+                    rvSourcesArticles.visibility = View.VISIBLE
+                    viewErrorArticlesSources.visibility = View.INVISIBLE
+                }
+            }
+            NetworkStatus.Disconnected -> {
+                with(binding) {
+                    rvSourcesArticles.visibility = View.GONE
+                    viewErrorArticlesSources.visibility = View.VISIBLE
+                    viewErrorArticlesSources.setText("No internet connection")
+                }
+            }
+            NetworkStatus.Unknown -> {}
+        }
     }
 
     private fun initViews() = with(binding.rvSourcesArticles) {

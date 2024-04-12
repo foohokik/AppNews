@@ -1,17 +1,11 @@
 package com.example.appnews.presentation.saves
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.CreationExtras
-import com.example.appnews.App
-import com.example.appnews.core.Status
 import com.example.appnews.data.dataclassesresponse.ArticlesUI
-import com.example.appnews.data.dataclassesresponse.News
-import com.example.appnews.data.repository.NewsRepository
-import com.example.appnews.presentation.headlines.SearchHeadlinesViewModel
-import com.example.appnews.presentation.headlines.tabfragment.SideEffects
-import com.example.appnews.presentation.headlines.tabfragment.adapterRV.ArticleListener
+import com.example.appnews.domain.NewsRepository
+import com.example.appnews.presentation.SideEffects
+import com.example.appnews.presentation.headlines.headlines_adapterRV.ArticleListener
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -48,7 +42,7 @@ class SearchSaveViewModel @Inject constructor(
         job?.cancel()
         job = viewModelScope.launch {
             delay(500)
-            newsRepository.getAllSavedArticles()
+            newsRepository.getSearchSavedArticle(searchQuery)
                 .onEach { answer ->
                     _searchSaveViewModel.value = answer
                 }

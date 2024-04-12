@@ -1,37 +1,24 @@
 package com.example.appnews.presentation.headlines
 
-import android.util.Log
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.CreationExtras
-import com.example.appnews.App
 import com.example.appnews.core.PAGE_SIZE
-import com.example.appnews.core.Status
-import com.example.appnews.core.network.NetworkResult
 import com.example.appnews.core.network.onError
 import com.example.appnews.core.network.onException
 import com.example.appnews.core.network.onSuccess
 import com.example.appnews.core.networkstatus.NetworkConnectivityService
 import com.example.appnews.core.networkstatus.NetworkStatus
-import com.example.appnews.data.database.NetworkInterceptor
 import com.example.appnews.data.dataclassesresponse.ArticlesUI
 import com.example.appnews.data.dataclassesresponse.News
-import com.example.appnews.data.repository.NewsRepository
-import com.example.appnews.presentation.headlines.tabfragment.PagerContainerViewModel
-import com.example.appnews.presentation.headlines.tabfragment.SideEffects
-import com.example.appnews.presentation.headlines.tabfragment.adapterRV.ArticleListener
+import com.example.appnews.domain.NewsRepository
+import com.example.appnews.presentation.SideEffects
+import com.example.appnews.presentation.headlines.headlines_adapterRV.ArticleListener
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -40,13 +27,8 @@ class SearchHeadlinesViewModel @Inject constructor(
     private val networkConnectivityService: NetworkConnectivityService
 ) : ViewModel(), ArticleListener {
 
-    private val _networkStatus: StateFlow<NetworkStatus> = networkConnectivityService
-        .networkStatus
-        .stateIn(
-            initialValue = NetworkStatus.Unknown,
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed()
-        )
+    private val _networkStatus: MutableStateFlow<NetworkStatus> = MutableStateFlow(NetworkStatus.Unknown)
+
     val networkStatus = _networkStatus
 
     private val _queryFlow = MutableStateFlow("")
@@ -68,11 +50,26 @@ class SearchHeadlinesViewModel @Inject constructor(
     var totalPages = 0
     var isLastPageViewModel = false
 
+    init {
+        if (!networkConnectivityService.isConnected()) {
+            _networkStatus.value = NetworkStatus.Disconnected
+        }
 
+        viewModelScope.launch {
+            networkConnectivityService
+                .networkStatus
+                .collect { _networkStatus.value = it }
+        }
+    }
+
+
+    fun clearFlow() {
+        _searchHeadlinesViewModel.value.copy(articles = emptyList())
+        _queryFlow.value = ""
+    }
     fun changeFlagonChangeKeyBoardFlag(isShow: Boolean) {
         _showKeyboard.value = isShow
     }
-
 
     fun getSearchNews(searchQuery: String) {
 

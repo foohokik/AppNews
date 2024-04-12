@@ -1,7 +1,6 @@
 package com.example.appnews.presentation.saves
 
 import android.content.Context
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -10,9 +9,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
-import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -21,9 +18,8 @@ import com.example.appnews.App
 import com.example.appnews.R
 import com.example.appnews.Screens
 import com.example.appnews.databinding.FragmentSaveBinding
-import com.example.appnews.presentation.headlines.SearchHeadlinesViewModel
-import com.example.appnews.presentation.headlines.tabfragment.SideEffects
-import com.example.appnews.presentation.headlines.tabfragment.adapterRV.HeadlinesAdapter
+import com.example.appnews.presentation.SideEffects
+import com.example.appnews.presentation.headlines.headlines_adapterRV.HeadlinesAdapter
 import com.example.appnews.presentation.navigation.OnBackPressedListener
 import com.example.appnews.presentation.viewModelFactory
 import com.github.terrakok.cicerone.Router
@@ -95,6 +91,8 @@ class SaveFragment : Fragment(), OnBackPressedListener {
 
     private fun initViews() = with(binding.rvSave) {
         val manager = LinearLayoutManager(requireContext())
+        manager.reverseLayout = true
+        manager.stackFromEnd = true
         adapterSave = HeadlinesAdapter(viewModel, changeBackgroundColor = false)
         layoutManager = manager
         adapter = adapterSave

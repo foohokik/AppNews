@@ -1,22 +1,17 @@
 package com.example.appnews.presentation.source
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.CreationExtras
-import com.example.appnews.App
-import com.example.appnews.core.PAGE_SIZE
-import com.example.appnews.core.Status
+import com.example.appnews.core.network.onError
+import com.example.appnews.core.network.onException
+import com.example.appnews.core.network.onSuccess
+import com.example.appnews.core.networkstatus.NetworkConnectivityService
+import com.example.appnews.core.networkstatus.NetworkStatus
 import com.example.appnews.data.dataclassesresponse.ArticlesUI
 import com.example.appnews.data.dataclassesresponse.News
-import com.example.appnews.data.repository.NewsRepository
-import com.example.appnews.presentation.headlines.SearchHeadlinesViewModel
-import com.example.appnews.presentation.headlines.tabfragment.PagerContainerViewModel
-import com.example.appnews.presentation.headlines.tabfragment.SideEffects
-import com.example.appnews.presentation.headlines.tabfragment.adapterRV.ArticleListener
-import com.github.terrakok.cicerone.Router
+import com.example.appnews.domain.NewsRepository
+import com.example.appnews.presentation.SideEffects
+import com.example.appnews.presentation.headlines.headlines_adapterRV.ArticleListener
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -27,12 +22,15 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 class SearchSourceArticlesViewModel @AssistedInject constructor(
     private val newsRepository: NewsRepository,
+    private val networkConnectivityService: NetworkConnectivityService,
     @Assisted("source") private var sourceId: String
 ) : ViewModel(), ArticleListener {
+
+    private val _networkStatus: MutableStateFlow<NetworkStatus> = MutableStateFlow(NetworkStatus.Unknown)
+    val networkStatus = _networkStatus
 
     private val _queryFlow = MutableStateFlow("")
     val queryFlow = _queryFlow.asStateFlow()
@@ -47,9 +45,16 @@ class SearchSourceArticlesViewModel @AssistedInject constructor(
     val sideEffects = _sideEffects.receiveAsFlow()
 
     private var job: Job? = null
-//    private var sourceId: String = ""
     init {
-     //   sourceId = savedStateHandle[ARG]?:""
+    if (!networkConnectivityService.isConnected()) {
+        _networkStatus.value = NetworkStatus.Disconnected
+    }
+
+    viewModelScope.launch {
+        networkConnectivityService
+            .networkStatus
+            .collect { _networkStatus.value = it }
+    }
     }
     fun changeFlagOnChangeKeyBoardFlag(isShow: Boolean) {
         _showKeyboard.value = isShow
@@ -67,16 +72,12 @@ class SearchSourceArticlesViewModel @AssistedInject constructor(
         job = viewModelScope.launch {
             delay(500)
             val result = newsRepository.getSearchNewsFromSource(sourceId, searchQuery)
-            when (result.status) {
-                is Status.Success -> {
-                    result.data?.let { news ->
-                        _searchSourceArticles.value = news
-                    }
-                }
-                is Status.Error -> {
-                    _sideEffects.send(SideEffects.ErrorEffect(result.status.message.orEmpty()))
-                }
-                else -> Unit
+            result.onSuccess { news ->
+                _searchSourceArticles.value = news
+            }.onError { _, message ->
+                _sideEffects.send(SideEffects.ErrorEffect(message.orEmpty()))
+            }.onException { throwable ->
+                _sideEffects.send(SideEffects.ExceptionEffect(throwable))
             }
             _queryFlow.value = searchQuery
         }
@@ -85,27 +86,6 @@ class SearchSourceArticlesViewModel @AssistedInject constructor(
     interface Factory {
         fun create(@Assisted("source") sourceId: String): SearchSourceArticlesViewModel
     }
-
-//    companion object {
-//        private const val ARG = "ARG"
-//        val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
-//            @Suppress("UNCHECKED_CAST")
-//            override fun <T : ViewModel> create(
-//                modelClass: Class<T>,
-//                extras: CreationExtras
-//            ): T {
-//                val application =
-//                    checkNotNull(extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY])
-//                val savedStateHandle = extras.createSavedStateHandle()
-//
-//                return SearchSourceArticlesViewModel(
-//                    (application as App).newsRepository,
-//                    savedStateHandle
-//                ) as T
-//            }
-//        }
-//
-//    }
 
     override fun onClickArticle(article: ArticlesUI.Article) {
         viewModelScope.launch {

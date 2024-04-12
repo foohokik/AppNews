@@ -6,10 +6,12 @@ import androidx.lifecycle.viewModelScope
 import com.example.appnews.core.network.onError
 import com.example.appnews.core.network.onException
 import com.example.appnews.core.network.onSuccess
+import com.example.appnews.core.networkstatus.NetworkConnectivityService
+import com.example.appnews.core.networkstatus.NetworkStatus
 import com.example.appnews.data.dataclassesresponse.AllSources
 import com.example.appnews.data.dataclassesresponse.SourceFromSources
-import com.example.appnews.data.repository.NewsRepository
-import com.example.appnews.presentation.headlines.tabfragment.SideEffects
+import com.example.appnews.domain.NewsRepository
+import com.example.appnews.presentation.SideEffects
 import com.example.appnews.presentation.source.AdapterSources.SourceListener
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,8 +20,14 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class SourceViewModel @Inject constructor(private val newsRepository: NewsRepository) : ViewModel(),
+class SourceViewModel @Inject constructor(
+    private val newsRepository: NewsRepository,
+    private val networkConnectivityService: NetworkConnectivityService
+) : ViewModel(),
     SourceListener {
+
+    private val _networkStatus: MutableStateFlow<NetworkStatus> = MutableStateFlow(NetworkStatus.Unknown)
+    val networkStatus = _networkStatus
 
     private val _sourceFlow = MutableStateFlow(AllSources())
     val sourceFlow = _sourceFlow.asStateFlow()
@@ -28,10 +36,17 @@ class SourceViewModel @Inject constructor(private val newsRepository: NewsReposi
     val sideEffects = _sideEffects.receiveAsFlow()
 
     init {
-        getSources()
-    }
+        if (!networkConnectivityService.isConnected()) {
+            _networkStatus.value = NetworkStatus.Disconnected
+        }
 
-    private fun getSources() {
+        viewModelScope.launch {
+            networkConnectivityService
+                .networkStatus
+                .collect { _networkStatus.value = it }
+        }
+    }
+     fun getSources() {
         viewModelScope.launch {
             val result = newsRepository.getSources()
             result.onSuccess { allSources ->

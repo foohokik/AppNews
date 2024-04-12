@@ -20,7 +20,7 @@ import com.example.appnews.data.dataclassesresponse.ArticlesUI
 import com.example.appnews.databinding.FragmentFullArticleHeadlinesBinding
 import com.example.appnews.presentation.FullArticleFragmentWeb
 import com.example.appnews.presentation.customGetSerializable
-import com.example.appnews.presentation.dataclasses.FullArticleState
+import com.example.appnews.domain.dataclasses.FullArticleState
 import com.example.appnews.presentation.navigation.OnBackPressedListener
 import com.example.appnews.presentation.viewModelFactory
 import com.github.terrakok.cicerone.Router
@@ -112,10 +112,14 @@ class FullArticleHeadlinesFragment : Fragment(), OnBackPressedListener {
         router.exit()
     }
 
-    fun backArrowToolBar() {
+   private fun backArrowToolBar() {
         binding.imageButtonBackFullArticle.setOnClickListener {
            router.exit()
         }
+    }
+    override fun onResume() {
+        super.onResume()
+        viewModel.checkArtcicleInDatabase()
     }
 
 

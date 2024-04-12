@@ -1,45 +1,27 @@
 package com.example.appnews.presentation.headlines
 
-import android.app.Activity
 import android.content.Context
 import android.os.Bundle
-import android.text.Editable
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
-import android.widget.AbsListView
-import androidx.core.os.bundleOf
-import androidx.core.widget.addTextChangedListener
 import androidx.core.widget.doOnTextChanged
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.appnews.App
-import com.example.appnews.R
 import com.example.appnews.Screens
-import com.example.appnews.core.Category
-import com.example.appnews.core.PAGE_SIZE
 import com.example.appnews.core.networkstatus.NetworkStatus
-import com.example.appnews.databinding.FragmentHeadlinesBinding
 import com.example.appnews.databinding.FragmentSearchHeadlinesBinding
-import com.example.appnews.presentation.headlines.tabfragment.PagerContainerFragment
-import com.example.appnews.presentation.headlines.tabfragment.PagerContainerViewModel
-import com.example.appnews.presentation.headlines.tabfragment.SideEffects
-import com.example.appnews.presentation.headlines.tabfragment.adapterRV.HeadlinesAdapter
+import com.example.appnews.presentation.SideEffects
+import com.example.appnews.presentation.headlines.headlines_adapterRV.HeadlinesAdapter
 import com.example.appnews.presentation.hideKeyboard
 import com.example.appnews.presentation.navigation.OnBackPressedListener
 import com.example.appnews.presentation.showKeyBoard
 import com.example.appnews.presentation.viewModelFactory
 import com.github.terrakok.cicerone.Router
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Provider
@@ -75,7 +57,7 @@ class SearchHeadlinesFragment : Fragment(), OnBackPressedListener {
 
         backArrow()
         closeEnteringSearch()
-        binding.editTextSearchHeadlines.doOnTextChanged { text, start, before, count ->
+        binding.editTextSearchHeadlines.doOnTextChanged { text, _, _, _ ->
             text?.let {
                 if (text.toString().isNotEmpty()) {
                     viewModel.getSearchNews(searchQuery = text.toString())
@@ -113,7 +95,6 @@ class SearchHeadlinesFragment : Fragment(), OnBackPressedListener {
     }
 
     private fun networkState (networkStatus: NetworkStatus) {
-
         when(networkStatus) {
             NetworkStatus.Connected -> {
                 with(binding) {
@@ -152,8 +133,12 @@ class SearchHeadlinesFragment : Fragment(), OnBackPressedListener {
                 text.clear()
                 clearFocus()
                 isCursorVisible = false
+
             }
             viewModel.changeFlagonChangeKeyBoardFlag(isShow = false)
+            activity?.hideKeyboard()
+            viewModel.clearFlow()
+            headlineAdapter.setItems(emptyList())
         }
     }
 

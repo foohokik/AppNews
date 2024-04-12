@@ -1,25 +1,20 @@
 package com.example.appnews.presentation.source
 
 import android.content.Context
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.appnews.App
 import com.example.appnews.Screens
-import com.example.appnews.core.PAGE_SIZE
-import com.example.appnews.core.viewclasses.SharedDataType
+import com.example.appnews.core.networkstatus.NetworkStatus
 import com.example.appnews.databinding.FragmentSourceBinding
-import com.example.appnews.presentation.headlines.HeadlinesViewModel
-import com.example.appnews.presentation.headlines.tabfragment.SideEffects
-import com.example.appnews.presentation.headlines.tabfragment.adapterRV.HeadlinesAdapter
+import com.example.appnews.presentation.SideEffects
 import com.example.appnews.presentation.navigation.OnBackPressedListener
 import com.example.appnews.presentation.source.AdapterSources.SourceAdapter
 import com.example.appnews.presentation.viewModelFactory
@@ -64,9 +59,31 @@ class SourceFragment : Fragment(), OnBackPressedListener {
 					}
 				}
 				launch { viewModel.sideEffects.collect { handleSideEffects(it) } }
+				launch {viewModel.networkStatus.collect{ networkState(it) } }
 			}
 		}
 	}
+
+	private fun networkState (networkStatus: NetworkStatus) {
+		when(networkStatus) {
+			NetworkStatus.Connected -> {
+				with(binding) {
+					viewModel.getSources()
+					rvSources.visibility = View.VISIBLE
+					viewErrorSources.visibility = View.INVISIBLE
+				}
+			}
+			NetworkStatus.Disconnected -> {
+				with(binding) {
+					rvSources.visibility = View.GONE
+					viewErrorSources.visibility = View.VISIBLE
+					viewErrorSources.setText("No internet connection")
+				}
+			}
+			NetworkStatus.Unknown -> {}
+		}
+	}
+
 
 	private fun initViews() = with(binding.rvSources) {
 		val manager = LinearLayoutManager(requireContext())
@@ -76,7 +93,6 @@ class SourceFragment : Fragment(), OnBackPressedListener {
 		itemAnimator = null
 
 	}
-
 	private fun handleSideEffects(sideEffects: SideEffects) {
 		when (sideEffects) {
 			is SideEffects.ErrorEffect -> {}
@@ -89,7 +105,6 @@ class SourceFragment : Fragment(), OnBackPressedListener {
 			}
 			else ->{}
 		}
-
 	}
 
 	override fun onDestroyView() {

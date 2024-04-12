@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.Menu
@@ -23,7 +22,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.example.appnews.App
 import com.example.appnews.R
 import com.example.appnews.Screens
-import com.example.appnews.core.viewclasses.SharedDataType
+import com.example.appnews.core.shared.SharedDataType
 import com.example.appnews.databinding.FragmentHeadlinesBinding
 import com.example.appnews.presentation.customGetSerializable
 import com.example.appnews.presentation.headlines.tabfragment.ViewPagerAdapter
@@ -35,7 +34,6 @@ import com.google.android.material.badge.BadgeUtils
 import com.google.android.material.badge.ExperimentalBadgeUtils
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.launch
-import java.text.FieldPosition
 import javax.inject.Inject
 import javax.inject.Provider
 
@@ -68,7 +66,7 @@ class HeadlinesFragment : Fragment(), OnBackPressedListener {
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
-        setFragmentResultListener("request_key") { key, bundle ->
+        setFragmentResultListener("request_key") { _, bundle ->
             val data = bundle.customGetSerializable<SharedDataType.Filter>("data")
             data?.let { viewModel.onWriteData(it) }
         }

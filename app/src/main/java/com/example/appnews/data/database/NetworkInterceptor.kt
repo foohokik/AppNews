@@ -21,13 +21,10 @@ class NetworkInterceptor @Inject constructor(
 
     @Throws(IOException::class)
     override fun intercept(chain: Interceptor.Chain): Response {
-        Log.d("CRASH", "interceptor before")
         val request: Request = chain.request()
-        Log.d("CRASH", "interceptor after")
         if (networkConnectivityService.isConnected()) {
             return chain.proceed(request)
         } else {
-            Log.d("CRASH", "here before IOExc interceptor")
             throw NoNetworkException()
         }
     }

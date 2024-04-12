@@ -15,7 +15,7 @@ interface NewsAPI {
         @Query("country") country: String,
         @Query("category") category: String,
         @Query("page") pageNumber: Int
-    ): Response<NewsResponse>
+    ): NetworkResult<NewsResponse>
 
     @GET("v2/everything")
     suspend fun searchNews(
@@ -30,12 +30,12 @@ interface NewsAPI {
     @GET("v2/top-headlines")
     suspend fun getArticlesFromSource(
         @Query("sources") sourceId: String
-    ): Response<NewsResponse>
+    ): NetworkResult<NewsResponse>
 
     @GET("v2/top-headlines")
     suspend fun getSearchNewsFromSource(
         @Query("sources") sourceId: String,
         @Query("q") searchQuery: String
-    ): Response<NewsResponse>
+    ): NetworkResult<NewsResponse>
 
 }

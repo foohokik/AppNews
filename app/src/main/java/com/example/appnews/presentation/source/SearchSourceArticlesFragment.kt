@@ -2,33 +2,28 @@ package com.example.appnews.presentation.source
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.widget.doOnTextChanged
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.appnews.App
 import com.example.appnews.Screens
+import com.example.appnews.core.networkstatus.NetworkStatus
 import com.example.appnews.databinding.FragmentSearchSourceArticlesBinding
-import com.example.appnews.presentation.headlines.tabfragment.PagerContainerFragment
-import com.example.appnews.presentation.headlines.tabfragment.PagerContainerViewModel
-import com.example.appnews.presentation.headlines.tabfragment.SideEffects
-import com.example.appnews.presentation.headlines.tabfragment.adapterRV.HeadlinesAdapter
+import com.example.appnews.presentation.SideEffects
+import com.example.appnews.presentation.headlines.headlines_adapterRV.HeadlinesAdapter
 import com.example.appnews.presentation.hideKeyboard
 import com.example.appnews.presentation.navigation.OnBackPressedListener
-import com.example.appnews.presentation.saves.SaveViewModel
 import com.example.appnews.presentation.showKeyBoard
 import com.example.appnews.presentation.viewModelFactory
 import com.github.terrakok.cicerone.Router
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import javax.inject.Provider
 
 class SearchSourceArticlesFragment : Fragment(), OnBackPressedListener {
 
@@ -65,7 +60,7 @@ class SearchSourceArticlesFragment : Fragment(), OnBackPressedListener {
 
         backArrow()
         closeEnteringSearch()
-        binding.editTextSearchSource.doOnTextChanged { text, start, before, count ->
+        binding.editTextSearchSource.doOnTextChanged { text, _, _, _ ->
             text?.let {
                 if (text.toString().isNotEmpty()) {
                     viewModel.getSearchNews(searchQuery = text.toString())
@@ -81,10 +76,10 @@ class SearchSourceArticlesFragment : Fragment(), OnBackPressedListener {
                         sourceSearchAdapter.setItems(it.articles)
                     }
                 }
-
                 launch { viewModel.sideEffects.collect { handleSideEffects(it) } }
                 launch { viewModel.showKeyboard.collect(::renderKeyboard) }
                 launch {viewModel.queryFlow.collect { renderQuery(it) } }
+                launch { viewModel.networkStatus.collect(::networkState) }
             }
         }
     }
@@ -97,7 +92,24 @@ class SearchSourceArticlesFragment : Fragment(), OnBackPressedListener {
     override fun onBackPressed() {
         router.exit()
     }
-
+    private fun networkState (networkStatus: NetworkStatus) {
+        when(networkStatus) {
+            NetworkStatus.Connected -> {
+                with(binding) {
+                    rvSourceSearch.visibility = View.VISIBLE
+                    viewErrorSearchSources.visibility = View.INVISIBLE
+                }
+            }
+            NetworkStatus.Disconnected -> {
+                with(binding) {
+                    rvSourceSearch.visibility = View.GONE
+                    viewErrorSearchSources.visibility = View.VISIBLE
+                    viewErrorSearchSources.setText("No internet connection")
+                }
+            }
+            NetworkStatus.Unknown -> {}
+        }
+    }
     private fun initViews() = with(binding.rvSourceSearch) {
         val manager = LinearLayoutManager(requireContext())
         sourceSearchAdapter = HeadlinesAdapter(viewModel, changeBackgroundColor = true)
@@ -106,13 +118,13 @@ class SearchSourceArticlesFragment : Fragment(), OnBackPressedListener {
         itemAnimator = null
     }
 
-    fun backArrow() {
+   private fun backArrow() {
         binding.imageSourceButtonBackSearch.setOnClickListener {
             it.context.hideKeyboard(it)
             router.exit()
         }
     }
-    fun closeEnteringSearch() {
+   private fun closeEnteringSearch() {
         binding.imageSourceButtonClose.setOnClickListener {
             with(binding.editTextSearchSource) {
                 text.clear()

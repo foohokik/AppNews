@@ -5,7 +5,7 @@ import com.example.appnews.core.network.NetworkResult
 
 
 fun ArticleResponse.toArticle(): ArticlesUI.Article {
-        return ArticlesUI.Article (id, author.orEmpty(),content.orEmpty(),description.orEmpty(),publishedAt,source,title,url,urlToImage.orEmpty())
+        return ArticlesUI.Article (id, author.orEmpty(),content.orEmpty(),description.orEmpty(),publishedAt,source, title.orEmpty(),url,urlToImage.orEmpty())
     }
 
    fun List<ArticleResponse>.toArticles(): List<ArticlesUI.Article> {

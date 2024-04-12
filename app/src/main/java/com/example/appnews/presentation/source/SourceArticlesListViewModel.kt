@@ -1,22 +1,18 @@
 package com.example.appnews.presentation.source
 
-import android.util.Log
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.CreationExtras
-import com.example.appnews.App
 import com.example.appnews.Screens
-import com.example.appnews.core.PAGE_SIZE
-import com.example.appnews.core.Status
+import com.example.appnews.core.network.onError
+import com.example.appnews.core.network.onException
+import com.example.appnews.core.network.onSuccess
+import com.example.appnews.core.networkstatus.NetworkConnectivityService
+import com.example.appnews.core.networkstatus.NetworkStatus
 import com.example.appnews.data.dataclassesresponse.ArticlesUI
 import com.example.appnews.data.dataclassesresponse.News
-import com.example.appnews.data.repository.NewsRepository
-import com.example.appnews.presentation.headlines.FullArticleViewModel
-import com.example.appnews.presentation.headlines.tabfragment.SideEffects
-import com.example.appnews.presentation.headlines.tabfragment.adapterRV.ArticleListener
+import com.example.appnews.domain.NewsRepository
+import com.example.appnews.presentation.SideEffects
+import com.example.appnews.presentation.headlines.headlines_adapterRV.ArticleListener
 import com.github.terrakok.cicerone.Router
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -30,9 +26,12 @@ import kotlinx.coroutines.launch
 class SourceArticlesListViewModel @AssistedInject constructor(
     private val newsRepository: NewsRepository,
     private val router: Router,
+    private val networkConnectivityService: NetworkConnectivityService,
     @Assisted("source") private var sourceId: String
 ) : ViewModel(), ArticleListener {
 
+    private val _networkStatus: MutableStateFlow<NetworkStatus> = MutableStateFlow(NetworkStatus.Unknown)
+    val networkStatus = _networkStatus
 
     private val _sideEffects = Channel<SideEffects>()
     val sideEffects = _sideEffects.receiveAsFlow()
@@ -45,24 +44,27 @@ class SourceArticlesListViewModel @AssistedInject constructor(
 
 
     init {
-        getSourceArticles()
-     //   sourceId = savedStateHandle[ARG]?: "" getSourceArticles()
+        if (!networkConnectivityService.isConnected()) {
+            _networkStatus.value = NetworkStatus.Disconnected
+        }
+
+        viewModelScope.launch {
+            networkConnectivityService
+                .networkStatus
+                .collect { _networkStatus.value = it }
+        }
     }
 
 
     fun getSourceArticles() {
         viewModelScope.launch {
             val result = newsRepository.getSourcesNews(sourceId)
-            when (result.status) {
-                is Status.Success -> {
-                    result.data?.let { news ->
-                        _newsFlow.value = news
-                    }
-                }
-                is Status.Error -> {
-                    _sideEffects.send(SideEffects.ErrorEffect(result.status.message.orEmpty()))
-                }
-                else -> Unit
+            result.onSuccess { news ->
+                _newsFlow.value = news
+            }.onError { _, message ->
+                _sideEffects.send(SideEffects.ErrorEffect(message.orEmpty()))
+            }.onException { throwable ->
+                _sideEffects.send(SideEffects.ExceptionEffect(throwable))
             }
         }
     }
@@ -82,25 +84,4 @@ class SourceArticlesListViewModel @AssistedInject constructor(
         fun create(@Assisted("source") sourceId: String): SourceArticlesListViewModel
     }
 
-
-//    companion object {
-//        private const val ARG = "ARG"
-//
-//        val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
-//            @Suppress("UNCHECKED_CAST")
-//            override fun <T : ViewModel> create(
-//                modelClass: Class<T>,
-//                extras: CreationExtras
-//            ): T {
-//                val application =
-//                    checkNotNull(extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY])
-//                val savedStateHandle = extras.createSavedStateHandle()
-//
-//                return SourceArticlesListViewModel(
-//                    (application as App).newsRepository,
-//                    savedStateHandle, (application as App).router
-//                ) as T
-//            }
-//        }
-//    }
 }

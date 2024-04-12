@@ -2,13 +2,10 @@ package com.example.appnews.core.viewclasses
 
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Log
 import android.view.LayoutInflater
 import android.widget.FrameLayout
 import androidx.appcompat.content.res.AppCompatResources
 import com.example.appnews.R
-import com.example.appnews.core.FilterTypes
-import com.example.appnews.core.ModelFilterButtons
 import com.example.appnews.databinding.PopularLayoutBottomBinding
 
 class FilterLayoutButton @JvmOverloads constructor(
@@ -18,7 +15,7 @@ class FilterLayoutButton @JvmOverloads constructor(
     private val binding = PopularLayoutBottomBinding
                          .inflate(LayoutInflater.from(context), this)
 
-    fun setData(item:ModelFilterButtons) {
+    fun setData(item: ModelFilterButtons) {
         when (item.type) {
             FilterTypes.POPULAR -> {
                 commonSetData(item, R.drawable.shape_button_popular_pressed, R.drawable.shape_button_popular_not_pressed)
@@ -56,10 +53,9 @@ class FilterLayoutButton @JvmOverloads constructor(
         this@FilterLayoutButton.background = AppCompatResources.getDrawable(context, drawable)
 
         if (item.isPressed) {
-            tvButtonsFilter.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.baseline_check, 0,0,0)
+            ivButtonFilter.visibility = VISIBLE
         } else {
-            tvButtonsFilter.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0,0,0)
-        }
+            ivButtonFilter.visibility = GONE        }
     }
 
     private fun setLanguageBtnData (item: ModelFilterButtons, pressedShape: Int, notPressed: Int) = with(binding){

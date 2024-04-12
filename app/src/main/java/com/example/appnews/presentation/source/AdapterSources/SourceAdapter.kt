@@ -4,10 +4,8 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.example.appnews.data.dataclassesresponse.ArticlesUI
 import com.example.appnews.data.dataclassesresponse.SourceFromSources
 import com.example.appnews.databinding.SourceItemBinding
-import com.example.appnews.presentation.headlines.tabfragment.adapterRV.ArticleDiffUtil
 
 class SourceAdapter(private var listener: SourceListener): RecyclerView.Adapter<ViewHolderSource>() {
 

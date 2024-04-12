@@ -35,7 +35,7 @@
             android:layout_gravity="center"
             android:text="Filters"
             android:textColor="@color/white"
-            android:textSize="22dp" />
+            android:textSize="22sp" />
 
         <ImageButton
             android:id="@+id/imageButtonBackFilter"

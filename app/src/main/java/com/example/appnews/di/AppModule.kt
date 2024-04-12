@@ -1,6 +1,6 @@
 package com.example.appnews.di
 
-import com.example.appnews.core.ShareDataClass
+import com.example.appnews.core.shared.ShareDataClass
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton

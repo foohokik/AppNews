@@ -32,7 +32,6 @@ class NetworkConnectivityServiceImpl @Inject constructor (
             override fun onLost(network: Network) {
                 trySend(NetworkStatus.Disconnected)
             }
-
         }
 
         val request = NetworkRequest.Builder()

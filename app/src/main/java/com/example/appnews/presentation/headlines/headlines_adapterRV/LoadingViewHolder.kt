@@ -1,6 +1,5 @@
-package com.example.appnews.presentation.headlines.tabfragment.adapterRV
+package com.example.appnews.presentation.headlines.headlines_adapterRV
 
-import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import com.example.appnews.data.dataclassesresponse.ArticlesUI
 import com.example.appnews.databinding.LoadingItemBinding

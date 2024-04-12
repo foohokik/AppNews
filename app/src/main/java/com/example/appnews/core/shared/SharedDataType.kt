@@ -1,4 +1,4 @@
-package com.example.appnews.core.viewclasses
+package com.example.appnews.core.shared
 
 import java.io.Serializable
 

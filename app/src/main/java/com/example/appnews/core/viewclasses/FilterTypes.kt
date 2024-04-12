@@ -1,4 +1,4 @@
-package com.example.appnews.core
+package com.example.appnews.core.viewclasses
 
 import com.example.appnews.R
 
