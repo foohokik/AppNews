@@ -1,15 +1,13 @@
-package com.example.appnews.presentation.headlines
+package com.example.appnews.presentation.headlines.fullarticle
 
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
-import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -18,15 +16,11 @@ import com.example.appnews.App
 import com.example.appnews.R
 import com.example.appnews.data.dataclassesresponse.ArticlesUI
 import com.example.appnews.databinding.FragmentFullArticleHeadlinesBinding
-import com.example.appnews.presentation.FullArticleFragmentWeb
-import com.example.appnews.presentation.customGetSerializable
 import com.example.appnews.domain.dataclasses.FullArticleState
+import com.example.appnews.presentation.customGetSerializable
 import com.example.appnews.presentation.navigation.OnBackPressedListener
 import com.example.appnews.presentation.viewModelFactory
-import com.github.terrakok.cicerone.Router
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 
@@ -35,14 +29,13 @@ class FullArticleHeadlinesFragment : Fragment(), OnBackPressedListener {
 
     @Inject
     lateinit var viewModelFactory: FullArticleViewModel.Factory
-    @Inject
-    lateinit var router: Router
 
     private var _binding: FragmentFullArticleHeadlinesBinding? = null
     private val binding get() = _binding!!
 
-    private val article:ArticlesUI.Article? by lazy {
-        requireArguments().customGetSerializable(ARG) as ArticlesUI.Article?}
+    private val article: ArticlesUI.Article? by lazy {
+        requireArguments().customGetSerializable(ARG) as ArticlesUI.Article?
+    }
 
     private val viewModel: FullArticleViewModel by viewModelFactory {
         viewModelFactory.create(article = article)
@@ -52,6 +45,7 @@ class FullArticleHeadlinesFragment : Fragment(), OnBackPressedListener {
         super.onAttach(context)
         (requireContext().applicationContext as App).appComponent.inject(this)
     }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -61,7 +55,6 @@ class FullArticleHeadlinesFragment : Fragment(), OnBackPressedListener {
         return binding.root
 
     }
-
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -83,7 +76,6 @@ class FullArticleHeadlinesFragment : Fragment(), OnBackPressedListener {
                 }
             }
         }
-
     }
 
     override fun onDestroyView() {
@@ -100,7 +92,7 @@ class FullArticleHeadlinesFragment : Fragment(), OnBackPressedListener {
     }
 
     private fun stateIcon(state: Boolean) {
-      val drawable =  if (state) {
+        val drawable = if (state) {
             R.drawable.icon_saved_filled
         } else {
             R.drawable.icon_saved
@@ -109,12 +101,11 @@ class FullArticleHeadlinesFragment : Fragment(), OnBackPressedListener {
     }
 
     override fun onBackPressed() {
-        router.exit()
+        viewModel.navigateToBack()
     }
-
-   private fun backArrowToolBar() {
+    private fun backArrowToolBar() {
         binding.imageButtonBackFullArticle.setOnClickListener {
-           router.exit()
+            viewModel.navigateToBack()
         }
     }
     override fun onResume() {
@@ -122,15 +113,12 @@ class FullArticleHeadlinesFragment : Fragment(), OnBackPressedListener {
         viewModel.checkArtcicleInDatabase()
     }
 
-
     companion object {
         const val ARG = "ARG"
         @JvmStatic
         fun newInstance(article: ArticlesUI.Article) = FullArticleHeadlinesFragment().apply {
             arguments = Bundle().apply {
-
                 putSerializable(ARG, article)
-
             }
         }
     }

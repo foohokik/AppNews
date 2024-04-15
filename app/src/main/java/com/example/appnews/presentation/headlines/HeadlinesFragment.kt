@@ -112,14 +112,6 @@ class HeadlinesFragment : Fragment(), OnBackPressedListener {
 
         }.attach()
 
-//        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-//
-//            override fun onPageSelected(position: Int) {
-//                super.onPageSelected(position)
-//                //viewModel.setCurrentTab(position)
-//            }
-//
-//        })
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {

@@ -1,5 +1,7 @@
 package com.example.appnews.presentation.source
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.appnews.Screens
@@ -30,7 +32,8 @@ class SourceArticlesListViewModel @AssistedInject constructor(
     @Assisted("source") private var sourceId: String
 ) : ViewModel(), ArticleListener {
 
-    private val _networkStatus: MutableStateFlow<NetworkStatus> = MutableStateFlow(NetworkStatus.Unknown)
+    private val _networkStatus: MutableStateFlow<NetworkStatus> =
+        MutableStateFlow(NetworkStatus.Unknown)
     val networkStatus = _networkStatus
 
     private val _sideEffects = Channel<SideEffects>()
@@ -38,10 +41,6 @@ class SourceArticlesListViewModel @AssistedInject constructor(
 
     private val _newsFlow = MutableStateFlow(News())
     val newsFlow = _newsFlow.asStateFlow()
-
-    //private var sourceId: String = ""
-    private var headlinesPage = 1
-
 
     init {
         if (!networkConnectivityService.isConnected()) {
@@ -73,10 +72,15 @@ class SourceArticlesListViewModel @AssistedInject constructor(
         router.navigateTo(Screens.searchSourceFragment(sourceId))
     }
 
+    fun navigateToBack() {
+        router.exit()
+    }
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onClickArticle(article: ArticlesUI.Article) {
-        viewModelScope.launch {
-            _sideEffects.send(SideEffects.ClickEffectArticle(article))
-        }
+       router.navigateTo(Screens.fullArticleHeadlinesFragment(
+              article
+           )
+       )
     }
 
     @AssistedFactory

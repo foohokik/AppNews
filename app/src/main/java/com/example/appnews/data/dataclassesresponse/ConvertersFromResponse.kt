@@ -1,6 +1,5 @@
 package com.example.appnews.data.dataclassesresponse
 
-import com.example.appnews.core.DataWrapper
 import com.example.appnews.core.network.NetworkResult
 
 
@@ -15,10 +14,6 @@ fun ArticleResponse.toArticle(): ArticlesUI.Article {
  fun NewsResponse.toNews(): News {
      return News(articles.toArticles(), status, totalResults)
  }
-
-fun DataWrapper<NewsResponse>.toDataWrapperNews():DataWrapper<News> {
-    return DataWrapper(status, data?.toNews())
-}
 
 fun NetworkResult<NewsResponse>.toNetworkResultNews(): NetworkResult<News> {
     return when (this) {

@@ -1,10 +1,8 @@
 package com.example.appnews.presentation
 
 import android.os.Bundle
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.appnews.App
 import com.example.appnews.R
 import com.example.appnews.Screens
@@ -50,7 +48,6 @@ class MainActivity : AppCompatActivity() {
 	}
 
 	private fun initHomeNavBarFragment() {
-
 		binding.navBar.selectedItemId = R.id.headline
 	}
 

@@ -1,12 +1,14 @@
-package com.example.appnews.presentation.headlines
+package com.example.appnews.presentation.headlines.fullarticle
 
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.appnews.Screens
 import com.example.appnews.data.dataclassesresponse.ArticlesUI
 import com.example.appnews.domain.NewsRepository
 import com.example.appnews.domain.dataclasses.FullArticleState
+import com.github.terrakok.cicerone.Router
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -21,6 +23,7 @@ import java.time.format.DateTimeFormatter
 @RequiresApi(Build.VERSION_CODES.O)
 class FullArticleViewModel @AssistedInject constructor(
     private val newsRepository: NewsRepository,
+    private val router: Router,
     @Assisted("article") private var article: ArticlesUI.Article?
 ) : ViewModel() {
 
@@ -31,8 +34,7 @@ class FullArticleViewModel @AssistedInject constructor(
     val contentState = _contentState.asStateFlow()
 
     init {
-       // article?.title?.let { checkIcon(it) }
-        checkArtcicleInDatabase ()
+        checkArtcicleInDatabase()
         convertArticleToScreenState()
         initDateAndTime()
     }
@@ -50,7 +52,7 @@ class FullArticleViewModel @AssistedInject constructor(
 
     private fun initDateAndTime() {
         val parsedDate = LocalDateTime.parse(
-            article?.publishedAt,
+            cutPublishedDate(),
             DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssX")
         )
         val formatter = DateTimeFormatter.ofPattern("d MMM uuuu | hh-mm a")
@@ -58,7 +60,16 @@ class FullArticleViewModel @AssistedInject constructor(
         _contentState.value = contentState.value.copy(date = convertDate)
     }
 
-   private fun checkIcon(article: String) {
+    private fun cutPublishedDate(): String? {
+        val date = article?.publishedAt?.length ?: 0
+        return if (date > 20) {
+            article?.publishedAt?.substring(0, 19) + 'Z'
+        } else {
+            article?.publishedAt
+        }
+    }
+
+    private fun checkIcon(article: String) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 _stateIconSaved.value = newsRepository.getArticle(article)
@@ -66,7 +77,7 @@ class FullArticleViewModel @AssistedInject constructor(
         }
     }
 
-    fun checkArtcicleInDatabase () {
+    fun checkArtcicleInDatabase() {
         article?.title?.let { checkIcon(it) }
     }
 
@@ -90,8 +101,13 @@ class FullArticleViewModel @AssistedInject constructor(
         _stateIconSaved.value = !isSavedArticle
     }
 
+    fun navigateToBack() {
+        router.exit()
+    }
+
     @AssistedFactory
     interface Factory {
-        fun create(@Assisted("article") article: ArticlesUI.Article?): FullArticleViewModel}
+        fun create(@Assisted("article") article: ArticlesUI.Article?): FullArticleViewModel
+    }
 
 }

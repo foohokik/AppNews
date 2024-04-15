@@ -1,7 +1,10 @@
-package com.example.appnews.presentation.headlines
+package com.example.appnews.presentation.headlines.search
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.appnews.Screens
 import com.example.appnews.core.PAGE_SIZE
 import com.example.appnews.core.network.onError
 import com.example.appnews.core.network.onException
@@ -13,6 +16,7 @@ import com.example.appnews.data.dataclassesresponse.News
 import com.example.appnews.domain.NewsRepository
 import com.example.appnews.presentation.SideEffects
 import com.example.appnews.presentation.headlines.headlines_adapterRV.ArticleListener
+import com.github.terrakok.cicerone.Router
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -24,11 +28,12 @@ import javax.inject.Inject
 
 class SearchHeadlinesViewModel @Inject constructor(
     private val newsRepository: NewsRepository,
+    private val router: Router,
     private val networkConnectivityService: NetworkConnectivityService
 ) : ViewModel(), ArticleListener {
 
-    private val _networkStatus: MutableStateFlow<NetworkStatus> = MutableStateFlow(NetworkStatus.Unknown)
-
+    private val _networkStatus: MutableStateFlow<NetworkStatus> =
+        MutableStateFlow(NetworkStatus.Unknown)
     val networkStatus = _networkStatus
 
     private val _queryFlow = MutableStateFlow("")
@@ -43,12 +48,11 @@ class SearchHeadlinesViewModel @Inject constructor(
     private val _sideEffects = Channel<SideEffects>()
     val sideEffects = _sideEffects.receiveAsFlow()
 
-    var job: Job? = null
+    private var job: Job? = null
     private var headlinesPage = 1
     private var category: String = ""
-    var searchQuery: String = ""
-    var totalPages = 0
-    var isLastPageViewModel = false
+    private var totalPages = 0
+    private var isLastPageViewModel = false
 
     init {
         if (!networkConnectivityService.isConnected()) {
@@ -61,8 +65,6 @@ class SearchHeadlinesViewModel @Inject constructor(
                 .collect { _networkStatus.value = it }
         }
     }
-
-
     fun clearFlow() {
         _searchHeadlinesViewModel.value.copy(articles = emptyList())
         _queryFlow.value = ""
@@ -70,9 +72,7 @@ class SearchHeadlinesViewModel @Inject constructor(
     fun changeFlagonChangeKeyBoardFlag(isShow: Boolean) {
         _showKeyboard.value = isShow
     }
-
     fun getSearchNews(searchQuery: String) {
-
         _queryFlow.value = searchQuery
         job?.cancel()
         job = viewModelScope.launch {
@@ -103,35 +103,17 @@ class SearchHeadlinesViewModel @Inject constructor(
             _searchHeadlinesViewModel.value =
                 searchHeadlinesViewModel.value
                     .copy(articles = searchHeadlinesViewModel.value.articles.filterIsInstance<ArticlesUI.Article>())
-
-
         }
     }
 
-
-//    companion object {
-//        val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
-//            @Suppress("UNCHECKED_CAST")
-//            override fun <T : ViewModel> create(
-//                modelClass: Class<T>,
-//                extras: CreationExtras
-//            ): T {
-//                val application =
-//                    checkNotNull(extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY])
-//
-//                return SearchHeadlinesViewModel(
-//                    (application as App).newsRepository
-//                ) as T
-//            }
-//        }
-//    }
-
-
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onClickArticle(article: ArticlesUI.Article) {
-        viewModelScope.launch {
-            _sideEffects.send(SideEffects.ClickEffectArticle(article))
-        }
+        router.navigateTo(
+            Screens.fullArticleHeadlinesFragment(article)
+        )
     }
-
+    fun navigateToBack() {
+        router.exit()
+    }
 
 }

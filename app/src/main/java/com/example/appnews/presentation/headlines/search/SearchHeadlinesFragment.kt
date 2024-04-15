@@ -1,11 +1,13 @@
-package com.example.appnews.presentation.headlines
+package com.example.appnews.presentation.headlines.search
 
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.RequiresApi
 import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -30,15 +32,13 @@ import javax.inject.Provider
 class SearchHeadlinesFragment : Fragment(), OnBackPressedListener {
 
     @Inject
-    lateinit var router: Router
-    @Inject
     internal lateinit var viewModelProvider: Provider<SearchHeadlinesViewModel>
 
     private lateinit var headlineAdapter: HeadlinesAdapter
     private var _binding: FragmentSearchHeadlinesBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel by  viewModelFactory { viewModelProvider.get() }
+    private val viewModel by viewModelFactory { viewModelProvider.get() }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -83,25 +83,25 @@ class SearchHeadlinesFragment : Fragment(), OnBackPressedListener {
         }
 
     }
-
-
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
 
     override fun onBackPressed() {
-        router.exit()
+        viewModel.navigateToBack()
+        activity?.hideKeyboard()
     }
 
-    private fun networkState (networkStatus: NetworkStatus) {
-        when(networkStatus) {
+    private fun networkState(networkStatus: NetworkStatus) {
+        when (networkStatus) {
             NetworkStatus.Connected -> {
                 with(binding) {
                     recycleviewHeadlinesSearch.visibility = View.VISIBLE
                     viewErrorSearchHeadlines.visibility = View.INVISIBLE
                 }
             }
+
             NetworkStatus.Disconnected -> {
                 with(binding) {
                     recycleviewHeadlinesSearch.visibility = View.GONE
@@ -109,11 +109,12 @@ class SearchHeadlinesFragment : Fragment(), OnBackPressedListener {
                     viewErrorSearchHeadlines.setText("No internet connection")
                 }
             }
+
             NetworkStatus.Unknown -> {}
         }
     }
 
-  private fun renderQuery(text: String) {
+    private fun renderQuery(text: String) {
         if (text == binding.editTextSearchHeadlines.text.toString()) {
 
         } else {
@@ -121,13 +122,14 @@ class SearchHeadlinesFragment : Fragment(), OnBackPressedListener {
         }
     }
 
-   private fun backArrow() {
+    private fun backArrow() {
         binding.imageButtonBackSearch.setOnClickListener {
-            router.exit()
+            viewModel.navigateToBack()
+            activity?.hideKeyboard()
         }
     }
 
-   private fun closeEnteringSearch() {
+    private fun closeEnteringSearch() {
         binding.imageButtonClose.setOnClickListener {
             with(binding.editTextSearchHeadlines) {
                 text.clear()
@@ -142,7 +144,7 @@ class SearchHeadlinesFragment : Fragment(), OnBackPressedListener {
         }
     }
 
-    fun renderKeyboard(isShow: Boolean) {
+   private fun renderKeyboard(isShow: Boolean) {
         if (isShow) {
             binding.editTextSearchHeadlines.context.showKeyBoard(binding.editTextSearchHeadlines)
         } else {
@@ -158,16 +160,13 @@ class SearchHeadlinesFragment : Fragment(), OnBackPressedListener {
         itemAnimator = null
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun handleSideEffects(sideEffects: SideEffects) {
         when (sideEffects) {
             is SideEffects.ErrorEffect -> {}
             is SideEffects.ClickEffectArticle -> {
-                router.navigateTo(
-                    Screens.fullArticleHeadlinesFragment(
-                        sideEffects.article
-                    )
-                )
             }
+
             else -> {}
         }
     }

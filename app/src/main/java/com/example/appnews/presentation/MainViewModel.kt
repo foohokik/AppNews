@@ -2,6 +2,7 @@ package com.example.appnews.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.appnews.core.DELAY_SPLASH_SCREEN
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,7 +18,7 @@ class MainViewModel @Inject constructor(): ViewModel() {
 
     init {
         viewModelScope.launch {
-            delay(1500)
+            delay(DELAY_SPLASH_SCREEN)
             _isLoading.value = false
         }
     }

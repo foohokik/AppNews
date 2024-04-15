@@ -31,9 +31,6 @@ import javax.inject.Inject
 class PagerContainerFragment : Fragment() {
 
     @Inject
-    lateinit var router: Router
-
-    @Inject
     lateinit var viewModelFactory: PagerContainerViewModel.Factory
 
     private lateinit var headlineAdapter: HeadlinesAdapter
@@ -52,6 +49,7 @@ class PagerContainerFragment : Fragment() {
         super.onAttach(context)
         (requireContext().applicationContext as App).appComponent.inject(this)
     }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -60,6 +58,7 @@ class PagerContainerFragment : Fragment() {
         _binding = FragmentPagerContainerBinding.inflate(inflater, container, false)
         return binding.root
     }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
         initViews()
@@ -73,7 +72,7 @@ class PagerContainerFragment : Fragment() {
                 }
                 launch { viewModel.sideEffects.collect { handleSideEffects(it) } }
                 launch { viewModel.networkStatus.collect { networkState(it) } }
-                launch {viewModel.isLastPageFlow.collect {isLastPage = it } }
+                launch { viewModel.isLastPageFlow.collect { isLastPage = it } }
             }
         }
     }
@@ -83,7 +82,9 @@ class PagerContainerFragment : Fragment() {
         when (networkStatus) {
             NetworkStatus.Connected -> {
                 with(binding) {
-                    if (itWasDisconnected) {viewModel.getHeadlinesNews()}
+                    if (itWasDisconnected) {
+                        viewModel.getHeadlinesNews()
+                    }
                     recycleviewHeadlines.visibility = View.VISIBLE
                     viewError.visibility = View.INVISIBLE
                 }
@@ -109,13 +110,7 @@ class PagerContainerFragment : Fragment() {
                     .show()
             }
 
-            is SideEffects.ClickEffectArticle -> {
-                router.navigateTo(
-                    Screens.fullArticleHeadlinesFragment(
-                        sideEffects.article
-                    )
-                )
-            }
+            is SideEffects.ClickEffectArticle -> {}
 
             is SideEffects.ExceptionEffect -> {
                 Toast.makeText(
@@ -131,7 +126,7 @@ class PagerContainerFragment : Fragment() {
 
     var isScrolling = false
 
-    val scrollListener = object : RecyclerView.OnScrollListener() {
+    private val scrollListener = object : RecyclerView.OnScrollListener() {
 
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
             super.onScrolled(recyclerView, dx, dy)
@@ -161,7 +156,6 @@ class PagerContainerFragment : Fragment() {
             }
         }
     }
-
     private fun initViews() = with(binding.recycleviewHeadlines) {
         val manager = LinearLayoutManager(requireContext())
         headlineAdapter = HeadlinesAdapter(viewModel, changeBackgroundColor = false)
@@ -175,7 +169,6 @@ class PagerContainerFragment : Fragment() {
         super.onDestroyView()
         binding.recycleviewHeadlines.removeOnScrollListener(scrollListener)
     }
-
     companion object {
         const val CATEGORY = "category"
         fun newInstance(position: Int): PagerContainerFragment {

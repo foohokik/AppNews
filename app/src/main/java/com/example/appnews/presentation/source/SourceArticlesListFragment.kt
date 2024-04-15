@@ -2,10 +2,10 @@ package com.example.appnews.presentation.source
 
 import android.content.Context
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -18,14 +18,10 @@ import com.example.appnews.presentation.SideEffects
 import com.example.appnews.presentation.headlines.headlines_adapterRV.HeadlinesAdapter
 import com.example.appnews.presentation.navigation.OnBackPressedListener
 import com.example.appnews.presentation.viewModelFactory
-import com.github.terrakok.cicerone.Router
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class SourceArticlesListFragment : Fragment(), OnBackPressedListener {
-
-    @Inject
-    lateinit var router: Router
 
     @Inject
     lateinit var viewModelFactory: SourceArticlesListViewModel.Factory
@@ -55,8 +51,6 @@ class SourceArticlesListFragment : Fragment(), OnBackPressedListener {
         _binding = FragmentSourceArticlesListBinding.inflate(inflater, container, false)
         return binding.root
     }
-
-
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
@@ -113,42 +107,35 @@ class SourceArticlesListFragment : Fragment(), OnBackPressedListener {
     private fun handleSideEffects(sideEffects: SideEffects) {
         when (sideEffects) {
             is SideEffects.ErrorEffect -> {}
-            is SideEffects.ClickEffectArticle -> {
-                router.navigateTo(
-                    Screens.fullArticleHeadlinesFragment(
-                        sideEffects.article
-                    )
-                )
-            }
+            is SideEffects.ClickEffectArticle -> {}
             else -> {}
         }
-
     }
 
-    fun backArrow() {
+   private fun backArrow() {
         binding.imageButtonBackSourceList.setOnClickListener {
-            router.exit()
+            viewModel.navigateToBack()
         }
     }
-
-    fun navigateToSearch () {
+    private fun navigateToSearch () {
         binding.imageButtonSearchSource.setOnClickListener {
             viewModel.navigateToSearch()
         }
     }
 
+    override fun onBackPressed() {
+        viewModel.navigateToBack()
+    }
+
     companion object {
         const val ARG = "ARG"
+
         @JvmStatic
         fun newInstance(source: String) = SourceArticlesListFragment().apply {
             arguments = Bundle().apply {
                 putString(ARG, source)
             }
         }
-}
-
-    override fun onBackPressed() {
-        router.exit()
     }
 
 }

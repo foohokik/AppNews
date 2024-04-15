@@ -28,8 +28,6 @@ import javax.inject.Provider
 class SearchSaveFragment : Fragment(), OnBackPressedListener {
 
     @Inject
-    lateinit var router: Router
-    @Inject
     internal lateinit var viewModelProvider: Provider<SearchSaveViewModel>
 
     private var _binding: FragmentSearchSaveBinding? = null
@@ -77,13 +75,11 @@ class SearchSaveFragment : Fragment(), OnBackPressedListener {
                 launch {viewModel.queryFlow.collect { renderQuery(it) } }
             }
         }
-
     }
 
     override fun onBackPressed() {
-      router.exit()
+      viewModel.navigateToBack()
     }
-
 
     override fun onDestroyView() {
         super.onDestroyView()
@@ -97,15 +93,14 @@ class SearchSaveFragment : Fragment(), OnBackPressedListener {
         adapter = saveAdapter
         itemAnimator = null
     }
-    fun backArrow() {
+   private fun backArrow() {
         binding.imageSaveButtonBackSearch.setOnClickListener {
             it.context.hideKeyboard(it)
-            router.exit()
-
+            viewModel.navigateToBack()
         }
     }
 
-    fun closeEnteringSearch() {
+   private fun closeEnteringSearch() {
 
         binding.imageSaveButtonClose.setOnClickListener {
             with(binding.editTextSearchSave) {
@@ -123,7 +118,7 @@ class SearchSaveFragment : Fragment(), OnBackPressedListener {
 
     }
 
-    fun renderQuery(text: String) {
+  private fun renderQuery(text: String) {
         if (text == binding.editTextSearchSave.text.toString()) {
 
         } else {
@@ -131,7 +126,7 @@ class SearchSaveFragment : Fragment(), OnBackPressedListener {
         }
     }
 
-    fun renderKeyboard(isShow: Boolean) {
+    private fun renderKeyboard(isShow: Boolean) {
         if (isShow) {
             with(binding.editTextSearchSave) {
                 requestFocus()
@@ -148,18 +143,9 @@ class SearchSaveFragment : Fragment(), OnBackPressedListener {
     private fun handleSideEffects(sideEffects: SideEffects) {
         when (sideEffects) {
             is SideEffects.ErrorEffect -> {}
-            is SideEffects.ClickEffectArticle -> {
-                router.navigateTo(
-                    Screens.fullArticleHeadlinesFragment(
-                        sideEffects.article
-                    )
-                )
-            }
-
+            is SideEffects.ClickEffectArticle -> {}
             else -> {}
         }
-
     }
-
 
 }

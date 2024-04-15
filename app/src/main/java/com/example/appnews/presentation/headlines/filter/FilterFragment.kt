@@ -1,4 +1,4 @@
-package com.example.appnews.presentation.headlines
+package com.example.appnews.presentation.headlines.filter
 
 import android.content.Context
 import android.os.Build
@@ -32,22 +32,21 @@ import javax.inject.Provider
 class FilterFragment : Fragment(), OnBackPressedListener {
 
     @Inject
-    lateinit var router: Router
-    @Inject
     internal lateinit var viewModelProvider: Provider<FilterViewModel>
 
     private var _binding: FragmentFilterBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel by  viewModelFactory { viewModelProvider.get() }
+    private val viewModel by viewModelFactory { viewModelProvider.get() }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         (requireContext().applicationContext as App).appComponent.inject(this)
     }
+
     override fun onCreateView(
-            inflater: LayoutInflater, container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View {
         _binding = FragmentFilterBinding.inflate(inflater, container, false)
         return binding.root
@@ -140,8 +139,8 @@ class FilterFragment : Fragment(), OnBackPressedListener {
 
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun setTextViewDate(date:String) {
-            binding.tvDateRange.text = date
+    fun setTextViewDate(date: String) {
+        binding.tvDateRange.text = date
     }
 
     override fun onDestroyView() {
@@ -150,20 +149,18 @@ class FilterFragment : Fragment(), OnBackPressedListener {
     }
 
     override fun onBackPressed() {
-        router.exit()
+        viewModel.navigateToBack()
     }
 
     private fun backArrow() {
         binding.imageButtonBackFilter.setOnClickListener {
-            router.exit()
+            viewModel.navigateToBack()
         }
     }
 
     private fun handleSideEffect(data: SharedDataType.Filter) {
         setFragmentResult("request_key", bundleOf("data" to data))
-        router.exit()
     }
-
 
     private fun saveResultFilterIcon() {
         binding.imageButtonOk.setOnClickListener {
@@ -171,33 +168,17 @@ class FilterFragment : Fragment(), OnBackPressedListener {
         }
     }
 
-
     private fun initDatePicker() {
         val dateRange: MaterialDatePicker<Pair<Long, Long>> = MaterialDatePicker
-                .Builder
-                .dateRangePicker()
-                .setTheme(R.style.CustomThemeOverlay_MaterialCalendar_Fullscreen)
-                .setTitleText("Select a date")
-                .build()
+            .Builder
+            .dateRangePicker()
+            .setTheme(R.style.CustomThemeOverlay_MaterialCalendar_Fullscreen)
+            .setTitleText("Select a date")
+            .build()
         dateRange.show(childFragmentManager, "DATE")
         dateRange.addOnPositiveButtonClickListener {
             viewModel.onChangeDate(it.toKotlinPair())
         }
-
     }
-
-//    companion object {
-//
-//        const val ARG = "ARG"
-//
-//        @JvmStatic
-//        fun newInstance(data: SharedDataType.Filter: ArticlesUI.Article) = FilterFragment().apply {
-//            arguments = Bundle().apply {
-//
-//                putSerializable(ARG, data)
-//
-//            }
-//        }
-//    }
 
 }

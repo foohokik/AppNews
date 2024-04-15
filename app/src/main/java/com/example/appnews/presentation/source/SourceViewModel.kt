@@ -3,6 +3,7 @@ package com.example.appnews.presentation.source
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.appnews.Screens
 import com.example.appnews.core.network.onError
 import com.example.appnews.core.network.onException
 import com.example.appnews.core.network.onSuccess
@@ -13,6 +14,7 @@ import com.example.appnews.data.dataclassesresponse.SourceFromSources
 import com.example.appnews.domain.NewsRepository
 import com.example.appnews.presentation.SideEffects
 import com.example.appnews.presentation.source.AdapterSources.SourceListener
+import com.github.terrakok.cicerone.Router
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,9 +24,9 @@ import javax.inject.Inject
 
 class SourceViewModel @Inject constructor(
     private val newsRepository: NewsRepository,
-    private val networkConnectivityService: NetworkConnectivityService
-) : ViewModel(),
-    SourceListener {
+    private val networkConnectivityService: NetworkConnectivityService,
+    private val router: Router
+) : ViewModel(), SourceListener {
 
     private val _networkStatus: MutableStateFlow<NetworkStatus> = MutableStateFlow(NetworkStatus.Unknown)
     val networkStatus = _networkStatus
@@ -58,13 +60,13 @@ class SourceViewModel @Inject constructor(
             }
         }
     }
-
-
+    fun navigateToBack() {
+        router.exit()
+    }
     override fun onClickSource(source: SourceFromSources) {
-
-        viewModelScope.launch {
-            _sideEffects.send(SideEffects.ClickSource(source))
-        }
+        router.navigateTo(
+            Screens.sourceArticlesListFragment(source.id)
+        )
     }
 
 }

@@ -1,7 +1,10 @@
 package com.example.appnews.presentation.source
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.appnews.Screens
 import com.example.appnews.core.network.onError
 import com.example.appnews.core.network.onException
 import com.example.appnews.core.network.onSuccess
@@ -12,6 +15,7 @@ import com.example.appnews.data.dataclassesresponse.News
 import com.example.appnews.domain.NewsRepository
 import com.example.appnews.presentation.SideEffects
 import com.example.appnews.presentation.headlines.headlines_adapterRV.ArticleListener
+import com.github.terrakok.cicerone.Router
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -26,7 +30,8 @@ import kotlinx.coroutines.launch
 class SearchSourceArticlesViewModel @AssistedInject constructor(
     private val newsRepository: NewsRepository,
     private val networkConnectivityService: NetworkConnectivityService,
-    @Assisted("source") private var sourceId: String
+    @Assisted("source") private var sourceId: String,
+    private val router: Router
 ) : ViewModel(), ArticleListener {
 
     private val _networkStatus: MutableStateFlow<NetworkStatus> = MutableStateFlow(NetworkStatus.Unknown)
@@ -87,10 +92,14 @@ class SearchSourceArticlesViewModel @AssistedInject constructor(
         fun create(@Assisted("source") sourceId: String): SearchSourceArticlesViewModel
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onClickArticle(article: ArticlesUI.Article) {
-        viewModelScope.launch {
-            _sideEffects.send(SideEffects.ClickEffectArticle(article))
-        }
+        router.navigateTo(
+            Screens.fullArticleHeadlinesFragment(article)
+        )
+    }
+    fun navigateToBack() {
+        router.exit()
     }
 
 }

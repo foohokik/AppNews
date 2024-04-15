@@ -1,13 +1,16 @@
-package com.example.appnews.presentation.headlines
+package com.example.appnews.presentation.headlines.filter
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.core.os.bundleOf
+import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.appnews.core.viewclasses.FilterTypes
 import com.example.appnews.core.viewclasses.ModelFilterButtons
 import com.example.appnews.core.shared.ShareDataClass
 import com.example.appnews.core.shared.SharedDataType
+import com.github.terrakok.cicerone.Router
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,29 +23,33 @@ import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
 
-
 @RequiresApi(Build.VERSION_CODES.O)
-class FilterViewModel @Inject constructor (
-    private val sharedClass: ShareDataClass
+class FilterViewModel @Inject constructor(
+    private val sharedClass: ShareDataClass,
+    private val router: Router
 ) : ViewModel() {
 
-
-    private val _buttonPopularIsPressed = MutableStateFlow(ModelFilterButtons(FilterTypes.POPULAR, false))
+    private val _buttonPopularIsPressed =
+        MutableStateFlow(ModelFilterButtons(FilterTypes.POPULAR, false))
     val buttonPopularIsPressed = _buttonPopularIsPressed.asStateFlow()
 
     private val _buttonNewIsPressed = MutableStateFlow(ModelFilterButtons(FilterTypes.NEW, false))
     val buttonNewIsPressed = _buttonNewIsPressed.asStateFlow()
 
-    private val _buttonRelevantIsPressed = MutableStateFlow(ModelFilterButtons(FilterTypes.RELEVANT, false))
+    private val _buttonRelevantIsPressed =
+        MutableStateFlow(ModelFilterButtons(FilterTypes.RELEVANT, false))
     val buttonRelevantIsPressed = _buttonRelevantIsPressed.asStateFlow()
 
-    private val _buttonRussianIsPressed = MutableStateFlow(ModelFilterButtons(FilterTypes.RUSSIAN, false))
+    private val _buttonRussianIsPressed =
+        MutableStateFlow(ModelFilterButtons(FilterTypes.RUSSIAN, false))
     val buttonRussianIsPressed = _buttonRussianIsPressed.asStateFlow()
 
-    private val _buttonEnglishIsPressed = MutableStateFlow(ModelFilterButtons(FilterTypes.ENGLISH, false))
+    private val _buttonEnglishIsPressed =
+        MutableStateFlow(ModelFilterButtons(FilterTypes.ENGLISH, false))
     val buttonEnglishIsPressed = _buttonEnglishIsPressed.asStateFlow()
 
-    private val _buttonDeutschIsPressed = MutableStateFlow(ModelFilterButtons(FilterTypes.DEUTSCH, false))
+    private val _buttonDeutschIsPressed =
+        MutableStateFlow(ModelFilterButtons(FilterTypes.DEUTSCH, false))
     val buttonDeutschIsPressed = _buttonDeutschIsPressed.asStateFlow()
 
     private val _dateRange: MutableStateFlow<String> = MutableStateFlow("")
@@ -53,11 +60,11 @@ class FilterViewModel @Inject constructor (
 
     private var countOfChosenFilter = 0
 
-//    private val listOfCountryFlow = listOf<ModelFilterButtons>(_buttonEnglishIsPressed.value,
-//        _buttonDeutschIsPressed.value, _buttonRussianIsPressed.value)
+    private val listOfCountryFlow = listOf<ModelFilterButtons>(_buttonEnglishIsPressed.value,
+        _buttonDeutschIsPressed.value, _buttonRussianIsPressed.value)
 
-//    private val listOfSortFlow = listOf<ModelFilterButtons>(_buttonRelevantIsPressed.value,
-//        _buttonNewIsPressed.value, _buttonPopularIsPressed.value)
+    private val listOfSortFlow = listOf<ModelFilterButtons>(_buttonRelevantIsPressed.value,
+        _buttonNewIsPressed.value, _buttonPopularIsPressed.value)
 
     init {
         viewModelScope.launch {
@@ -65,37 +72,43 @@ class FilterViewModel @Inject constructor (
         }
     }
 
-    private fun determineButtonState (dataStateType: SharedDataType) {
+    private fun determineButtonState(dataStateType: SharedDataType) {
 
-        val listOfCountryFlow = listOf<ModelFilterButtons>(_buttonEnglishIsPressed.value,
-          _buttonDeutschIsPressed.value, _buttonRussianIsPressed.value)
         val country = listOfCountryFlow.find {
             it.type.code == (dataStateType as SharedDataType.Filter).country
         }
         when (country?.type?.code) {
-            "us" -> _buttonEnglishIsPressed.value = _buttonEnglishIsPressed.value.copy(isPressed = true)
-            "ru" -> _buttonRussianIsPressed.value = _buttonRussianIsPressed.value.copy(isPressed = true)
-            "de" -> _buttonDeutschIsPressed.value = _buttonDeutschIsPressed.value.copy(isPressed = true)
-        }
+            "us" -> _buttonEnglishIsPressed.value =
+                _buttonEnglishIsPressed.value.copy(isPressed = true)
 
-        val listOfSortFlow = listOf<ModelFilterButtons>(_buttonRelevantIsPressed.value,
-            _buttonNewIsPressed.value, _buttonPopularIsPressed.value)
+            "ru" -> _buttonRussianIsPressed.value =
+                _buttonRussianIsPressed.value.copy(isPressed = true)
+
+            "de" -> _buttonDeutschIsPressed.value =
+                _buttonDeutschIsPressed.value.copy(isPressed = true)
+        }
 
         val sortElement = listOfSortFlow.find {
             it.type.code == (dataStateType as SharedDataType.Filter).sotrBy
         }
         when (sortElement?.type?.code) {
-            "popular" -> _buttonPopularIsPressed.value = _buttonPopularIsPressed.value.copy(isPressed = true)
-            "relevant" -> _buttonRelevantIsPressed.value = _buttonRelevantIsPressed.value.copy(isPressed = true)
-            "new" ->  _buttonNewIsPressed.value  = _buttonNewIsPressed.value.copy(isPressed = true)
+            "popular" -> _buttonPopularIsPressed.value =
+                _buttonPopularIsPressed.value.copy(isPressed = true)
+
+            "relevant" -> _buttonRelevantIsPressed.value =
+                _buttonRelevantIsPressed.value.copy(isPressed = true)
+
+            "new" -> _buttonNewIsPressed.value = _buttonNewIsPressed.value.copy(isPressed = true)
         }
         _dateRange.value = (dataStateType as SharedDataType.Filter).date
         countOfChosenFilter = (dataStateType as SharedDataType.Filter).count
     }
 
     private fun determineCountryValue(): String {
-        val listOfCountryFlow = listOf<ModelFilterButtons>(_buttonEnglishIsPressed.value,
-            _buttonDeutschIsPressed.value, _buttonRussianIsPressed.value)
+        val listOfCountryFlow = listOf<ModelFilterButtons>(
+            _buttonEnglishIsPressed.value,
+            _buttonDeutschIsPressed.value, _buttonRussianIsPressed.value
+        )
         val country = listOfCountryFlow.find {
             it.isPressed
         }
@@ -106,9 +119,11 @@ class FilterViewModel @Inject constructor (
         return country?.type?.code.orEmpty()
     }
 
-  private fun determineSortValue(): String {
-        val listOfSortFlow = listOf<ModelFilterButtons>(_buttonRelevantIsPressed.value,
-       _buttonNewIsPressed.value, _buttonPopularIsPressed.value)
+    private fun determineSortValue(): String {
+        val listOfSortFlow = listOf<ModelFilterButtons>(
+            _buttonRelevantIsPressed.value,
+            _buttonNewIsPressed.value, _buttonPopularIsPressed.value
+        )
         val sortElement = listOfSortFlow.find {
             it.isPressed
         }
@@ -118,12 +133,14 @@ class FilterViewModel @Inject constructor (
         return sortElement?.type?.code.orEmpty()
     }
 
-    private fun determineCountOfChosenFilters():Int {
-        val listOfButton = listOf<ModelFilterButtons>(_buttonRelevantIsPressed.value,
+    private fun determineCountOfChosenFilters(): Int {
+        val listOfButton = listOf<ModelFilterButtons>(
+            _buttonRelevantIsPressed.value,
             _buttonNewIsPressed.value, _buttonPopularIsPressed.value, _buttonEnglishIsPressed.value,
-            _buttonDeutschIsPressed.value, _buttonRussianIsPressed.value)
+            _buttonDeutschIsPressed.value, _buttonRussianIsPressed.value
+        )
         val pressedButtons = listOfButton.filter {
-                it.isPressed
+            it.isPressed
         }
         countOfChosenFilter = pressedButtons.size
         if (_dateRange.value.length > 0) {
@@ -132,33 +149,38 @@ class FilterViewModel @Inject constructor (
 
         return countOfChosenFilter
     }
+    fun navigateToBack() {
+        router.exit()
+    }
 
     fun sendResult() {
+
         viewModelScope.launch {
             _sideEffectChange.send(
                 SharedDataType.Filter(
-                country = determineCountryValue(),
-                sotrBy = determineSortValue(),
-                date = _dateRange.value,
-                count = determineCountOfChosenFilters() ))
+                    country = determineCountryValue(),
+                    sotrBy = determineSortValue(),
+                    date = _dateRange.value,
+                    count = determineCountOfChosenFilters()
+                )
+            )
         }
     }
 
     fun changeIsPressedFlagPopular() {
         val isCondition = !_buttonPopularIsPressed.value.isPressed
         _buttonPopularIsPressed.value = _buttonPopularIsPressed.value
-                .copy(isPressed = isCondition)
+            .copy(isPressed = isCondition)
         if (isCondition) {
             _buttonRelevantIsPressed.value = _buttonRelevantIsPressed.value.copy(isPressed = false)
             _buttonNewIsPressed.value = _buttonNewIsPressed.value.copy(isPressed = false)
         }
-
     }
 
     fun changeIsPressedFlagNew() {
         val isCondition = !_buttonNewIsPressed.value.isPressed
         _buttonNewIsPressed.value = _buttonNewIsPressed.value
-                .copy(isPressed = isCondition)
+            .copy(isPressed = isCondition)
         if (isCondition) {
             _buttonRelevantIsPressed.value = _buttonRelevantIsPressed.value.copy(isPressed = false)
             _buttonPopularIsPressed.value = _buttonPopularIsPressed.value.copy(isPressed = false)
@@ -166,10 +188,9 @@ class FilterViewModel @Inject constructor (
     }
 
     fun changeIsPressedFlagRelevant() {
-
         val isCondition = !_buttonRelevantIsPressed.value.isPressed
         _buttonRelevantIsPressed.value = _buttonRelevantIsPressed.value
-                .copy(isPressed = isCondition)
+            .copy(isPressed = isCondition)
         if (isCondition) {
             _buttonNewIsPressed.value = _buttonNewIsPressed.value.copy(isPressed = false)
             _buttonPopularIsPressed.value = _buttonPopularIsPressed.value.copy(isPressed = false)
@@ -177,25 +198,21 @@ class FilterViewModel @Inject constructor (
     }
 
     fun changeIsPressedFlagRussian() {
-
         val isCondition = true
         _buttonRussianIsPressed.value = _buttonRussianIsPressed.value.copy(isPressed = isCondition)
         if (isCondition) {
             _buttonEnglishIsPressed.value = _buttonEnglishIsPressed.value.copy(isPressed = false)
             _buttonDeutschIsPressed.value = _buttonDeutschIsPressed.value.copy(isPressed = false)
         }
-
     }
 
     fun changeIsPressedFlagEnglish() {
-
         val isCondition = true
         _buttonEnglishIsPressed.value = _buttonEnglishIsPressed.value.copy(isPressed = isCondition)
         if (isCondition) {
             _buttonRussianIsPressed.value = _buttonRussianIsPressed.value.copy(isPressed = false)
             _buttonDeutschIsPressed.value = _buttonDeutschIsPressed.value.copy(isPressed = false)
         }
-
     }
 
     fun changeIsPressedFlagDeutsch() {
@@ -217,13 +234,16 @@ class FilterViewModel @Inject constructor (
         val endDateString = sdf.format(Date(endDate))
 
         if (startDateString == endDateString) {
-            val equalForBothDate = LocalDate.parse(startDateString, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+            val equalForBothDate =
+                LocalDate.parse(startDateString, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
             val formatter = DateTimeFormatter.ofPattern("MMM d yyyy")
             val convertDate = equalForBothDate.format(formatter)
             _dateRange.value = convertDate
         } else {
-            val parsedStartDate = LocalDate.parse(startDateString, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-            val parsedEndDate = LocalDate.parse(endDateString, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+            val parsedStartDate =
+                LocalDate.parse(startDateString, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+            val parsedEndDate =
+                LocalDate.parse(endDateString, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
             val formatter = DateTimeFormatter.ofPattern("MMM d")
             val convertStartDate = parsedStartDate.format(formatter)
             val convertEndDate = parsedEndDate.format(formatter)
@@ -231,26 +251,7 @@ class FilterViewModel @Inject constructor (
             val finishDateRangeToTextView = "$convertStartDate - $convertEndDate, $year"
             _dateRange.value = finishDateRangeToTextView
         }
-
         countOfChosenFilter++
     }
-
-//    companion object {
-//        val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
-//            @Suppress("UNCHECKED_CAST")
-//            override fun <T : ViewModel> create(
-//                    modelClass: Class<T>,
-//                    extras: CreationExtras
-//            ): T {
-//                val application =
-//                        checkNotNull(extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY])
-//                extras.createSavedStateHandle()
-//
-//                return FilterViewModel(
-//                        (application as App).sharedClass
-//                ) as T
-//            }
-//        }
-//    }
 
 }

@@ -30,8 +30,6 @@ import javax.inject.Provider
 class SaveFragment : Fragment(), OnBackPressedListener {
 
     @Inject
-    lateinit var router: Router
-    @Inject
     internal lateinit var viewModelProvider: Provider<SaveViewModel>
 
     private var _binding: FragmentSaveBinding? = null
@@ -64,9 +62,8 @@ class SaveFragment : Fragment(), OnBackPressedListener {
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 when (menuItem.itemId) {
                     R.id.searchViewSaveFragment -> {
-                        router.navigateTo(Screens.searchSaveFragment())
+                        viewModel.navigateToSearch()
                     }
-
                 }
                 return true
             }
@@ -85,8 +82,6 @@ class SaveFragment : Fragment(), OnBackPressedListener {
                 }
             }
         }
-
-
     }
 
     private fun initViews() = with(binding.rvSave) {
@@ -102,21 +97,14 @@ class SaveFragment : Fragment(), OnBackPressedListener {
     private fun handleSideEffects(sideEffects: SideEffects) {
         when (sideEffects) {
             is SideEffects.ErrorEffect -> {}
-            is SideEffects.ClickEffectArticle -> {
-                router.navigateTo(
-                    Screens.fullArticleHeadlinesFragment(
-                        sideEffects.article
-                    )
-                )
-            }
-
+            is SideEffects.ClickEffectArticle -> {}
             else -> {}
         }
 
     }
 
     override fun onBackPressed() {
-        router.exit()
+        viewModel.navigateToBack()
     }
 
     override fun onDestroyView() {

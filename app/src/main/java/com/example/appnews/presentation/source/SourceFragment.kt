@@ -26,8 +26,6 @@ import javax.inject.Provider
 class SourceFragment : Fragment(), OnBackPressedListener {
 
 	@Inject
-	lateinit var router: Router
-	@Inject
 	internal lateinit var viewModelProvider: Provider<SourceViewModel>
 
 	private var _binding: FragmentSourceBinding? = null
@@ -96,13 +94,7 @@ class SourceFragment : Fragment(), OnBackPressedListener {
 	private fun handleSideEffects(sideEffects: SideEffects) {
 		when (sideEffects) {
 			is SideEffects.ErrorEffect -> {}
-			is SideEffects.ClickSource -> {
-				router.navigateTo(
-					Screens.sourceArticlesListFragment(
-						sideEffects.source.id
-					)
-				)
-			}
+			is SideEffects.ClickSource -> {}
 			else ->{}
 		}
 	}
@@ -113,7 +105,7 @@ class SourceFragment : Fragment(), OnBackPressedListener {
 	}
 
 	override fun onBackPressed() {
-		router.exit()
+		viewModel.navigateToBack()
 	}
 
 }

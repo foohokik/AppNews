@@ -1,11 +1,15 @@
 package com.example.appnews.presentation.saves
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.appnews.Screens
 import com.example.appnews.data.dataclassesresponse.ArticlesUI
 import com.example.appnews.domain.NewsRepository
 import com.example.appnews.presentation.SideEffects
 import com.example.appnews.presentation.headlines.headlines_adapterRV.ArticleListener
+import com.github.terrakok.cicerone.Router
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -18,9 +22,9 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class SearchSaveViewModel @Inject constructor(
-    private val newsRepository: NewsRepository
+    private val newsRepository: NewsRepository,
+    private val router: Router
 ): ViewModel(), ArticleListener {
-
 
     private val _queryFlow = MutableStateFlow("")
     val queryFlow = _queryFlow.asStateFlow()
@@ -51,36 +55,21 @@ class SearchSaveViewModel @Inject constructor(
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onClickArticle(article: ArticlesUI.Article) {
-            viewModelScope.launch {
-                _sideEffects.send(SideEffects.ClickEffectArticle(article))
-            }
+        router.navigateTo(
+            Screens.fullArticleHeadlinesFragment(article)
+        )
     }
-
+    fun navigateToBack() {
+        router.exit()
+    }
     fun changeFlagOnChangeKeyBoardFlag(isShow: Boolean) {
         _showKeyboard.value = isShow
     }
-
     fun clearFlow() {
         _searchSaveViewModel.value = emptyList()
         _queryFlow.value = ""
     }
 
-//    companion object {
-//
-//        val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
-//            @Suppress("UNCHECKED_CAST")
-//            override fun <T : ViewModel> create(
-//                modelClass: Class<T>,
-//                extras: CreationExtras
-//            ): T {
-//                val application =
-//                    checkNotNull(extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY])
-//
-//                return SearchSaveViewModel(
-//                    (application as App).newsRepository
-//                ) as T
-//            }
-//        }
-//    }
 }

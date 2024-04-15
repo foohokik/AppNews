@@ -2,10 +2,10 @@ package com.example.appnews.di
 
 import android.content.Context
 import com.example.appnews.presentation.MainActivity
-import com.example.appnews.presentation.headlines.FilterFragment
-import com.example.appnews.presentation.headlines.FullArticleHeadlinesFragment
+import com.example.appnews.presentation.headlines.filter.FilterFragment
+import com.example.appnews.presentation.headlines.fullarticle.FullArticleHeadlinesFragment
 import com.example.appnews.presentation.headlines.HeadlinesFragment
-import com.example.appnews.presentation.headlines.SearchHeadlinesFragment
+import com.example.appnews.presentation.headlines.search.SearchHeadlinesFragment
 import com.example.appnews.presentation.headlines.tabfragment.PagerContainerFragment
 import com.example.appnews.presentation.saves.SaveFragment
 import com.example.appnews.presentation.saves.SearchSaveFragment

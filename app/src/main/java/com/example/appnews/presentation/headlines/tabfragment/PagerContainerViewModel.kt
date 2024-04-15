@@ -1,21 +1,24 @@
 package com.example.appnews.presentation.headlines.tabfragment
 
-import android.util.Log
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.appnews.Screens
 import com.example.appnews.core.PAGE_SIZE
-import com.example.appnews.core.shared.ShareDataClass
 import com.example.appnews.core.network.onError
 import com.example.appnews.core.network.onException
 import com.example.appnews.core.network.onSuccess
 import com.example.appnews.core.networkstatus.NetworkConnectivityService
 import com.example.appnews.core.networkstatus.NetworkStatus
+import com.example.appnews.core.shared.ShareDataClass
 import com.example.appnews.core.shared.SharedDataType
 import com.example.appnews.data.dataclassesresponse.ArticlesUI
 import com.example.appnews.data.dataclassesresponse.News
 import com.example.appnews.domain.NewsRepository
 import com.example.appnews.presentation.SideEffects
 import com.example.appnews.presentation.headlines.headlines_adapterRV.ArticleListener
+import com.github.terrakok.cicerone.Router
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -29,11 +32,12 @@ class PagerContainerViewModel @AssistedInject constructor(
     private val newsRepository: NewsRepository,
     private val sharedClass: ShareDataClass,
     private val networkConnectivityService: NetworkConnectivityService,
-    @Assisted ("category") private var category: String
+    private val router: Router,
+    @Assisted("category") private var category: String
 ) : ViewModel(), ArticleListener {
 
-
-    private val _networkStatus: MutableStateFlow<NetworkStatus> = MutableStateFlow(NetworkStatus.Unknown)
+    private val _networkStatus: MutableStateFlow<NetworkStatus> =
+        MutableStateFlow(NetworkStatus.Unknown)
     val networkStatus = _networkStatus
 
     private val _headlinesNewsFlow = MutableStateFlow(News())
@@ -46,8 +50,8 @@ class PagerContainerViewModel @AssistedInject constructor(
     val isLastPageFlow = _isLastPageFlow.asStateFlow()
 
     private var headlinesPage = 1
-    var country: String = ""
-    var totalPages = 0
+    private var country: String = ""
+    private var totalPages = 0
 
     init {
         if (!networkConnectivityService.isConnected()) {
@@ -71,7 +75,6 @@ class PagerContainerViewModel @AssistedInject constructor(
     }
 
     fun getHeadlinesNews() {
-        Log.d ("III", "getHeadlinesNews  ")
         viewModelScope.launch {
             if (headlinesPage > 1) {
                 _headlinesNewsFlow.value = headlinesNewsFlow.value
@@ -99,16 +102,16 @@ class PagerContainerViewModel @AssistedInject constructor(
                     .copy(articles = headlinesNewsFlow.value.articles.filterIsInstance<ArticlesUI.Article>())
         }
     }
-
-        @AssistedFactory
-        interface Factory {
-            fun create(@Assisted("category") category: String): PagerContainerViewModel
-        }
-
-        override fun onClickArticle(article: ArticlesUI.Article) {
-
-            viewModelScope.launch {
-                _sideEffects.send(SideEffects.ClickEffectArticle(article))
-            }
+    @AssistedFactory
+    interface Factory {
+        fun create(@Assisted("category") category: String): PagerContainerViewModel
     }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun onClickArticle(article: ArticlesUI.Article) {
+        router.navigateTo(
+            Screens.fullArticleHeadlinesFragment(article)
+        )
+    }
+
 }

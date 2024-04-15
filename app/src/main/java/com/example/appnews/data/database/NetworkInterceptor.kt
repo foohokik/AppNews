@@ -1,14 +1,6 @@
 package com.example.appnews.data.database
 
-import android.util.Log
-import androidx.lifecycle.viewModelScope
 import com.example.appnews.core.networkstatus.NetworkConnectivityService
-import com.example.appnews.core.networkstatus.NetworkStatus
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.stateIn
 import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response

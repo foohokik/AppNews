@@ -28,8 +28,6 @@ import javax.inject.Inject
 class SearchSourceArticlesFragment : Fragment(), OnBackPressedListener {
 
     @Inject
-    lateinit var router: Router
-    @Inject
     lateinit var viewModelFactory: SearchSourceArticlesViewModel.Factory
 
     private var _binding: FragmentSearchSourceArticlesBinding? = null
@@ -88,9 +86,8 @@ class SearchSourceArticlesFragment : Fragment(), OnBackPressedListener {
         super.onDestroyView()
         _binding = null
     }
-
     override fun onBackPressed() {
-        router.exit()
+        viewModel.navigateToBack()
     }
     private fun networkState (networkStatus: NetworkStatus) {
         when(networkStatus) {
@@ -121,7 +118,7 @@ class SearchSourceArticlesFragment : Fragment(), OnBackPressedListener {
    private fun backArrow() {
         binding.imageSourceButtonBackSearch.setOnClickListener {
             it.context.hideKeyboard(it)
-            router.exit()
+            viewModel.navigateToBack()
         }
     }
    private fun closeEnteringSearch() {
@@ -138,13 +135,13 @@ class SearchSourceArticlesFragment : Fragment(), OnBackPressedListener {
         }
     }
 
-    fun renderQuery(text: String) {
+    private fun renderQuery(text: String) {
         if (text == binding.editTextSearchSource.text.toString()) {
         } else {
             binding.editTextSearchSource.setText(text)
         }
     }
-    fun renderKeyboard(isShow: Boolean) {
+    private fun renderKeyboard(isShow: Boolean) {
         if (isShow) {
             with(binding.editTextSearchSource) {
                 requestFocus()
@@ -158,13 +155,7 @@ class SearchSourceArticlesFragment : Fragment(), OnBackPressedListener {
     private fun handleSideEffects(sideEffects: SideEffects) {
         when (sideEffects) {
             is SideEffects.ErrorEffect -> {}
-            is SideEffects.ClickEffectArticle -> {
-                router.navigateTo(
-                    Screens.fullArticleHeadlinesFragment(
-                        sideEffects.article
-                    )
-                )
-            }
+            is SideEffects.ClickEffectArticle -> {}
             else -> {}
         }
     }
