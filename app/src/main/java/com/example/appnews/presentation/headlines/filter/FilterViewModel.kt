@@ -154,17 +154,15 @@ class FilterViewModel @Inject constructor(
     }
 
     fun sendResult() {
-
-        viewModelScope.launch {
-            _sideEffectChange.send(
-                SharedDataType.Filter(
-                    country = determineCountryValue(),
-                    sotrBy = determineSortValue(),
-                    date = _dateRange.value,
-                    count = determineCountOfChosenFilters()
-                )
-            )
-        }
+        sharedClass.setData(
+            SharedDataType.Filter(
+                country = determineCountryValue(),
+                sotrBy = determineSortValue(),
+                date = _dateRange.value,
+                count = determineCountOfChosenFilters()
+        )
+        )
+        router.exit()
     }
 
     fun changeIsPressedFlagPopular() {

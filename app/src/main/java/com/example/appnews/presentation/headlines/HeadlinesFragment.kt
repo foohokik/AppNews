@@ -41,8 +41,6 @@ import javax.inject.Provider
 class HeadlinesFragment : Fragment(), OnBackPressedListener {
 
     @Inject
-    lateinit var router: Router
-    @Inject
     internal lateinit var viewModelProvider: Provider<HeadlinesViewModel>
 
     private var _binding: FragmentHeadlinesBinding? = null
@@ -66,10 +64,6 @@ class HeadlinesFragment : Fragment(), OnBackPressedListener {
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
-        setFragmentResultListener("request_key") { _, bundle ->
-            val data = bundle.customGetSerializable<SharedDataType.Filter>("data")
-            data?.let { viewModel.onWriteData(it) }
-        }
         initViewPager()
         binding.materialToolbarHeadlines.addMenuProvider(object : MenuProvider {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
@@ -80,10 +74,10 @@ class HeadlinesFragment : Fragment(), OnBackPressedListener {
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 when (menuItem.itemId) {
                     R.id.searchView -> {
-                        router.navigateTo(Screens.searchHeadlinesFragment())
+                        viewModel.navigateToSearch()
                     }
                     R.id.filterHeadlines -> {
-                        router.navigateTo(Screens.filterFragment())
+                        viewModel.navigateToFilter()
                     }
                 }
                 return true
@@ -127,9 +121,8 @@ class HeadlinesFragment : Fragment(), OnBackPressedListener {
     }
 
     override fun onBackPressed() {
-        router.exit()
+        viewModel.navigateToBack()
     }
-
     private fun initViewPager() {
         viewPagerAdapter = ViewPagerAdapter(this)
         viewPager = binding.pager

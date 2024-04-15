@@ -52,7 +52,6 @@ class FilterFragment : Fragment(), OnBackPressedListener {
         return binding.root
     }
 
-
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -127,9 +126,7 @@ class FilterFragment : Fragment(), OnBackPressedListener {
                         }
                     }
                 }
-                launch {
-                    viewModel.sideEffectsChange.collect(::handleSideEffect)
-                }
+
             }
         }
 
@@ -156,10 +153,6 @@ class FilterFragment : Fragment(), OnBackPressedListener {
         binding.imageButtonBackFilter.setOnClickListener {
             viewModel.navigateToBack()
         }
-    }
-
-    private fun handleSideEffect(data: SharedDataType.Filter) {
-        setFragmentResult("request_key", bundleOf("data" to data))
     }
 
     private fun saveResultFilterIcon() {
