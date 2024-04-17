@@ -1,4 +1,4 @@
-package com.example.appnews.data.dataclassesresponse
+package com.example.appnews.domain.dataclasses
 
 import java.io.Serializable
 

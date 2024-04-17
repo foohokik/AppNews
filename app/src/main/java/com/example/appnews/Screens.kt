@@ -4,7 +4,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentFactory
-import com.example.appnews.data.dataclassesresponse.ArticlesUI
+import com.example.appnews.domain.dataclasses.ArticlesUI
 
 import com.example.appnews.presentation.FullArticleFragmentWeb
 import com.example.appnews.presentation.headlines.filter.FilterFragment
@@ -16,8 +16,8 @@ import com.example.appnews.presentation.navigation.NavigationKeys
 import com.example.appnews.presentation.navigation.PagesType
 import com.example.appnews.presentation.saves.SaveFragment
 import com.example.appnews.presentation.saves.SearchSaveFragment
-import com.example.appnews.presentation.source.SearchSourceArticlesFragment
-import com.example.appnews.presentation.source.SourceArticlesListFragment
+import com.example.appnews.presentation.source.search_articles.SearchSourceArticlesFragment
+import com.example.appnews.presentation.source.articles.SourceArticlesListFragment
 import com.example.appnews.presentation.source.SourceFragment
 import com.github.terrakok.cicerone.androidx.FragmentScreen
 
@@ -60,7 +60,7 @@ object Screens {
 		FragmentScreen { FullArticleHeadlinesFragment.newInstance(args) }
 
 
-	fun searchSourceFragment (args: String) = FragmentScreen {SearchSourceArticlesFragment.newInstance(args)}
+	fun searchSourceFragment (args: String) = FragmentScreen { SearchSourceArticlesFragment.newInstance(args)}
 
 	fun sourceArticlesListFragment (args: String) = FragmentScreen{ SourceArticlesListFragment.newInstance(args) }
 }

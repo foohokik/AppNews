@@ -11,7 +11,7 @@ import com.example.appnews.core.network.onException
 import com.example.appnews.core.network.onSuccess
 import com.example.appnews.core.networkstatus.NetworkConnectivityService
 import com.example.appnews.core.networkstatus.NetworkStatus
-import com.example.appnews.data.dataclassesresponse.ArticlesUI
+import com.example.appnews.domain.dataclasses.ArticlesUI
 import com.example.appnews.data.dataclassesresponse.News
 import com.example.appnews.domain.NewsRepository
 import com.example.appnews.presentation.SideEffects
@@ -65,13 +65,14 @@ class SearchHeadlinesViewModel @Inject constructor(
                 .collect { _networkStatus.value = it }
         }
     }
-    fun clearFlow() {
-        _searchHeadlinesViewModel.value.copy(articles = emptyList())
+
+    fun clearFlowAndOnChangeKeyBoardFlag() {
+        _searchHeadlinesViewModel.value =
+            _searchHeadlinesViewModel.value.copy(articles = emptyList())
         _queryFlow.value = ""
+        _showKeyboard.value = false
     }
-    fun changeFlagonChangeKeyBoardFlag(isShow: Boolean) {
-        _showKeyboard.value = isShow
-    }
+
     fun getSearchNews(searchQuery: String) {
         _queryFlow.value = searchQuery
         job?.cancel()
@@ -112,6 +113,7 @@ class SearchHeadlinesViewModel @Inject constructor(
             Screens.fullArticleHeadlinesFragment(article)
         )
     }
+
     fun navigateToBack() {
         router.exit()
     }

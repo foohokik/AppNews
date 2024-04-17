@@ -27,7 +27,9 @@ class HeadlinesViewModel @Inject constructor(
     val filterDataFlow = _filterDataFlow.asStateFlow()
 
     init {
-
+        observeData()
+    }
+    private fun observeData() {
         viewModelScope.launch {
             sharedClass.reviewSearchSideEffect.collect {
                 _filterDataFlow.value = it as SharedDataType.Filter

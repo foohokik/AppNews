@@ -19,79 +19,76 @@ import javax.inject.Provider
 
 class MainActivity : AppCompatActivity() {
 
-	@Inject
-	internal lateinit var viewModelProvider: Provider<MainViewModel>
+    @Inject
+    internal lateinit var viewModelProvider: Provider<MainViewModel>
 
-	@Inject
-	lateinit var navigatorHolder: NavigatorHolder
+    @Inject
+    lateinit var navigatorHolder: NavigatorHolder
 
-	@Inject
-	lateinit var router: Router
+    @Inject
+    lateinit var router: Router
 
-	private lateinit var binding: ActivityMainBinding
-	private val viewModel by viewModelFactory { viewModelProvider.get() }
-	val navigator = MainNavigator(this, R.id.main_container_view)
+    private lateinit var binding: ActivityMainBinding
+    private val viewModel by viewModelFactory { viewModelProvider.get() }
+    val navigator = MainNavigator(this, R.id.main_container_view)
 
-	override fun onCreate(savedInstanceState: Bundle?) {
+    override fun onCreate(savedInstanceState: Bundle?) {
 
-		(applicationContext as App).appComponent.inject(this)
-		installSplashScreen().setKeepOnScreenCondition() {
-			viewModel.isLoading.value
-		}
+        (applicationContext as App).appComponent.inject(this)
+        installSplashScreen().setKeepOnScreenCondition() {
+            viewModel.isLoading.value
+        }
 
-		super.onCreate(savedInstanceState)
-		binding = ActivityMainBinding.inflate(layoutInflater)
-		val view = binding.root
-		setContentView(view)
-		setupNavigationBar()
-		savedInstanceState ?:initHomeNavBarFragment()
-	}
+        super.onCreate(savedInstanceState)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
+        setupNavigationBar()
+        savedInstanceState ?: initHomeNavBarFragment()
+    }
 
-	private fun initHomeNavBarFragment() {
-		binding.navBar.selectedItemId = R.id.headline
-	}
+    private fun initHomeNavBarFragment() {
+        binding.navBar.selectedItemId = R.id.headline
+    }
 
-	private fun setupNavigationBar() {
-		binding.navBar.setOnItemSelectedListener {
-			when (it.itemId) {
-				R.id.headline -> {
-					router.replaceScreen(Screens.headlinesTab())
-				}
+    private fun setupNavigationBar() {
+        binding.navBar.setOnItemSelectedListener {
+            when (it.itemId) {
+                R.id.headline -> {
+                    router.replaceScreen(Screens.headlinesTab())
+                }
 
-				R.id.saved -> {
-					router.replaceScreen(Screens.saveTab())
-				}
+                R.id.saved -> {
+                    router.replaceScreen(Screens.saveTab())
+                }
 
-				R.id.source -> router.replaceScreen(Screens.sourceTab())
-			}
-			true
-		}
-	}
+                R.id.source -> router.replaceScreen(Screens.sourceTab())
+            }
+            true
+        }
+    }
 
-	override fun onResume() {
-		super.onResume()
-		navigatorHolder.setNavigator(navigator)
-	}
+    override fun onResume() {
+        super.onResume()
+        navigatorHolder.setNavigator(navigator)
+    }
 
-	override fun onPause() {
-		super.onPause()
-		navigatorHolder.removeNavigator()
-	}
+    override fun onPause() {
+        super.onPause()
+        navigatorHolder.removeNavigator()
+    }
 
-	override fun onBackPressed() {
-		(supportFragmentManager.fragments.findLast { it is OnBackPressedListener }
-			as? OnBackPressedListener)
-			?.onBackPressed()
-			?: super.onBackPressed()
-	}
+    override fun onBackPressed() {
+        (supportFragmentManager.fragments.findLast { it is OnBackPressedListener }
+                as? OnBackPressedListener)
+            ?.onBackPressed()
+            ?: super.onBackPressed()
+    }
 
-	fun setSelectedBottomNavigationTab(pagesType: PagesType?) {
-		if (pagesType == null) {
-			return
-		}
-		binding.navBar.selectedItemId = pagesType.fromTypeToId()
-//		bottomNavigationView.setOnNavigationItemSelectedListener(null)
-//		bottomNavigationView.getMenu().getItem(pagesType.getValue()).setChecked(true)
-//		bottomNavigationView.setOnNavigationItemSelectedListener(this)
-	}
+    fun setSelectedBottomNavigationTab(pagesType: PagesType?) {
+        if (pagesType == null) {
+            return
+        }
+        binding.navBar.selectedItemId = pagesType.fromTypeToId()
+    }
 }

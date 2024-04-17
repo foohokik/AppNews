@@ -1,7 +1,6 @@
 package com.example.appnews.data.dataclassesresponse
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
+import com.example.appnews.domain.dataclasses.Source
 import java.io.Serializable
 
 

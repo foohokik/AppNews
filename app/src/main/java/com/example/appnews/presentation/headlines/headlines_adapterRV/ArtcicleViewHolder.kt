@@ -5,15 +5,18 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.appnews.R
 import com.example.appnews.databinding.NewsItemBinding
-import com.example.appnews.data.dataclassesresponse.ArticlesUI
+import com.example.appnews.domain.dataclasses.ArticlesUI
 
-class ArticleViewHolder (val binding: NewsItemBinding):RecyclerView.ViewHolder(binding.root) {
+class ArticleViewHolder(val binding: NewsItemBinding) : RecyclerView.ViewHolder(binding.root) {
 
-val backgroundColor = ContextCompat.getColor(binding.itemLayout.context, R.color.backgroundColor)
+    val backgroundColor =
+        ContextCompat.getColor(binding.itemLayout.context, R.color.backgroundColor)
 
-
-    fun bind (article: ArticlesUI.Article, listener: ArticleListener, changeBackgroundColor:Boolean) = with(binding) {
-
+    fun bind(
+        article: ArticlesUI.Article,
+        listener: ArticleListener,
+        changeBackgroundColor: Boolean
+    ) = with(binding) {
         Glide.with(ivNewsHeadline.context).load(article.urlToImage).into(ivNewsHeadline)
         tvSourceNewsName.text = article.source.name
         tvTitle.text = article.title
@@ -24,8 +27,6 @@ val backgroundColor = ContextCompat.getColor(binding.itemLayout.context, R.color
         if (changeBackgroundColor) {
             binding.itemLayout.setBackgroundColor(backgroundColor)
         }
-
-
     }
 
 }

@@ -1,7 +1,7 @@
 package com.example.appnews.data.database
 
 import androidx.room.TypeConverter
-import com.example.appnews.data.dataclassesresponse.Source
+import com.example.appnews.domain.dataclasses.Source
 
 class Converters {
 
@@ -11,7 +11,7 @@ class Converters {
     }
 
     @TypeConverter
-    fun toSource (name: String): Source{
+    fun toSource (name: String): Source {
         return  Source(name, name)
     }
 }

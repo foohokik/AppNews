@@ -4,7 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.example.appnews.data.dataclassesresponse.ArticlesUI
+import com.example.appnews.domain.dataclasses.ArticlesUI
 import com.example.appnews.databinding.LoadingItemBinding
 import com.example.appnews.databinding.NewsItemBinding
 
@@ -45,6 +45,7 @@ class HeadlinesAdapter(private val listener: ArticleListener, var changeBackgrou
         }
 
     }
+
     override fun getItemCount(): Int = items.size
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {

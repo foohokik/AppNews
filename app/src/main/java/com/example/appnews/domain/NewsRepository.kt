@@ -2,7 +2,7 @@ package com.example.appnews.domain
 
 import com.example.appnews.core.network.NetworkResult
 import com.example.appnews.data.dataclassesresponse.AllSources
-import com.example.appnews.data.dataclassesresponse.ArticlesUI
+import com.example.appnews.domain.dataclasses.ArticlesUI
 import com.example.appnews.data.dataclassesresponse.News
 import kotlinx.coroutines.flow.Flow
 

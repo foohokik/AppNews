@@ -37,7 +37,8 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Provider
 
-@ExperimentalBadgeUtils @SuppressLint("UnsafeExperimentalUsageError")
+@ExperimentalBadgeUtils
+@SuppressLint("UnsafeExperimentalUsageError")
 class HeadlinesFragment : Fragment(), OnBackPressedListener {
 
     @Inject
@@ -50,40 +51,48 @@ class HeadlinesFragment : Fragment(), OnBackPressedListener {
     private lateinit var viewPager: ViewPager2
     val badgeDrawable by lazy { BadgeDrawable.create(requireContext()) }
 
-    private val viewModel by  viewModelFactory { viewModelProvider.get() }
+    private val viewModel by viewModelFactory { viewModelProvider.get() }
     override fun onAttach(context: Context) {
         super.onAttach(context)
         (requireContext().applicationContext as App).appComponent.inject(this)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         _binding = FragmentHeadlinesBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-
         initViewPager()
-        binding.materialToolbarHeadlines.addMenuProvider(object : MenuProvider {
-            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                menuInflater.inflate(R.menu.headlines_toolbar, menu)
-            }
+        initToolBar()
+        initTabLayout()
+        observe()
+    }
 
-            @RequiresApi(Build.VERSION_CODES.O)
-            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-                when (menuItem.itemId) {
-                    R.id.searchView -> {
-                        viewModel.navigateToSearch()
-                    }
-                    R.id.filterHeadlines -> {
-                        viewModel.navigateToFilter()
-                    }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+    override fun onBackPressed() {
+        viewModel.navigateToBack()
+    }
+
+    private fun observe() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.filterDataFlow.collect(::setBadge)
                 }
-                return true
             }
-        }, viewLifecycleOwner)
-
+        }
+    }
+    private fun initTabLayout(){
         val tabLayout = binding.tabLayout
         TabLayoutMediator(tabLayout, viewPager) { tab, pos ->
             when (pos) {
@@ -101,36 +110,43 @@ class HeadlinesFragment : Fragment(), OnBackPressedListener {
                     icon = ContextCompat.getDrawable(requireContext(), R.drawable.science_icon)
                     text = "Science"
                 }
-
             }
-
         }.attach()
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                launch {
-                    viewModel.filterDataFlow.collect(::setBadge)
-                }
+    }
+    private fun initToolBar() {
+        binding.materialToolbarHeadlines.addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.headlines_toolbar, menu)
             }
-        }
+
+            @RequiresApi(Build.VERSION_CODES.O)
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                when (menuItem.itemId) {
+                    R.id.searchView -> {
+                        viewModel.navigateToSearch()
+                    }
+
+                    R.id.filterHeadlines -> {
+                        viewModel.navigateToFilter()
+                    }
+                }
+                return true
+            }
+        }, viewLifecycleOwner)
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
-
-    override fun onBackPressed() {
-        viewModel.navigateToBack()
-    }
     private fun initViewPager() {
         viewPagerAdapter = ViewPagerAdapter(this)
         viewPager = binding.pager
         viewPager.adapter = viewPagerAdapter
     }
 
-   private fun setBadge (data: SharedDataType.Filter) {
-        BadgeUtils.attachBadgeDrawable (badgeDrawable, binding.materialToolbarHeadlines, R.id.filterHeadlines)
+    private fun setBadge(data: SharedDataType.Filter) {
+        BadgeUtils.attachBadgeDrawable(
+            badgeDrawable,
+            binding.materialToolbarHeadlines,
+            R.id.filterHeadlines
+        )
         if (data.count == 0) {
             badgeDrawable.isVisible = false
         } else {

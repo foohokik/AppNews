@@ -1,4 +1,4 @@
-package com.example.appnews.presentation.source
+package com.example.appnews.presentation.source.search_articles
 
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -10,7 +10,7 @@ import com.example.appnews.core.network.onException
 import com.example.appnews.core.network.onSuccess
 import com.example.appnews.core.networkstatus.NetworkConnectivityService
 import com.example.appnews.core.networkstatus.NetworkStatus
-import com.example.appnews.data.dataclassesresponse.ArticlesUI
+import com.example.appnews.domain.dataclasses.ArticlesUI
 import com.example.appnews.data.dataclassesresponse.News
 import com.example.appnews.domain.NewsRepository
 import com.example.appnews.presentation.SideEffects
@@ -34,7 +34,8 @@ class SearchSourceArticlesViewModel @AssistedInject constructor(
     private val router: Router
 ) : ViewModel(), ArticleListener {
 
-    private val _networkStatus: MutableStateFlow<NetworkStatus> = MutableStateFlow(NetworkStatus.Unknown)
+    private val _networkStatus: MutableStateFlow<NetworkStatus> =
+        MutableStateFlow(NetworkStatus.Unknown)
     val networkStatus = _networkStatus
 
     private val _queryFlow = MutableStateFlow("")
@@ -50,24 +51,23 @@ class SearchSourceArticlesViewModel @AssistedInject constructor(
     val sideEffects = _sideEffects.receiveAsFlow()
 
     private var job: Job? = null
+
     init {
-    if (!networkConnectivityService.isConnected()) {
-        _networkStatus.value = NetworkStatus.Disconnected
+        if (!networkConnectivityService.isConnected()) {
+            _networkStatus.value = NetworkStatus.Disconnected
+        }
+
+        viewModelScope.launch {
+            networkConnectivityService
+                .networkStatus
+                .collect { _networkStatus.value = it }
+        }
     }
 
-    viewModelScope.launch {
-        networkConnectivityService
-            .networkStatus
-            .collect { _networkStatus.value = it }
-    }
-    }
-    fun changeFlagOnChangeKeyBoardFlag(isShow: Boolean) {
-        _showKeyboard.value = isShow
-    }
-
-    fun clearFlow() {
-        _searchSourceArticles.value.copy(articles = emptyList())
+    fun clearFlowAndOnChangeKeyBoardFlag() {
+        _searchSourceArticles.value = _searchSourceArticles.value.copy(articles = emptyList())
         _queryFlow.value = ""
+        _showKeyboard.value = false
     }
 
     fun getSearchNews(searchQuery: String) {
@@ -87,6 +87,7 @@ class SearchSourceArticlesViewModel @AssistedInject constructor(
             _queryFlow.value = searchQuery
         }
     }
+
     @AssistedFactory
     interface Factory {
         fun create(@Assisted("source") sourceId: String): SearchSourceArticlesViewModel
@@ -98,6 +99,7 @@ class SearchSourceArticlesViewModel @AssistedInject constructor(
             Screens.fullArticleHeadlinesFragment(article)
         )
     }
+
     fun navigateToBack() {
         router.exit()
     }

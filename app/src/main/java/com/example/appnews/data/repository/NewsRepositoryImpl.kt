@@ -4,7 +4,7 @@ import com.example.appnews.core.network.NetworkResult
 import com.example.appnews.data.api.NewsAPI
 import com.example.appnews.data.database.ArticlesDatabase
 import com.example.appnews.data.dataclassesresponse.AllSources
-import com.example.appnews.data.dataclassesresponse.ArticlesUI
+import com.example.appnews.domain.dataclasses.ArticlesUI
 import com.example.appnews.data.dataclassesresponse.News
 import com.example.appnews.data.dataclassesresponse.toNetworkResultNews
 import com.example.appnews.domain.NewsRepository

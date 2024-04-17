@@ -1,4 +1,4 @@
-package com.example.appnews.data.dataclassesresponse
+package com.example.appnews.domain.dataclasses
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -21,5 +21,5 @@ sealed class ArticlesUI {
         val urlToImage: String
     ): Serializable, ArticlesUI()
 
-    object Loading:ArticlesUI()
+    object Loading: ArticlesUI()
 }

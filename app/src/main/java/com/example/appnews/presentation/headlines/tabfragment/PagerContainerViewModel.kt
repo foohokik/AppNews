@@ -13,7 +13,7 @@ import com.example.appnews.core.networkstatus.NetworkConnectivityService
 import com.example.appnews.core.networkstatus.NetworkStatus
 import com.example.appnews.core.shared.ShareDataClass
 import com.example.appnews.core.shared.SharedDataType
-import com.example.appnews.data.dataclassesresponse.ArticlesUI
+import com.example.appnews.domain.dataclasses.ArticlesUI
 import com.example.appnews.data.dataclassesresponse.News
 import com.example.appnews.domain.NewsRepository
 import com.example.appnews.presentation.SideEffects
@@ -57,12 +57,11 @@ class PagerContainerViewModel @AssistedInject constructor(
         if (!networkConnectivityService.isConnected()) {
             _networkStatus.value = NetworkStatus.Disconnected
         }
+        initNetworkStatus()
+        observeData()
+    }
 
-        viewModelScope.launch {
-            networkConnectivityService
-                .networkStatus
-                .collect { _networkStatus.value = it }
-        }
+    private fun observeData() {
         viewModelScope.launch {
             sharedClass.reviewSearchSideEffect.collect {
                 country = (it as SharedDataType.Filter).country
@@ -71,6 +70,13 @@ class PagerContainerViewModel @AssistedInject constructor(
                 _headlinesNewsFlow.value = _headlinesNewsFlow.value.copy(articles = emptyList())
                 getHeadlinesNews()
             }
+        }
+    }
+    private fun initNetworkStatus() {
+        viewModelScope.launch {
+            networkConnectivityService
+                .networkStatus
+                .collect { _networkStatus.value = it }
         }
     }
 

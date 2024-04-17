@@ -9,8 +9,8 @@ import com.example.appnews.presentation.headlines.search.SearchHeadlinesFragment
 import com.example.appnews.presentation.headlines.tabfragment.PagerContainerFragment
 import com.example.appnews.presentation.saves.SaveFragment
 import com.example.appnews.presentation.saves.SearchSaveFragment
-import com.example.appnews.presentation.source.SearchSourceArticlesFragment
-import com.example.appnews.presentation.source.SourceArticlesListFragment
+import com.example.appnews.presentation.source.search_articles.SearchSourceArticlesFragment
+import com.example.appnews.presentation.source.articles.SourceArticlesListFragment
 import com.example.appnews.presentation.source.SourceFragment
 import dagger.BindsInstance
 import dagger.Component

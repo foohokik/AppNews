@@ -1,6 +1,5 @@
 package com.example.appnews.presentation.source
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.appnews.Screens
@@ -13,7 +12,7 @@ import com.example.appnews.data.dataclassesresponse.AllSources
 import com.example.appnews.data.dataclassesresponse.SourceFromSources
 import com.example.appnews.domain.NewsRepository
 import com.example.appnews.presentation.SideEffects
-import com.example.appnews.presentation.source.AdapterSources.SourceListener
+import com.example.appnews.presentation.source.adaptersources.SourceListener
 import com.github.terrakok.cicerone.Router
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,7 +27,8 @@ class SourceViewModel @Inject constructor(
     private val router: Router
 ) : ViewModel(), SourceListener {
 
-    private val _networkStatus: MutableStateFlow<NetworkStatus> = MutableStateFlow(NetworkStatus.Unknown)
+    private val _networkStatus: MutableStateFlow<NetworkStatus> =
+        MutableStateFlow(NetworkStatus.Unknown)
     val networkStatus = _networkStatus
 
     private val _sourceFlow = MutableStateFlow(AllSources())
@@ -41,28 +41,34 @@ class SourceViewModel @Inject constructor(
         if (!networkConnectivityService.isConnected()) {
             _networkStatus.value = NetworkStatus.Disconnected
         }
+        initNetworkStatus()
+    }
 
+    private fun initNetworkStatus() {
         viewModelScope.launch {
             networkConnectivityService
                 .networkStatus
                 .collect { _networkStatus.value = it }
         }
     }
-     fun getSources() {
+
+    fun getSources() {
         viewModelScope.launch {
             val result = newsRepository.getSources()
             result.onSuccess { allSources ->
                 _sourceFlow.value = allSources
             }.onError { _, message ->
                 _sideEffects.send(SideEffects.ErrorEffect(message.orEmpty()))
-            }.onException { throwable ->
-                Log.i("myTag", "throwable " + throwable)
+            }.onException {
+                _sideEffects.send(SideEffects.ExceptionEffect(it))
             }
         }
     }
+
     fun navigateToBack() {
         router.exit()
     }
+
     override fun onClickSource(source: SourceFromSources) {
         router.navigateTo(
             Screens.sourceArticlesListFragment(source.id)

@@ -1,4 +1,4 @@
-package com.example.appnews.presentation.source
+package com.example.appnews.presentation.source.search_articles
 
 import android.content.Context
 import android.os.Bundle
@@ -12,7 +12,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.appnews.App
-import com.example.appnews.Screens
 import com.example.appnews.core.networkstatus.NetworkStatus
 import com.example.appnews.databinding.FragmentSearchSourceArticlesBinding
 import com.example.appnews.presentation.SideEffects
@@ -21,7 +20,6 @@ import com.example.appnews.presentation.hideKeyboard
 import com.example.appnews.presentation.navigation.OnBackPressedListener
 import com.example.appnews.presentation.showKeyBoard
 import com.example.appnews.presentation.viewModelFactory
-import com.github.terrakok.cicerone.Router
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -55,31 +53,11 @@ class SearchSourceArticlesFragment : Fragment(), OnBackPressedListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         backArrow()
         closeEnteringSearch()
-        binding.editTextSearchSource.doOnTextChanged { text, _, _, _ ->
-            text?.let {
-                if (text.toString().isNotEmpty()) {
-                    viewModel.getSearchNews(searchQuery = text.toString())
-                }
-            }
-        }
-
+        editTextChange()
         initViews()
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                launch {
-                    viewModel.searchSourceArticles.collect {
-                        sourceSearchAdapter.setItems(it.articles)
-                    }
-                }
-                launch { viewModel.sideEffects.collect { handleSideEffects(it) } }
-                launch { viewModel.showKeyboard.collect(::renderKeyboard) }
-                launch {viewModel.queryFlow.collect { renderQuery(it) } }
-                launch { viewModel.networkStatus.collect(::networkState) }
-            }
-        }
+        observe()
     }
 
     override fun onDestroyView() {
@@ -107,6 +85,31 @@ class SearchSourceArticlesFragment : Fragment(), OnBackPressedListener {
             NetworkStatus.Unknown -> {}
         }
     }
+
+    private fun editTextChange(){
+        binding.editTextSearchSource.doOnTextChanged { text, _, _, _ ->
+            text?.let {
+                if (text.toString().isNotEmpty()) {
+                    viewModel.getSearchNews(searchQuery = text.toString())
+                }
+            }
+        }
+    }
+    private fun observe() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.searchSourceArticles.collect {
+                        sourceSearchAdapter.setItems(it.articles)
+                    }
+                }
+                launch { viewModel.sideEffects.collect { handleSideEffects(it) } }
+                launch { viewModel.showKeyboard.collect(::renderKeyboard) }
+                launch {viewModel.queryFlow.collect { renderQuery(it) } }
+                launch { viewModel.networkStatus.collect(::networkState) }
+            }
+        }
+    }
     private fun initViews() = with(binding.rvSourceSearch) {
         val manager = LinearLayoutManager(requireContext())
         sourceSearchAdapter = HeadlinesAdapter(viewModel, changeBackgroundColor = true)
@@ -128,16 +131,14 @@ class SearchSourceArticlesFragment : Fragment(), OnBackPressedListener {
                 clearFocus()
                 isCursorVisible = false
             }
-            viewModel.changeFlagOnChangeKeyBoardFlag(isShow = false)
             activity?.hideKeyboard()
-            viewModel.clearFlow()
+            viewModel.clearFlowAndOnChangeKeyBoardFlag()
             sourceSearchAdapter.setItems(emptyList())
         }
     }
 
     private fun renderQuery(text: String) {
-        if (text == binding.editTextSearchSource.text.toString()) {
-        } else {
+        if (text != binding.editTextSearchSource.text.toString()) {
             binding.editTextSearchSource.setText(text)
         }
     }
@@ -155,7 +156,6 @@ class SearchSourceArticlesFragment : Fragment(), OnBackPressedListener {
     private fun handleSideEffects(sideEffects: SideEffects) {
         when (sideEffects) {
             is SideEffects.ErrorEffect -> {}
-            is SideEffects.ClickEffectArticle -> {}
             else -> {}
         }
     }

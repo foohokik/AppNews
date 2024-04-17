@@ -27,7 +27,6 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Provider
 
-
 @RequiresApi(Build.VERSION_CODES.O)
 class FilterFragment : Fragment(), OnBackPressedListener {
 
@@ -55,7 +54,27 @@ class FilterFragment : Fragment(), OnBackPressedListener {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        saveResultFilterIcon()
+        initButtons()
+        observe()
+        backArrow()
+    }
 
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun setTextViewDate(date: String) {
+        binding.tvDateRange.text = date
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+    override fun onBackPressed() {
+        viewModel.navigateToBack()
+    }
+
+    private fun initButtons() {
         with(binding) {
             ivCalendar.setOnClickListener {
                 initDatePicker()
@@ -85,8 +104,9 @@ class FilterFragment : Fragment(), OnBackPressedListener {
             }
 
         }
-        saveResultFilterIcon()
+    }
 
+    private fun observe() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
@@ -126,27 +146,8 @@ class FilterFragment : Fragment(), OnBackPressedListener {
                         }
                     }
                 }
-
             }
         }
-
-        backArrow()
-
-    }
-
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun setTextViewDate(date: String) {
-        binding.tvDateRange.text = date
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
-
-    override fun onBackPressed() {
-        viewModel.navigateToBack()
     }
 
     private fun backArrow() {

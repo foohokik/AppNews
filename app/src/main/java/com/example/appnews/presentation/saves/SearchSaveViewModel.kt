@@ -5,7 +5,7 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.appnews.Screens
-import com.example.appnews.data.dataclassesresponse.ArticlesUI
+import com.example.appnews.domain.dataclasses.ArticlesUI
 import com.example.appnews.domain.NewsRepository
 import com.example.appnews.presentation.SideEffects
 import com.example.appnews.presentation.headlines.headlines_adapterRV.ArticleListener
@@ -41,7 +41,6 @@ class SearchSaveViewModel @Inject constructor(
     private var job: Job? = null
 
     fun getSearchSavedArticles(searchQuery: String) {
-
         _queryFlow.value = searchQuery
         job?.cancel()
         job = viewModelScope.launch {
@@ -64,12 +63,11 @@ class SearchSaveViewModel @Inject constructor(
     fun navigateToBack() {
         router.exit()
     }
-    fun changeFlagOnChangeKeyBoardFlag(isShow: Boolean) {
-        _showKeyboard.value = isShow
-    }
-    fun clearFlow() {
+
+    fun clearFlowAndOnChangeKeyBoardFlag() {
         _searchSaveViewModel.value = emptyList()
         _queryFlow.value = ""
+        _showKeyboard.value = false
     }
 
 }

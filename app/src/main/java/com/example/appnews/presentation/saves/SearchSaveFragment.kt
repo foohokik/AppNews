@@ -12,7 +12,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.appnews.App
-import com.example.appnews.Screens
 import com.example.appnews.databinding.FragmentSearchSaveBinding
 import com.example.appnews.presentation.SideEffects
 import com.example.appnews.presentation.headlines.headlines_adapterRV.HeadlinesAdapter
@@ -20,7 +19,6 @@ import com.example.appnews.presentation.hideKeyboard
 import com.example.appnews.presentation.navigation.OnBackPressedListener
 import com.example.appnews.presentation.showKeyBoard
 import com.example.appnews.presentation.viewModelFactory
-import com.github.terrakok.cicerone.Router
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Provider
@@ -41,11 +39,9 @@ class SearchSaveFragment : Fragment(), OnBackPressedListener {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-
+    ): View {
         _binding = FragmentSearchSaveBinding.inflate(inflater, container, false)
         return binding.root
-
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -53,28 +49,9 @@ class SearchSaveFragment : Fragment(), OnBackPressedListener {
 
         backArrow()
         closeEnteringSearch()
-        binding.editTextSearchSave.doOnTextChanged { text, start, before, count ->
-            text?.let {
-                if (text.toString().isNotEmpty()) {
-                    viewModel.getSearchSavedArticles(searchQuery = text.toString())
-                }
-            }
-        }
-
+        editTextChange()
         initViews()
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                launch {
-                    viewModel.searchSaveViewModel.collect {
-                        saveAdapter.setItems(it)
-                    }
-                }
-
-                launch { viewModel.sideEffects.collect { handleSideEffects(it) } }
-                launch { viewModel.showKeyboard.collect(::renderKeyboard) }
-                launch {viewModel.queryFlow.collect { renderQuery(it) } }
-            }
-        }
+        observe()
     }
 
     override fun onBackPressed() {
@@ -84,6 +61,30 @@ class SearchSaveFragment : Fragment(), OnBackPressedListener {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun observe() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.searchSaveViewModel.collect {
+                        saveAdapter.setItems(it)
+                    }
+                }
+                launch { viewModel.sideEffects.collect { handleSideEffects(it) } }
+                launch { viewModel.showKeyboard.collect(::renderKeyboard) }
+                launch {viewModel.queryFlow.collect { renderQuery(it) } }
+            }
+        }
+    }
+    private fun editTextChange() {
+        binding.editTextSearchSave.doOnTextChanged { text, _, _, _ ->
+            text?.let {
+                if (text.toString().isNotEmpty()) {
+                    viewModel.getSearchSavedArticles(searchQuery = text.toString())
+                }
+            }
+        }
     }
 
     private fun initViews() = with(binding.rvSaveSearch) {
@@ -101,27 +102,20 @@ class SearchSaveFragment : Fragment(), OnBackPressedListener {
     }
 
    private fun closeEnteringSearch() {
-
         binding.imageSaveButtonClose.setOnClickListener {
             with(binding.editTextSearchSave) {
                 text.clear()
                 clearFocus()
                 isCursorVisible = false
-
             }
-
-            viewModel.changeFlagOnChangeKeyBoardFlag(isShow = false)
             activity?.hideKeyboard()
-            viewModel.clearFlow()
+            viewModel.clearFlowAndOnChangeKeyBoardFlag()
             saveAdapter.setItems(emptyList())
         }
-
     }
 
   private fun renderQuery(text: String) {
-        if (text == binding.editTextSearchSave.text.toString()) {
-
-        } else {
+        if (text != binding.editTextSearchSave.text.toString()) {
             binding.editTextSearchSave.setText(text)
         }
     }
@@ -131,19 +125,15 @@ class SearchSaveFragment : Fragment(), OnBackPressedListener {
             with(binding.editTextSearchSave) {
                 requestFocus()
                 context.showKeyBoard(this)
-
             }
         } else {
-
             activity?.hideKeyboard()
-
         }
     }
 
     private fun handleSideEffects(sideEffects: SideEffects) {
         when (sideEffects) {
             is SideEffects.ErrorEffect -> {}
-            is SideEffects.ClickEffectArticle -> {}
             else -> {}
         }
     }

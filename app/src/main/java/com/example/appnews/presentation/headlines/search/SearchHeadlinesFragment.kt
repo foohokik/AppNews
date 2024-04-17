@@ -54,9 +54,24 @@ class SearchHeadlinesFragment : Fragment(), OnBackPressedListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         backArrow()
         closeEnteringSearch()
+        editTextChange()
+        initViews()
+        observe()
+
+    }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+    override fun onBackPressed() {
+        viewModel.navigateToBack()
+        activity?.hideKeyboard()
+    }
+
+    private fun editTextChange() {
         binding.editTextSearchHeadlines.doOnTextChanged { text, _, _, _ ->
             text?.let {
                 if (text.toString().isNotEmpty()) {
@@ -64,8 +79,8 @@ class SearchHeadlinesFragment : Fragment(), OnBackPressedListener {
                 }
             }
         }
-
-        initViews()
+    }
+    private fun observe() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
@@ -81,18 +96,7 @@ class SearchHeadlinesFragment : Fragment(), OnBackPressedListener {
                 launch { viewModel.networkStatus.collect(::networkState) }
             }
         }
-
     }
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
-
-    override fun onBackPressed() {
-        viewModel.navigateToBack()
-        activity?.hideKeyboard()
-    }
-
     private fun networkState(networkStatus: NetworkStatus) {
         when (networkStatus) {
             NetworkStatus.Connected -> {
@@ -115,9 +119,7 @@ class SearchHeadlinesFragment : Fragment(), OnBackPressedListener {
     }
 
     private fun renderQuery(text: String) {
-        if (text == binding.editTextSearchHeadlines.text.toString()) {
-
-        } else {
+        if (text != binding.editTextSearchHeadlines.text.toString()) {
             binding.editTextSearchHeadlines.setText(text)
         }
     }
@@ -137,9 +139,8 @@ class SearchHeadlinesFragment : Fragment(), OnBackPressedListener {
                 isCursorVisible = false
 
             }
-            viewModel.changeFlagonChangeKeyBoardFlag(isShow = false)
             activity?.hideKeyboard()
-            viewModel.clearFlow()
+            viewModel.clearFlowAndOnChangeKeyBoardFlag()
             headlineAdapter.setItems(emptyList())
         }
     }
@@ -164,9 +165,6 @@ class SearchHeadlinesFragment : Fragment(), OnBackPressedListener {
     private fun handleSideEffects(sideEffects: SideEffects) {
         when (sideEffects) {
             is SideEffects.ErrorEffect -> {}
-            is SideEffects.ClickEffectArticle -> {
-            }
-
             else -> {}
         }
     }

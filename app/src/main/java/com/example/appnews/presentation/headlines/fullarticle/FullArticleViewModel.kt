@@ -4,8 +4,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.appnews.Screens
-import com.example.appnews.data.dataclassesresponse.ArticlesUI
+import com.example.appnews.domain.dataclasses.ArticlesUI
 import com.example.appnews.domain.NewsRepository
 import com.example.appnews.domain.dataclasses.FullArticleState
 import com.github.terrakok.cicerone.Router
@@ -81,11 +80,11 @@ class FullArticleViewModel @AssistedInject constructor(
         article?.title?.let { checkIcon(it) }
     }
 
-    fun saveArticle(article: ArticlesUI.Article) = viewModelScope.launch {
+    private fun saveArticle(article: ArticlesUI.Article) = viewModelScope.launch {
         newsRepository.upsert(article)
     }
 
-    fun deleteArticle(title: String) = viewModelScope.launch {
+    private fun deleteArticle(title: String) = viewModelScope.launch {
         newsRepository.delete(title)
     }
 

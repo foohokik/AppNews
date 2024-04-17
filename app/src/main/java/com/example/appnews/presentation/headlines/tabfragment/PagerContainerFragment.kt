@@ -60,8 +60,10 @@ class PagerContainerFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-
         initViews()
+        observe()
+    }
+    private fun observe(){
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
@@ -109,9 +111,6 @@ class PagerContainerFragment : Fragment() {
                 Toast.makeText(requireContext(), "Ошибка: " + sideEffects.err, Toast.LENGTH_LONG)
                     .show()
             }
-
-            is SideEffects.ClickEffectArticle -> {}
-
             is SideEffects.ExceptionEffect -> {
                 Toast.makeText(
                     requireContext(),

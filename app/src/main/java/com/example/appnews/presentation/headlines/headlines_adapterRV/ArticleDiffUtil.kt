@@ -1,13 +1,12 @@
 package com.example.appnews.presentation.headlines.headlines_adapterRV
 
 import androidx.recyclerview.widget.DiffUtil
-import com.example.appnews.data.dataclassesresponse.ArticlesUI
+import com.example.appnews.domain.dataclasses.ArticlesUI
 
 class ArticleDiffUtil(
     private val oldList: MutableList<ArticlesUI>,
     private val newList: List<ArticlesUI>
 ): DiffUtil.Callback()  {
-
 
     override fun getOldListSize(): Int = oldList.size
     override fun getNewListSize(): Int = newList.size

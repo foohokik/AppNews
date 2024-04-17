@@ -1,4 +1,4 @@
-package com.example.appnews.presentation.source.AdapterSources
+package com.example.appnews.presentation.source.adaptersources
 
 import com.example.appnews.data.dataclassesresponse.SourceFromSources
 

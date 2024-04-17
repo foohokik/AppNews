@@ -53,7 +53,26 @@ class SaveFragment : Fragment(), OnBackPressedListener {
         super.onViewCreated(view, savedInstanceState)
 
         initViews()
+        initToolBar()
+        observe()
+    }
 
+    private fun observe() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.getArticles.collect {
+                        adapterSave.setItems(it)
+                    }
+                }
+                launch {
+                    viewModel.sideEffects.collect { handleSideEffects(it) }
+                }
+            }
+        }
+    }
+
+    private fun initToolBar() {
         binding.materialToolbarSave.addMenuProvider(object : MenuProvider {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
                 menuInflater.inflate(R.menu.save_fragment_toolbar, menu)
@@ -68,20 +87,6 @@ class SaveFragment : Fragment(), OnBackPressedListener {
                 return true
             }
         }, viewLifecycleOwner)
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                launch {
-                    viewModel.getArticles.collect {
-                        adapterSave.setItems(it)
-                    }
-                }
-
-                launch {
-                    viewModel.sideEffects.collect { handleSideEffects(it) }
-                }
-            }
-        }
     }
 
     private fun initViews() = with(binding.rvSave) {
@@ -97,10 +102,8 @@ class SaveFragment : Fragment(), OnBackPressedListener {
     private fun handleSideEffects(sideEffects: SideEffects) {
         when (sideEffects) {
             is SideEffects.ErrorEffect -> {}
-            is SideEffects.ClickEffectArticle -> {}
             else -> {}
         }
-
     }
 
     override fun onBackPressed() {

@@ -1,6 +1,7 @@
 package com.example.appnews.data.dataclassesresponse
 
 import com.example.appnews.core.network.NetworkResult
+import com.example.appnews.domain.dataclasses.ArticlesUI
 
 
 fun ArticleResponse.toArticle(): ArticlesUI.Article {

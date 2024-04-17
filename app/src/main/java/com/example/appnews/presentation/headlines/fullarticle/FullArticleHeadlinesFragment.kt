@@ -14,7 +14,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.bumptech.glide.Glide
 import com.example.appnews.App
 import com.example.appnews.R
-import com.example.appnews.data.dataclassesresponse.ArticlesUI
+import com.example.appnews.domain.dataclasses.ArticlesUI
 import com.example.appnews.databinding.FragmentFullArticleHeadlinesBinding
 import com.example.appnews.domain.dataclasses.FullArticleState
 import com.example.appnews.presentation.customGetSerializable
@@ -53,19 +53,28 @@ class FullArticleHeadlinesFragment : Fragment(), OnBackPressedListener {
     ): View? {
         _binding = FragmentFullArticleHeadlinesBinding.inflate(inflater, container, false)
         return binding.root
-
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         backArrowToolBar()
+        initView()
+        observe()
+    }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+    private fun initView() {
         binding.ivSaveSign.setOnClickListener {
             viewModel.onSaveOrRemoveArticle()
         }
+    }
 
+    private fun observe() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
@@ -77,12 +86,6 @@ class FullArticleHeadlinesFragment : Fragment(), OnBackPressedListener {
             }
         }
     }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
-
     private fun setContent(state: FullArticleState) = with(binding) {
         Glide.with(collapsingIv.context).load(state.urlImage).into(collapsingIv)
         tvSourceFullArticle.text = state.nameSource

@@ -55,16 +55,17 @@ class FilterViewModel @Inject constructor(
     private val _dateRange: MutableStateFlow<String> = MutableStateFlow("")
     val dateRange = _dateRange.asStateFlow()
 
-    private val _sideEffectChange = Channel<SharedDataType.Filter>()
-    val sideEffectsChange = _sideEffectChange.receiveAsFlow()
-
     private var countOfChosenFilter = 0
 
-    private val listOfCountryFlow = listOf<ModelFilterButtons>(_buttonEnglishIsPressed.value,
-        _buttonDeutschIsPressed.value, _buttonRussianIsPressed.value)
+    private val listOfCountryFlow = listOf(
+        _buttonEnglishIsPressed.value,
+        _buttonDeutschIsPressed.value, _buttonRussianIsPressed.value
+    )
 
-    private val listOfSortFlow = listOf<ModelFilterButtons>(_buttonRelevantIsPressed.value,
-        _buttonNewIsPressed.value, _buttonPopularIsPressed.value)
+    private val listOfSortFlow = listOf(
+        _buttonRelevantIsPressed.value,
+        _buttonNewIsPressed.value, _buttonPopularIsPressed.value
+    )
 
     init {
         viewModelScope.launch {
@@ -73,7 +74,6 @@ class FilterViewModel @Inject constructor(
     }
 
     private fun determineButtonState(dataStateType: SharedDataType) {
-
         val country = listOfCountryFlow.find {
             it.type.code == (dataStateType as SharedDataType.Filter).country
         }
@@ -101,11 +101,11 @@ class FilterViewModel @Inject constructor(
             "new" -> _buttonNewIsPressed.value = _buttonNewIsPressed.value.copy(isPressed = true)
         }
         _dateRange.value = (dataStateType as SharedDataType.Filter).date
-        countOfChosenFilter = (dataStateType as SharedDataType.Filter).count
+        countOfChosenFilter = dataStateType.count
     }
 
     private fun determineCountryValue(): String {
-        val listOfCountryFlow = listOf<ModelFilterButtons>(
+        val listOfCountryFlow = listOf(
             _buttonEnglishIsPressed.value,
             _buttonDeutschIsPressed.value, _buttonRussianIsPressed.value
         )
@@ -134,7 +134,7 @@ class FilterViewModel @Inject constructor(
     }
 
     private fun determineCountOfChosenFilters(): Int {
-        val listOfButton = listOf<ModelFilterButtons>(
+        val listOfButton = listOf(
             _buttonRelevantIsPressed.value,
             _buttonNewIsPressed.value, _buttonPopularIsPressed.value, _buttonEnglishIsPressed.value,
             _buttonDeutschIsPressed.value, _buttonRussianIsPressed.value
@@ -149,6 +149,7 @@ class FilterViewModel @Inject constructor(
 
         return countOfChosenFilter
     }
+
     fun navigateToBack() {
         router.exit()
     }
@@ -160,7 +161,7 @@ class FilterViewModel @Inject constructor(
                 sotrBy = determineSortValue(),
                 date = _dateRange.value,
                 count = determineCountOfChosenFilters()
-        )
+            )
         )
         router.exit()
     }
@@ -214,14 +215,12 @@ class FilterViewModel @Inject constructor(
     }
 
     fun changeIsPressedFlagDeutsch() {
-
         val isCondition = true
         _buttonDeutschIsPressed.value = _buttonDeutschIsPressed.value.copy(isPressed = isCondition)
         if (isCondition) {
             _buttonRussianIsPressed.value = _buttonRussianIsPressed.value.copy(isPressed = false)
             _buttonEnglishIsPressed.value = _buttonEnglishIsPressed.value.copy(isPressed = false)
         }
-
     }
 
     fun onChangeDate(period: Pair<Long, Long>) {

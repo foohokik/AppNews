@@ -1,4 +1,4 @@
-package com.example.appnews.presentation.source
+package com.example.appnews.presentation.source.articles
 
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -10,7 +10,7 @@ import com.example.appnews.core.network.onException
 import com.example.appnews.core.network.onSuccess
 import com.example.appnews.core.networkstatus.NetworkConnectivityService
 import com.example.appnews.core.networkstatus.NetworkStatus
-import com.example.appnews.data.dataclassesresponse.ArticlesUI
+import com.example.appnews.domain.dataclasses.ArticlesUI
 import com.example.appnews.data.dataclassesresponse.News
 import com.example.appnews.domain.NewsRepository
 import com.example.appnews.presentation.SideEffects
@@ -46,15 +46,16 @@ class SourceArticlesListViewModel @AssistedInject constructor(
         if (!networkConnectivityService.isConnected()) {
             _networkStatus.value = NetworkStatus.Disconnected
         }
+        initNetworkStatus()
+    }
 
+    private fun initNetworkStatus(){
         viewModelScope.launch {
             networkConnectivityService
                 .networkStatus
                 .collect { _networkStatus.value = it }
         }
     }
-
-
     fun getSourceArticles() {
         viewModelScope.launch {
             val result = newsRepository.getSourcesNews(sourceId)
