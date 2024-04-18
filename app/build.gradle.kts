@@ -43,6 +43,10 @@ android {
 }
 
 dependencies {
+
+    // viewbinding
+    implementation ("com.github.kirich1409:viewbindingpropertydelegate-noreflection:1.5.9")
+
     implementation ("com.android.databinding:viewbinding:8.3.1")
 
     //dagger

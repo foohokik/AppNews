@@ -12,6 +12,6 @@
     <string name="disconnected">Disconnected</string>
     <string name="connected">Connected</string>
     <string name="lost">Lost</string>
-
+    <string name="no_connection">No internet connection</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

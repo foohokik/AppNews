@@ -2,16 +2,16 @@ package com.example.appnews.presentation.source.search_articles
 
 import android.content.Context
 import android.os.Bundle
-import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.core.widget.doOnTextChanged
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
+import by.kirich1409.viewbindingdelegate.viewBinding
 import com.example.appnews.App
+import com.example.appnews.R
 import com.example.appnews.core.networkstatus.NetworkStatus
 import com.example.appnews.databinding.FragmentSearchSourceArticlesBinding
 import com.example.appnews.presentation.SideEffects
@@ -23,16 +23,17 @@ import com.example.appnews.presentation.viewModelFactory
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class SearchSourceArticlesFragment : Fragment(), OnBackPressedListener {
+class SearchSourceArticlesFragment : Fragment(R.layout.fragment_search_source_articles), OnBackPressedListener {
 
     @Inject
     lateinit var viewModelFactory: SearchSourceArticlesViewModel.Factory
 
-    private var _binding: FragmentSearchSourceArticlesBinding? = null
-    private val binding get() = _binding!!
+    private val binding by viewBinding(FragmentSearchSourceArticlesBinding::bind)
+
     private lateinit var sourceSearchAdapter: HeadlinesAdapter
+
     private val sourceId: String by lazy {
-        requireArguments().getString(ARG) as String
+        requireArguments().getString(SOURCE_ARTICLE_ARG) as String
     }
 
     private val viewModel: SearchSourceArticlesViewModel by viewModelFactory {
@@ -43,14 +44,6 @@ class SearchSourceArticlesFragment : Fragment(), OnBackPressedListener {
         super.onAttach(context)
         (requireContext().applicationContext as App).appComponent.inject(this)
     }
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentSearchSourceArticlesBinding.inflate(inflater, container, false)
-        return binding.root
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         backArrow()
@@ -60,10 +53,6 @@ class SearchSourceArticlesFragment : Fragment(), OnBackPressedListener {
         observe()
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
     override fun onBackPressed() {
         viewModel.navigateToBack()
     }
@@ -79,7 +68,8 @@ class SearchSourceArticlesFragment : Fragment(), OnBackPressedListener {
                 with(binding) {
                     rvSourceSearch.visibility = View.GONE
                     viewErrorSearchSources.visibility = View.VISIBLE
-                    viewErrorSearchSources.setText("No internet connection")
+                    viewErrorSearchSources.setText(resources.getString(
+                        R.string.no_connection))
                 }
             }
             NetworkStatus.Unknown -> {}
@@ -161,11 +151,11 @@ class SearchSourceArticlesFragment : Fragment(), OnBackPressedListener {
     }
 
     companion object {
-        const val ARG = "ARG"
+        const val SOURCE_ARTICLE_ARG = "SOURCE_ARTICLE"
         @JvmStatic
         fun newInstance(source: String) = SearchSourceArticlesFragment().apply {
             arguments = Bundle().apply {
-                putString(ARG, source)
+                putString(SOURCE_ARTICLE_ARG, source)
             }
         }
     }

@@ -2,21 +2,20 @@ package com.example.appnews.presentation.headlines.tabfragment
 
 import android.content.Context
 import android.os.Bundle
-import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
 import android.view.View
 import android.view.View.GONE
-import android.view.ViewGroup
 import android.widget.AbsListView
 import android.widget.Toast
 import androidx.core.os.bundleOf
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import by.kirich1409.viewbindingdelegate.viewBinding
 import com.example.appnews.App
-import com.example.appnews.Screens
+import com.example.appnews.R
 import com.example.appnews.core.Category
 import com.example.appnews.core.PAGE_SIZE
 import com.example.appnews.core.networkstatus.NetworkStatus
@@ -24,11 +23,10 @@ import com.example.appnews.databinding.FragmentPagerContainerBinding
 import com.example.appnews.presentation.SideEffects
 import com.example.appnews.presentation.headlines.headlines_adapterRV.HeadlinesAdapter
 import com.example.appnews.presentation.viewModelFactory
-import com.github.terrakok.cicerone.Router
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class PagerContainerFragment : Fragment() {
+class PagerContainerFragment : Fragment(R.layout.fragment_pager_container) {
 
     @Inject
     lateinit var viewModelFactory: PagerContainerViewModel.Factory
@@ -38,8 +36,7 @@ class PagerContainerFragment : Fragment() {
     var isLastPage = false
     private val category: String by lazy { requireArguments().getString(CATEGORY) as String }
 
-    private var _binding: FragmentPagerContainerBinding? = null
-    private val binding get() = _binding!!
+    private val binding by viewBinding(FragmentPagerContainerBinding::bind)
 
     private val viewModel: PagerContainerViewModel by viewModelFactory {
         viewModelFactory.create(category = category)
@@ -48,15 +45,6 @@ class PagerContainerFragment : Fragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         (requireContext().applicationContext as App).appComponent.inject(this)
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentPagerContainerBinding.inflate(inflater, container, false)
-        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -97,7 +85,8 @@ class PagerContainerFragment : Fragment() {
                 with(binding) {
                     recycleviewHeadlines.visibility = GONE
                     viewError.visibility = View.VISIBLE
-                    viewError.setText("No internet connection")
+                    viewError.setText(resources.getString(
+                        R.string.no_connection))
                 }
             }
 
@@ -169,7 +158,7 @@ class PagerContainerFragment : Fragment() {
         binding.recycleviewHeadlines.removeOnScrollListener(scrollListener)
     }
     companion object {
-        const val CATEGORY = "category"
+        private const val CATEGORY = "category"
         fun newInstance(position: Int): PagerContainerFragment {
             return PagerContainerFragment().apply {
                 arguments = bundleOf(CATEGORY to Category.values()[position].category)

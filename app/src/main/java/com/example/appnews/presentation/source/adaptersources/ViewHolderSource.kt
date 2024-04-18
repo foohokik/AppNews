@@ -8,11 +8,11 @@ class ViewHolderSource(val binding: SourceItemBinding) : RecyclerView.ViewHolder
 
     fun bind(source: SourceFromSources, listener: SourceListener) = with(binding) {
         tvSourceName.text = source.name
-        tvCountrySource.text = source.category + " | " + source.country
+        val text = "${source.category} | ${source.country}"
+        tvCountrySource.text = text
         root.setOnClickListener {
             listener.onClickSource(source)
         }
     }
-
 
 }

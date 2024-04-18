@@ -3,19 +3,18 @@ package com.example.appnews.presentation.headlines.fullarticle
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import by.kirich1409.viewbindingdelegate.viewBinding
 import com.bumptech.glide.Glide
 import com.example.appnews.App
 import com.example.appnews.R
-import com.example.appnews.domain.dataclasses.ArticlesUI
 import com.example.appnews.databinding.FragmentFullArticleHeadlinesBinding
+import com.example.appnews.domain.dataclasses.ArticlesUI
 import com.example.appnews.domain.dataclasses.FullArticleState
 import com.example.appnews.presentation.customGetSerializable
 import com.example.appnews.presentation.navigation.OnBackPressedListener
@@ -25,16 +24,15 @@ import javax.inject.Inject
 
 
 @RequiresApi(Build.VERSION_CODES.O)
-class FullArticleHeadlinesFragment : Fragment(), OnBackPressedListener {
+class FullArticleHeadlinesFragment : Fragment(R.layout.fragment_full_article_headlines), OnBackPressedListener {
 
     @Inject
     lateinit var viewModelFactory: FullArticleViewModel.Factory
 
-    private var _binding: FragmentFullArticleHeadlinesBinding? = null
-    private val binding get() = _binding!!
+    private val binding by viewBinding(FragmentFullArticleHeadlinesBinding::bind)
 
     private val article: ArticlesUI.Article? by lazy {
-        requireArguments().customGetSerializable(ARG) as ArticlesUI.Article?
+        requireArguments().customGetSerializable(FULL_ARTICLE_ARG) as ArticlesUI.Article?
     }
 
     private val viewModel: FullArticleViewModel by viewModelFactory {
@@ -46,26 +44,12 @@ class FullArticleHeadlinesFragment : Fragment(), OnBackPressedListener {
         (requireContext().applicationContext as App).appComponent.inject(this)
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        _binding = FragmentFullArticleHeadlinesBinding.inflate(inflater, container, false)
-        return binding.root
-    }
-
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         backArrowToolBar()
         initView()
         observe()
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 
     private fun initView() {
@@ -117,11 +101,11 @@ class FullArticleHeadlinesFragment : Fragment(), OnBackPressedListener {
     }
 
     companion object {
-        const val ARG = "ARG"
+       private const val FULL_ARTICLE_ARG = "FULL_ARTICLE"
         @JvmStatic
         fun newInstance(article: ArticlesUI.Article) = FullArticleHeadlinesFragment().apply {
             arguments = Bundle().apply {
-                putSerializable(ARG, article)
+                putSerializable(FULL_ARTICLE_ARG, article)
             }
         }
     }

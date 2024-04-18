@@ -6,7 +6,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentFactory
 import com.example.appnews.domain.dataclasses.ArticlesUI
 
-import com.example.appnews.presentation.FullArticleFragmentWeb
 import com.example.appnews.presentation.headlines.filter.FilterFragment
 import com.example.appnews.presentation.headlines.fullarticle.FullArticleHeadlinesFragment
 import com.example.appnews.presentation.headlines.HeadlinesFragment

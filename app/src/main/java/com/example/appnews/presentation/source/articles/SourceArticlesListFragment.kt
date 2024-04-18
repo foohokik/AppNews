@@ -2,15 +2,15 @@ package com.example.appnews.presentation.source.articles
 
 import android.content.Context
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
+import by.kirich1409.viewbindingdelegate.viewBinding
 import com.example.appnews.App
+import com.example.appnews.R
 import com.example.appnews.core.networkstatus.NetworkStatus
 import com.example.appnews.databinding.FragmentSourceArticlesListBinding
 import com.example.appnews.presentation.SideEffects
@@ -21,18 +21,17 @@ import com.example.appnews.presentation.viewModelFactory
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class SourceArticlesListFragment : Fragment(), OnBackPressedListener {
+class SourceArticlesListFragment : Fragment(R.layout.fragment_source_articles_list), OnBackPressedListener {
 
     @Inject
     lateinit var viewModelFactory: SourceArticlesListViewModel.Factory
 
-    private var _binding: FragmentSourceArticlesListBinding? = null
-    private val binding get() = _binding!!
+    private val binding by viewBinding(FragmentSourceArticlesListBinding::bind)
 
     private lateinit var sourceArticlesAdapter: HeadlinesAdapter
 
     private val sourceId: String by lazy {
-        requireArguments().getString(SearchSourceArticlesFragment.ARG) as String
+        requireArguments().getString(SearchSourceArticlesFragment.SOURCE_ARTICLE_ARG) as String
     }
 
     private val viewModel: SourceArticlesListViewModel by viewModelFactory {
@@ -42,14 +41,6 @@ class SourceArticlesListFragment : Fragment(), OnBackPressedListener {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         (requireContext().applicationContext as App).appComponent.inject(this)
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentSourceArticlesListBinding.inflate(inflater, container, false)
-        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -73,7 +64,8 @@ class SourceArticlesListFragment : Fragment(), OnBackPressedListener {
                 with(binding) {
                     rvSourcesArticles.visibility = View.GONE
                     viewErrorArticlesSources.visibility = View.VISIBLE
-                    viewErrorArticlesSources.setText("No internet connection")
+                    viewErrorArticlesSources.setText(resources.getString(
+                        R.string.no_connection))
                 }
             }
 
@@ -101,12 +93,6 @@ class SourceArticlesListFragment : Fragment(), OnBackPressedListener {
         adapter = sourceArticlesAdapter
         itemAnimator = null
     }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
-
     private fun handleSideEffects(sideEffects: SideEffects) {
         when (sideEffects) {
             is SideEffects.ErrorEffect -> {}
@@ -131,12 +117,11 @@ class SourceArticlesListFragment : Fragment(), OnBackPressedListener {
     }
 
     companion object {
-        const val ARG = "ARG"
-
+        const val SOURCE_ARTICLE_ARG = "SOURCE_ARTICLE"
         @JvmStatic
         fun newInstance(source: String) = SourceArticlesListFragment().apply {
             arguments = Bundle().apply {
-                putString(ARG, source)
+                putString(SOURCE_ARTICLE_ARG, source)
             }
         }
     }

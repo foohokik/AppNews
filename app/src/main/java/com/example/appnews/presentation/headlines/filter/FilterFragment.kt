@@ -3,52 +3,38 @@ package com.example.appnews.presentation.headlines.filter
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
-import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.annotation.RequiresApi
-import androidx.core.os.bundleOf
 import androidx.core.util.Pair
 import androidx.core.util.toKotlinPair
-import androidx.fragment.app.setFragmentResult
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import by.kirich1409.viewbindingdelegate.viewBinding
 import com.example.appnews.App
 import com.example.appnews.R
-import com.example.appnews.core.shared.SharedDataType
 import com.example.appnews.databinding.FragmentFilterBinding
 import com.example.appnews.presentation.navigation.OnBackPressedListener
 import com.example.appnews.presentation.viewModelFactory
-import com.github.terrakok.cicerone.Router
 import com.google.android.material.datepicker.MaterialDatePicker
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Provider
 
 @RequiresApi(Build.VERSION_CODES.O)
-class FilterFragment : Fragment(), OnBackPressedListener {
+class FilterFragment : Fragment(R.layout.fragment_filter), OnBackPressedListener {
 
     @Inject
     internal lateinit var viewModelProvider: Provider<FilterViewModel>
 
-    private var _binding: FragmentFilterBinding? = null
-    private val binding get() = _binding!!
+    private val binding by viewBinding(FragmentFilterBinding::bind)
 
     private val viewModel by viewModelFactory { viewModelProvider.get() }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         (requireContext().applicationContext as App).appComponent.inject(this)
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentFilterBinding.inflate(inflater, container, false)
-        return binding.root
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -64,12 +50,6 @@ class FilterFragment : Fragment(), OnBackPressedListener {
     fun setTextViewDate(date: String) {
         binding.tvDateRange.text = date
     }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
-
     override fun onBackPressed() {
         viewModel.navigateToBack()
     }

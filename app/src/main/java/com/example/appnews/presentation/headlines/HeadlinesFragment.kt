@@ -4,31 +4,26 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
-import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
-import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.core.view.MenuProvider
-import androidx.fragment.app.setFragmentResultListener
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.widget.ViewPager2
+import by.kirich1409.viewbindingdelegate.viewBinding
 import com.example.appnews.App
 import com.example.appnews.R
-import com.example.appnews.Screens
 import com.example.appnews.core.shared.SharedDataType
 import com.example.appnews.databinding.FragmentHeadlinesBinding
-import com.example.appnews.presentation.customGetSerializable
 import com.example.appnews.presentation.headlines.tabfragment.ViewPagerAdapter
 import com.example.appnews.presentation.navigation.OnBackPressedListener
 import com.example.appnews.presentation.viewModelFactory
-import com.github.terrakok.cicerone.Router
 import com.google.android.material.badge.BadgeDrawable
 import com.google.android.material.badge.BadgeUtils
 import com.google.android.material.badge.ExperimentalBadgeUtils
@@ -39,17 +34,16 @@ import javax.inject.Provider
 
 @ExperimentalBadgeUtils
 @SuppressLint("UnsafeExperimentalUsageError")
-class HeadlinesFragment : Fragment(), OnBackPressedListener {
+class HeadlinesFragment : Fragment(R.layout.fragment_headlines), OnBackPressedListener {
 
     @Inject
     internal lateinit var viewModelProvider: Provider<HeadlinesViewModel>
 
-    private var _binding: FragmentHeadlinesBinding? = null
-    private val binding get() = _binding!!
+    private val binding by viewBinding(FragmentHeadlinesBinding::bind)
 
     private lateinit var viewPagerAdapter: ViewPagerAdapter
     private lateinit var viewPager: ViewPager2
-    val badgeDrawable by lazy { BadgeDrawable.create(requireContext()) }
+    private val badgeDrawable by lazy { BadgeDrawable.create(requireContext()) }
 
     private val viewModel by viewModelFactory { viewModelProvider.get() }
     override fun onAttach(context: Context) {
@@ -57,14 +51,6 @@ class HeadlinesFragment : Fragment(), OnBackPressedListener {
         (requireContext().applicationContext as App).appComponent.inject(this)
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentHeadlinesBinding.inflate(inflater, container, false)
-        return binding.root
-    }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -72,11 +58,6 @@ class HeadlinesFragment : Fragment(), OnBackPressedListener {
         initToolBar()
         initTabLayout()
         observe()
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 
     override fun onBackPressed() {

@@ -3,6 +3,7 @@ package com.example.appnews.presentation
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import by.kirich1409.viewbindingdelegate.viewBinding
 import com.example.appnews.App
 import com.example.appnews.R
 import com.example.appnews.Screens
@@ -17,7 +18,7 @@ import javax.inject.Inject
 import javax.inject.Provider
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     @Inject
     internal lateinit var viewModelProvider: Provider<MainViewModel>
@@ -28,9 +29,10 @@ class MainActivity : AppCompatActivity() {
     @Inject
     lateinit var router: Router
 
-    private lateinit var binding: ActivityMainBinding
+    private val binding by viewBinding (ActivityMainBinding::bind)
+
     private val viewModel by viewModelFactory { viewModelProvider.get() }
-    val navigator = MainNavigator(this, R.id.main_container_view)
+    private val navigator = MainNavigator(this, R.id.main_container_view)
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -38,11 +40,7 @@ class MainActivity : AppCompatActivity() {
         installSplashScreen().setKeepOnScreenCondition() {
             viewModel.isLoading.value
         }
-
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        val view = binding.root
-        setContentView(view)
         setupNavigationBar()
         savedInstanceState ?: initHomeNavBarFragment()
     }
@@ -54,14 +52,8 @@ class MainActivity : AppCompatActivity() {
     private fun setupNavigationBar() {
         binding.navBar.setOnItemSelectedListener {
             when (it.itemId) {
-                R.id.headline -> {
-                    router.replaceScreen(Screens.headlinesTab())
-                }
-
-                R.id.saved -> {
-                    router.replaceScreen(Screens.saveTab())
-                }
-
+                R.id.headline -> router.replaceScreen(Screens.headlinesTab())
+                R.id.saved -> router.replaceScreen(Screens.saveTab())
                 R.id.source -> router.replaceScreen(Screens.sourceTab())
             }
             true
