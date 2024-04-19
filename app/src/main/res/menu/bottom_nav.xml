@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/headline"
+        android:layout_width="wrap_content"
+        android:layout_height="80dp"
+        android:icon="@drawable/icon_headlines"
+        android:title="@string/headlines" />
+
+    <item
+        android:id="@+id/saved"
+        android:layout_width="wrap_content"
+        android:layout_height="80dp"
+        android:icon="@drawable/icon_saved"
+        android:title="@string/saved" />
+
+    <item
+        android:id="@+id/source"
+        android:layout_width="wrap_content"
+        android:layout_height="80dp"
+        android:icon="@drawable/icon_source"
+        android:title="@string/source" />
+</menu>

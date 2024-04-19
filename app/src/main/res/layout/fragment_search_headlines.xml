@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".presentation.headlines.search.SearchHeadlinesFragment"
+    android:orientation="vertical"
+    android:id="@+id/headlines_search_root">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/materialToolbarSearchHeadlines"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:backgroundTint="@color/backgroundColor"
+        app:contentInsetStart="0dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+
+        <EditText
+            android:id="@+id/editTextSearchHeadlines"
+            android:layout_width="248dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:backgroundTint="@color/backgroundColor"
+            android:ems="18"
+            android:inputType="text"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:focusable="true"/>
+
+        <ImageButton
+            android:id="@+id/imageButtonBackSearch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:backgroundTint="@color/backgroundColor"
+            android:src="@drawable/baseline_arrow_back" />
+
+        <ImageButton
+            android:id="@+id/imageButtonClose"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:backgroundTint="@color/backgroundColor"
+            android:src="@drawable/baseline_close"
+            tools:layout_editor_absoluteX="64dp"
+            tools:layout_editor_absoluteY="6dp" />
+
+
+    </com.google.android.material.appbar.MaterialToolbar>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/recycleview_headlines_search"
+        android:visibility="visible"/>
+
+    <com.example.appnews.core.viewclasses.ErrorView
+        android:id="@+id/view_error_search_headlines"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:visibility="invisible" />
+
+
+</LinearLayout>
