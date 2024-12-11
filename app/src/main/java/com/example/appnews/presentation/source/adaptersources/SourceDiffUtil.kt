@@ -1,11 +1,11 @@
 package com.example.appnews.presentation.source.adaptersources
 
 import androidx.recyclerview.widget.DiffUtil
-import com.example.appnews.data.dataclassesresponse.SourceFromSources
+import com.example.appnews.presentation.model.SourceUI
 
 class SourceDiffUtil(
-    private val oldList: MutableList<SourceFromSources>,
-    private val newList: List<SourceFromSources>
+    private val oldList: MutableList<SourceUI>,
+    private val newList: List<SourceUI>
 ) : DiffUtil.Callback() {
 
     override fun getOldListSize(): Int = oldList.size

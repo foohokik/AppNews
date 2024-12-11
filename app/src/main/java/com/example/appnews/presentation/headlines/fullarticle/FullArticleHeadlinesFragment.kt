@@ -14,8 +14,8 @@ import com.bumptech.glide.Glide
 import com.example.appnews.App
 import com.example.appnews.R
 import com.example.appnews.databinding.FragmentFullArticleHeadlinesBinding
-import com.example.appnews.domain.dataclasses.ArticlesUI
-import com.example.appnews.domain.dataclasses.FullArticleState
+import com.example.appnews.presentation.model.ArticlesUI
+import com.example.appnews.presentation.model.FullArticleState
 import com.example.appnews.presentation.customGetSerializable
 import com.example.appnews.presentation.navigation.OnBackPressedListener
 import com.example.appnews.presentation.viewModelFactory

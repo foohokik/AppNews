@@ -35,7 +35,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private val navigator = MainNavigator(this, R.id.main_container_view)
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
         (applicationContext as App).appComponent.inject(this)
         installSplashScreen().setKeepOnScreenCondition() {
             viewModel.isLoading.value

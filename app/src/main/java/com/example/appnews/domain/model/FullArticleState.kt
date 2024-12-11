@@ -1,4 +1,4 @@
-package com.example.appnews.domain.dataclasses
+package com.example.appnews.domain.model
 
 data class FullArticleState(
     val urlImage: String = "",

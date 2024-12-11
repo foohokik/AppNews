@@ -1,4 +1,4 @@
-package com.example.appnews.data.dataclassesresponse
+package com.example.appnews.data.model
 
 
     data class NewsResponse(

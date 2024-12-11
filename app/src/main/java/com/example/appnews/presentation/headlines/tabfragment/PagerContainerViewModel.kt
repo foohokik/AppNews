@@ -13,11 +13,12 @@ import com.example.appnews.core.networkstatus.NetworkConnectivityService
 import com.example.appnews.core.networkstatus.NetworkStatus
 import com.example.appnews.core.shared.ShareDataClass
 import com.example.appnews.core.shared.SharedDataType
-import com.example.appnews.domain.dataclasses.ArticlesUI
-import com.example.appnews.data.dataclassesresponse.News
+import com.example.appnews.presentation.model.ArticlesUI
+import com.example.appnews.presentation.model.NewsUI
 import com.example.appnews.domain.NewsRepository
 import com.example.appnews.presentation.SideEffects
 import com.example.appnews.presentation.headlines.headlines_adapterRV.ArticleListener
+import com.example.appnews.presentation.model.toNetworkResultNewsUI
 import com.github.terrakok.cicerone.Router
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -40,8 +41,8 @@ class PagerContainerViewModel @AssistedInject constructor(
         MutableStateFlow(NetworkStatus.Unknown)
     val networkStatus = _networkStatus
 
-    private val _headlinesNewsFlow = MutableStateFlow(News())
-    val headlinesNewsFlow = _headlinesNewsFlow.asStateFlow()
+    private val _headlinesNewsFlowUI = MutableStateFlow(NewsUI())
+    val headlinesNewsFlow = _headlinesNewsFlowUI.asStateFlow()
 
     private val _sideEffects = Channel<SideEffects>()
     val sideEffects = _sideEffects.receiveAsFlow()
@@ -67,7 +68,7 @@ class PagerContainerViewModel @AssistedInject constructor(
                 country = (it as SharedDataType.Filter).country
                 _isLastPageFlow.value = false
                 headlinesPage = 1
-                _headlinesNewsFlow.value = _headlinesNewsFlow.value.copy(articles = emptyList())
+                _headlinesNewsFlowUI.value = _headlinesNewsFlowUI.value.copy(articles = emptyList())
                 getHeadlinesNews()
             }
         }
@@ -83,16 +84,16 @@ class PagerContainerViewModel @AssistedInject constructor(
     fun getHeadlinesNews() {
         viewModelScope.launch {
             if (headlinesPage > 1) {
-                _headlinesNewsFlow.value = headlinesNewsFlow.value
+                _headlinesNewsFlowUI.value = headlinesNewsFlow.value
                     .copy(articles = headlinesNewsFlow.value.articles + ArticlesUI.Loading)
             }
-            val result = newsRepository.getHeadlinesNews(country, category, headlinesPage)
+            val result = newsRepository.getHeadlinesNews(country, category, headlinesPage).toNetworkResultNewsUI()
 
             result.onSuccess { news ->
-                _headlinesNewsFlow.value = news.copy(
+                _headlinesNewsFlowUI.value = news.copy(
                     articles = headlinesNewsFlow.value.articles + news.articles
                 )
-                totalPages = (_headlinesNewsFlow.value.totalResults / PAGE_SIZE) + 1
+                totalPages = (_headlinesNewsFlowUI.value.totalResults / PAGE_SIZE) + 1
             }.onError { _, message ->
                 _sideEffects.send(SideEffects.ErrorEffect(message.orEmpty()))
             }.onException { throwable ->
@@ -103,7 +104,7 @@ class PagerContainerViewModel @AssistedInject constructor(
             if (headlinesPage <= totalPages) {
                 headlinesPage++
             }
-            _headlinesNewsFlow.value =
+            _headlinesNewsFlowUI.value =
                 headlinesNewsFlow.value
                     .copy(articles = headlinesNewsFlow.value.articles.filterIsInstance<ArticlesUI.Article>())
         }

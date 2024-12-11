@@ -8,10 +8,8 @@ import com.example.appnews.Screens
 import com.example.appnews.core.shared.ShareDataClass
 import com.example.appnews.core.shared.SharedDataType
 import com.github.terrakok.cicerone.Router
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

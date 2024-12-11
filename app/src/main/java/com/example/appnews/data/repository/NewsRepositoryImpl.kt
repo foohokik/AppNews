@@ -3,11 +3,14 @@ package com.example.appnews.data.repository
 import com.example.appnews.core.network.NetworkResult
 import com.example.appnews.data.api.NewsAPI
 import com.example.appnews.data.database.ArticlesDatabase
-import com.example.appnews.data.dataclassesresponse.AllSources
-import com.example.appnews.domain.dataclasses.ArticlesUI
-import com.example.appnews.data.dataclassesresponse.News
-import com.example.appnews.data.dataclassesresponse.toNetworkResultNews
+import com.example.appnews.data.model.toArticleEntity
+import com.example.appnews.data.model.toListArticle
+import com.example.appnews.data.model.toNetworkResultNews
+import com.example.appnews.data.model.toNetworkResultSources
 import com.example.appnews.domain.NewsRepository
+import com.example.appnews.domain.model.Article
+import com.example.appnews.domain.model.News
+import com.example.appnews.domain.model.Sources
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -35,8 +38,8 @@ class NewsRepositoryImpl @Inject constructor(
         return result.toNetworkResultNews()
     }
 
-    override suspend fun getSources(): NetworkResult<AllSources> {
-        return api.getSources()
+    override suspend fun getSources(): NetworkResult<Sources> {
+        return api.getSources().toNetworkResultSources()
     }
 
     override suspend fun getSourcesNews(sourceId: String): NetworkResult<News> {
@@ -48,10 +51,10 @@ class NewsRepositoryImpl @Inject constructor(
         val result = api.getSearchNewsFromSource(sourceId, searchQuery)
         return result.toNetworkResultNews()
     }
-    override suspend fun upsert(article: ArticlesUI.Article) = db.getArticleDao().upsert(article)
+    override suspend fun upsert(article: Article) = db.getArticleDao().upsert(article.toArticleEntity())
     override suspend fun delete(title: String) = db.getArticleDao().deleteArticle(title)
-    override fun getAllSavedArticles() = db.getArticleDao().getAllArticles()
+    override suspend fun getAllSavedArticles() = db.getArticleDao().getAllArticles().toListArticle()
     override suspend fun deleteAll() = db.getArticleDao().deleteAll()
     override suspend fun getArticle(title: String) = db.getArticleDao().getArticle(title)
-    override fun getSearchSavedArticle(title: String) = db.getArticleDao().searchArticle(title)
+    override suspend fun getSearchSavedArticle(title: String) = db.getArticleDao().searchArticle(title).toListArticle()
 }

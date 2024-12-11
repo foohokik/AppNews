@@ -3,11 +3,10 @@ package com.example.appnews.data.database
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.example.appnews.domain.dataclasses.ArticlesUI
-
+import com.example.appnews.data.database.entity.ArticleEntity
 
 @Database(
-    entities = [ArticlesUI.Article::class],
+    entities = [ArticleEntity::class],
     version = 2,
     exportSchema = false
          )

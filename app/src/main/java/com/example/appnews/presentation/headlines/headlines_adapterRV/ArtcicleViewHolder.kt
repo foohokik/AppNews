@@ -5,7 +5,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.appnews.R
 import com.example.appnews.databinding.NewsItemBinding
-import com.example.appnews.domain.dataclasses.ArticlesUI
+import com.example.appnews.presentation.model.ArticlesUI
 
 class ArticleViewHolder(val binding: NewsItemBinding) : RecyclerView.ViewHolder(binding.root) {
 

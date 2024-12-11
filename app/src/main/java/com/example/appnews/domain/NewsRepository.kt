@@ -1,9 +1,9 @@
 package com.example.appnews.domain
 
 import com.example.appnews.core.network.NetworkResult
-import com.example.appnews.data.dataclassesresponse.AllSources
-import com.example.appnews.domain.dataclasses.ArticlesUI
-import com.example.appnews.data.dataclassesresponse.News
+import com.example.appnews.domain.model.Article
+import com.example.appnews.domain.model.News
+import com.example.appnews.domain.model.Sources
 import kotlinx.coroutines.flow.Flow
 
 interface NewsRepository {
@@ -16,13 +16,13 @@ interface NewsRepository {
         searchQuery: String,
         pageNumber: Int
     ): NetworkResult<News>
-    suspend fun getSources(): NetworkResult<AllSources>
+    suspend fun getSources(): NetworkResult<Sources>
     suspend fun getSourcesNews(sourceId: String): NetworkResult<News>
     suspend fun getSearchNewsFromSource(sourceId: String, searchQuery: String): NetworkResult<News>
-    suspend fun upsert(article: ArticlesUI.Article)
+    suspend fun upsert(article: Article)
     suspend fun delete(title: String)
-    fun getAllSavedArticles(): Flow<MutableList<ArticlesUI.Article>>
+    suspend fun getAllSavedArticles(): List<Article>
     suspend fun deleteAll()
     suspend fun getArticle(title: String): Boolean
-    fun getSearchSavedArticle(title: String): Flow<List<ArticlesUI.Article>>
+    suspend fun getSearchSavedArticle(title: String):List<Article>
 }

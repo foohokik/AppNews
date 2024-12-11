@@ -1,10 +1,8 @@
 package com.example.appnews.data.api
 
 import com.example.appnews.core.network.NetworkResult
-import com.example.appnews.data.dataclassesresponse.AllSources
-import com.example.appnews.data.dataclassesresponse.NewsResponse
-import retrofit2.Call
-import retrofit2.Response
+import com.example.appnews.data.model.SourcesResponse
+import com.example.appnews.data.model.NewsResponse
 import retrofit2.http.GET
 import retrofit2.http.Query
 
@@ -25,7 +23,7 @@ interface NewsAPI {
     ): NetworkResult<NewsResponse>
 
     @GET("/v2/top-headlines/sources")
-    suspend fun getSources(): NetworkResult<AllSources>
+    suspend fun getSources(): NetworkResult<SourcesResponse>
 
     @GET("v2/top-headlines")
     suspend fun getArticlesFromSource(

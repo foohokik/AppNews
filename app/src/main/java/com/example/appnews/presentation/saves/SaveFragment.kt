@@ -50,7 +50,7 @@ class SaveFragment : Fragment(R.layout.fragment_save), OnBackPressedListener {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
-                    viewModel.getArticles.collect {
+                    viewModel.articlesFlow.collect {
                         adapterSave.setItems(it)
                     }
                 }
@@ -97,6 +97,11 @@ class SaveFragment : Fragment(R.layout.fragment_save), OnBackPressedListener {
 
     override fun onBackPressed() {
         viewModel.navigateToBack()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.getArticles()
     }
 
 }

@@ -10,11 +10,12 @@ import com.example.appnews.core.network.onException
 import com.example.appnews.core.network.onSuccess
 import com.example.appnews.core.networkstatus.NetworkConnectivityService
 import com.example.appnews.core.networkstatus.NetworkStatus
-import com.example.appnews.domain.dataclasses.ArticlesUI
-import com.example.appnews.data.dataclassesresponse.News
+import com.example.appnews.presentation.model.ArticlesUI
+import com.example.appnews.presentation.model.NewsUI
 import com.example.appnews.domain.NewsRepository
 import com.example.appnews.presentation.SideEffects
 import com.example.appnews.presentation.headlines.headlines_adapterRV.ArticleListener
+import com.example.appnews.presentation.model.toNetworkResultNewsUI
 import com.github.terrakok.cicerone.Router
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -39,8 +40,8 @@ class SourceArticlesListViewModel @AssistedInject constructor(
     private val _sideEffects = Channel<SideEffects>()
     val sideEffects = _sideEffects.receiveAsFlow()
 
-    private val _newsFlow = MutableStateFlow(News())
-    val newsFlow = _newsFlow.asStateFlow()
+    private val _newsUIFlow = MutableStateFlow(NewsUI())
+    val newsFlow = _newsUIFlow.asStateFlow()
 
     init {
         if (!networkConnectivityService.isConnected()) {
@@ -58,9 +59,9 @@ class SourceArticlesListViewModel @AssistedInject constructor(
     }
     fun getSourceArticles() {
         viewModelScope.launch {
-            val result = newsRepository.getSourcesNews(sourceId)
+            val result = newsRepository.getSourcesNews(sourceId).toNetworkResultNewsUI()
             result.onSuccess { news ->
-                _newsFlow.value = news
+                _newsUIFlow.value = news
             }.onError { _, message ->
                 _sideEffects.send(SideEffects.ErrorEffect(message.orEmpty()))
             }.onException { throwable ->

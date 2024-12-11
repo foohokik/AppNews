@@ -8,10 +8,11 @@ import com.example.appnews.core.network.onException
 import com.example.appnews.core.network.onSuccess
 import com.example.appnews.core.networkstatus.NetworkConnectivityService
 import com.example.appnews.core.networkstatus.NetworkStatus
-import com.example.appnews.data.dataclassesresponse.AllSources
-import com.example.appnews.data.dataclassesresponse.SourceFromSources
 import com.example.appnews.domain.NewsRepository
 import com.example.appnews.presentation.SideEffects
+import com.example.appnews.presentation.model.SourceUI
+import com.example.appnews.presentation.model.SourcesUI
+import com.example.appnews.presentation.model.toSourcesUI
 import com.example.appnews.presentation.source.adaptersources.SourceListener
 import com.github.terrakok.cicerone.Router
 import kotlinx.coroutines.channels.Channel
@@ -31,7 +32,7 @@ class SourceViewModel @Inject constructor(
         MutableStateFlow(NetworkStatus.Unknown)
     val networkStatus = _networkStatus
 
-    private val _sourceFlow = MutableStateFlow(AllSources())
+    private val _sourceFlow = MutableStateFlow(SourcesUI())
     val sourceFlow = _sourceFlow.asStateFlow()
 
     private val _sideEffects = Channel<SideEffects>()
@@ -56,7 +57,7 @@ class SourceViewModel @Inject constructor(
         viewModelScope.launch {
             val result = newsRepository.getSources()
             result.onSuccess { allSources ->
-                _sourceFlow.value = allSources
+                _sourceFlow.value = allSources.toSourcesUI()
             }.onError { _, message ->
                 _sideEffects.send(SideEffects.ErrorEffect(message.orEmpty()))
             }.onException {
@@ -69,7 +70,7 @@ class SourceViewModel @Inject constructor(
         router.exit()
     }
 
-    override fun onClickSource(source: SourceFromSources) {
+    override fun onClickSource(source: SourceUI) {
         router.navigateTo(
             Screens.sourceArticlesListFragment(source.id)
         )

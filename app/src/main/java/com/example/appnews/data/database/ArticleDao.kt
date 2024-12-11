@@ -4,8 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-
-import com.example.appnews.domain.dataclasses.ArticlesUI
+import com.example.appnews.data.database.entity.ArticleEntity
 import kotlinx.coroutines.flow.Flow
 
 
@@ -13,10 +12,10 @@ import kotlinx.coroutines.flow.Flow
 interface ArticleDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun upsert(article: ArticlesUI.Article)
+    suspend fun upsert(article: ArticleEntity)
 
     @Query("SELECT * FROM articles")
-    fun getAllArticles(): Flow<MutableList<ArticlesUI.Article>>
+    suspend fun getAllArticles(): List<ArticleEntity>
 
     @Query("SELECT EXISTS (SELECT 1 FROM articles WHERE title = :title)")
     suspend fun getArticle(title: String): Boolean
@@ -28,6 +27,6 @@ interface ArticleDao {
     suspend fun deleteAll()
 
     @Query("SELECT * FROM articles WHERE title LIKE '%' || :title || '%' ")
-    fun searchArticle(title: String): Flow<List<ArticlesUI.Article>>
+    suspend fun searchArticle(title: String): List<ArticleEntity>
 
 }

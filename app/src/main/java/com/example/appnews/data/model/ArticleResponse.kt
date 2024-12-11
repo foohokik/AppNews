@@ -1,6 +1,5 @@
-package com.example.appnews.data.dataclassesresponse
+package com.example.appnews.data.model
 
-import com.example.appnews.domain.dataclasses.Source
 import java.io.Serializable
 
 
@@ -10,7 +9,7 @@ import java.io.Serializable
         val content: String?,
         val description: String?,
         val publishedAt: String,
-        val source: Source,
+        val source: SourceResponse,
         val title: String?,
         val url: String,
         val urlToImage: String?

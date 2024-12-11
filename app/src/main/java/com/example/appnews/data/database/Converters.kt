@@ -1,17 +1,19 @@
 package com.example.appnews.data.database
 
+import androidx.room.ProvidedTypeConverter
 import androidx.room.TypeConverter
-import com.example.appnews.domain.dataclasses.Source
+import com.example.appnews.data.model.SourceResponse
+import com.google.gson.Gson
 
-class Converters {
+object Converters  {
+
+    private lateinit var gson: Gson
+    fun initialize(gson: Gson){
+        this.gson = gson
+    }
+    @TypeConverter
+    fun fromSource (source: SourceResponse): String = gson.toJson(source)
 
     @TypeConverter
-    fun fromSource (source: Source): String{
-        return source.name
-    }
-
-    @TypeConverter
-    fun toSource (name: String): Source {
-        return  Source(name, name)
-    }
+    fun toSource (source: String): SourceResponse = gson.fromJson(source, SourceResponse::class.java)
 }

@@ -4,9 +4,10 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.appnews.domain.dataclasses.ArticlesUI
+import com.example.appnews.presentation.model.ArticlesUI
 import com.example.appnews.domain.NewsRepository
-import com.example.appnews.domain.dataclasses.FullArticleState
+import com.example.appnews.presentation.model.FullArticleState
+import com.example.appnews.presentation.model.toArticle
 import com.github.terrakok.cicerone.Router
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -81,7 +82,7 @@ class FullArticleViewModel @AssistedInject constructor(
     }
 
     private fun saveArticle(article: ArticlesUI.Article) = viewModelScope.launch {
-        newsRepository.upsert(article)
+        newsRepository.upsert(article.toArticle())
     }
 
     private fun deleteArticle(title: String) = viewModelScope.launch {

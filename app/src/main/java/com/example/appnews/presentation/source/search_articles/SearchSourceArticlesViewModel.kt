@@ -10,11 +10,12 @@ import com.example.appnews.core.network.onException
 import com.example.appnews.core.network.onSuccess
 import com.example.appnews.core.networkstatus.NetworkConnectivityService
 import com.example.appnews.core.networkstatus.NetworkStatus
-import com.example.appnews.domain.dataclasses.ArticlesUI
-import com.example.appnews.data.dataclassesresponse.News
+import com.example.appnews.presentation.model.ArticlesUI
+import com.example.appnews.presentation.model.NewsUI
 import com.example.appnews.domain.NewsRepository
 import com.example.appnews.presentation.SideEffects
 import com.example.appnews.presentation.headlines.headlines_adapterRV.ArticleListener
+import com.example.appnews.presentation.model.toNetworkResultNewsUI
 import com.github.terrakok.cicerone.Router
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -44,7 +45,7 @@ class SearchSourceArticlesViewModel @AssistedInject constructor(
     private val _showKeyboard = MutableStateFlow(true)
     val showKeyboard = _showKeyboard.asStateFlow()
 
-    private val _searchSourceArticles = MutableStateFlow(News())
+    private val _searchSourceArticles = MutableStateFlow(NewsUI())
     val searchSourceArticles = _searchSourceArticles.asStateFlow()
 
     private val _sideEffects = Channel<SideEffects>()
@@ -76,7 +77,7 @@ class SearchSourceArticlesViewModel @AssistedInject constructor(
         job?.cancel()
         job = viewModelScope.launch {
             delay(500)
-            val result = newsRepository.getSearchNewsFromSource(sourceId, searchQuery)
+            val result = newsRepository.getSearchNewsFromSource(sourceId, searchQuery).toNetworkResultNewsUI()
             result.onSuccess { news ->
                 _searchSourceArticles.value = news
             }.onError { _, message ->

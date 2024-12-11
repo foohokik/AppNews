@@ -5,18 +5,17 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.appnews.Screens
-import com.example.appnews.domain.dataclasses.ArticlesUI
+import com.example.appnews.presentation.model.ArticlesUI
 import com.example.appnews.domain.NewsRepository
 import com.example.appnews.presentation.SideEffects
 import com.example.appnews.presentation.headlines.headlines_adapterRV.ArticleListener
+import com.example.appnews.presentation.model.toArticlesUI
 import com.github.terrakok.cicerone.Router
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -45,11 +44,8 @@ class SearchSaveViewModel @Inject constructor(
         job?.cancel()
         job = viewModelScope.launch {
             delay(500)
-            newsRepository.getSearchSavedArticle(searchQuery)
-                .onEach { answer ->
-                    _searchSaveViewModel.value = answer
-                }
-                .launchIn(viewModelScope)
+            val result = newsRepository.getSearchSavedArticle(searchQuery).toArticlesUI()
+            _searchSaveViewModel.value = result
             _queryFlow.value = searchQuery
         }
     }

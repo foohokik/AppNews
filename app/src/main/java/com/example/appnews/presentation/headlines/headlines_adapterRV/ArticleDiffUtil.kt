@@ -1,7 +1,7 @@
 package com.example.appnews.presentation.headlines.headlines_adapterRV
 
 import androidx.recyclerview.widget.DiffUtil
-import com.example.appnews.domain.dataclasses.ArticlesUI
+import com.example.appnews.presentation.model.ArticlesUI
 
 class ArticleDiffUtil(
     private val oldList: MutableList<ArticlesUI>,

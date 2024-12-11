@@ -1,6 +1,8 @@
-package com.example.appnews.data.dataclassesresponse
+package com.example.appnews.presentation.model
 
-data class SourceFromSources(
+import java.io.Serializable
+
+data class SourceUI(
     val category: String,
     val country: String,
     val description: String,
@@ -8,4 +10,4 @@ data class SourceFromSources(
     val language: String,
     val name: String,
     val url: String
-)
+) : Serializable

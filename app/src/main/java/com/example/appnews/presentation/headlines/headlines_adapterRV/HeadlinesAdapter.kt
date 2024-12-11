@@ -4,7 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.example.appnews.domain.dataclasses.ArticlesUI
+import com.example.appnews.presentation.model.ArticlesUI
 import com.example.appnews.databinding.LoadingItemBinding
 import com.example.appnews.databinding.NewsItemBinding
 

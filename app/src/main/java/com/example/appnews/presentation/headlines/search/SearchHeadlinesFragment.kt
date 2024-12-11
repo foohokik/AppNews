@@ -67,6 +67,7 @@ class SearchHeadlinesFragment : Fragment(R.layout.fragment_search_headlines), On
             }
         }
     }
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun observe() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
